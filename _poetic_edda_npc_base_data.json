@@ -1,0 +1,1061 @@
+{
+  "Deities": [
+    {
+      "Name": "Odin",
+      "Stanzas": [
+        "I",
+        "XLIII",
+        "XXIX",
+        "LVI",
+        "XLVI",
+        "LIII",
+        "XXVII",
+        "XXXI",
+        "LXII",
+        "XXIV",
+        "LV",
+        "LX",
+        "XXX",
+        "XVIII",
+        "XXVIII",
+        "XXXII"
+      ],
+      "Primary Attributes": "War-Father (Valfather), Creator (gave breath), Wisdom seeker (sacrificed eye), Ruler of the Aesir.",
+      "Associated Artifacts": "Mímir's head, Eye (in Mímir's well), Pledge.",
+      "Relationships": "Husband of Frigg ('Frigg's beloved'), Father of Baldr, Thor, and Vali. Enemy of Fenrir (The Wolf)."
+    },
+    {
+      "Name": "Heimdall",
+      "Stanzas": [
+        "I",
+        "XLVI",
+        "XXVII"
+      ],
+      "Primary Attributes": "Watchman of the gods, horn-blower.",
+      "Associated Artifacts": "Gjallarhorn, Hearing/Horn (hidden under Yggdrasil).",
+      "Relationships": "Father of mankind ('Heimdall's children')."
+    },
+    {
+      "Name": "Bur",
+      "Stanzas": [
+        "IV"
+      ],
+      "Primary Attributes": "Father of the creators of Midgard.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Father of Odin/Vili/Ve (Bur's sons)."
+    },
+    {
+      "Name": "Hoenir",
+      "Stanzas": [
+        "LXIII",
+        "XVIII"
+      ],
+      "Primary Attributes": "Giver of wit (to Ask and Embla), casts sacred lots.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Associate of Odin."
+    },
+    {
+      "Name": "Lodurr",
+      "Stanzas": [
+        "XVIII"
+      ],
+      "Primary Attributes": "Giver of blood/color (to Ask and Embla).",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Associate of Odin."
+    },
+    {
+      "Name": "Thor",
+      "Stanzas": [
+        "XXVI"
+      ],
+      "Primary Attributes": "Thunderer, protector (thundered in wrath), strikes in wrath, defender against giants/serpents.",
+      "Associated Artifacts": "None explicitly mentioned in Völuspá text (Mjölnir implied but not named in text found).",
+      "Relationships": "Son of Odin (and Hlǫðyn/Fjörgyn), Enemy of Jörmungandr (Midgard Serpent), 'Midgard's guardian'."
+    },
+    {
+      "Name": "Mimir",
+      "Stanzas": [
+        "XLVI",
+        "XXVIII"
+      ],
+      "Primary Attributes": "Wise, owner of the well.",
+      "Associated Artifacts": "Well (Mímisbrunnr), Head (spoken to by Odin).",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Baldr",
+      "Stanzas": [
+        "LXII",
+        "XXXIII",
+        "XXXII",
+        "XXXI"
+      ],
+      "Primary Attributes": "Blood-stained god, doom concealed, 'slender and fair'.",
+      "Associated Artifacts": "Mistletoe (deadly dart).",
+      "Relationships": "Child of Odin, Brother of Höðr."
+    },
+    {
+      "Name": "Hodr",
+      "Stanzas": [
+        "LXII",
+        "XXXII"
+      ],
+      "Primary Attributes": "Slayer of Baldr (via mistletoe).",
+      "Associated Artifacts": "Deadly dart (mistletoe).",
+      "Relationships": "Brother of Baldr."
+    },
+    {
+      "Name": "Frigg",
+      "Stanzas": [
+        "XXXIII",
+        "LIII"
+      ],
+      "Primary Attributes": "Weeping mother, dweller of Fensalir, 'Hlín' (protector).",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Mother of Baldr, Beloved of Odin."
+    },
+    {
+      "Name": "Vali",
+      "Stanzas": [
+        "XXXIV"
+      ],
+      "Primary Attributes": "Avenger (one night old), twisted war-bonds.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Son of Odin."
+    },
+    {
+      "Name": "Loki",
+      "Stanzas": [
+        "LI",
+        "XXXV"
+      ],
+      "Primary Attributes": "Trickster, bound in hot-spring grove, 'loathsome shape', leader of Muspell's host (at Ragnarok).",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Husband of Sigyn, Brother of Byleistr."
+    },
+    {
+      "Name": "Sigyn",
+      "Stanzas": [
+        "XXXV"
+      ],
+      "Primary Attributes": "Sorrowful wife.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Wife of Loki."
+    },
+    {
+      "Name": "Hlin",
+      "Stanzas": [
+        "LIII"
+      ],
+      "Primary Attributes": "Mentioned in Völuspá.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None explicitly mentioned."
+    },
+    {
+      "Name": "Vidar",
+      "Stanzas": [
+        "LV"
+      ],
+      "Primary Attributes": "Avenger of Odin, slays Fenrir.",
+      "Associated Artifacts": "Blade.",
+      "Relationships": "Son of Odin ('Sigföðr's mighty son')."
+    },
+    {
+      "Name": "Hlodyn",
+      "Stanzas": [
+        "LVI"
+      ],
+      "Primary Attributes": "Earth goddess.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Mother of Thor."
+    },
+    {
+      "Name": "Fjorgyn",
+      "Stanzas": [
+        "LVI"
+      ],
+      "Primary Attributes": "Earth goddess.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Mother of Thor."
+    }
+  ],
+  "Giants": [
+    {
+      "Name": "Ymir",
+      "Stanzas": [
+        "III"
+      ],
+      "Primary Attributes": "Ancient giant, dweller of earliest ages.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None explicitly mentioned (though implied ancestor)."
+    },
+    {
+      "Name": "Blainn",
+      "Stanzas": [
+        "IX"
+      ],
+      "Primary Attributes": "Giant (Ymir?).",
+      "Associated Artifacts": "Bones (used to make dwarves).",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Gullveig",
+      "Stanzas": [
+        "XXI"
+      ],
+      "Primary Attributes": "Pierced with spears, burned thrice, reborn.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Heidi",
+      "Stanzas": [
+        "XXII"
+      ],
+      "Primary Attributes": "Seeress, wielder of seiðr, 'joy of wicked wives'.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Likely Gullveig reborn."
+    },
+    {
+      "Name": "Brimir",
+      "Stanzas": [
+        "XXXVII"
+      ],
+      "Primary Attributes": "Giant (owner of beer-hall).",
+      "Associated Artifacts": "Beer-hall (on Ókólnir).",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Eggther",
+      "Stanzas": [
+        "XLII"
+      ],
+      "Primary Attributes": "Giantess-herder, harp player.",
+      "Associated Artifacts": "Harp.",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Surt",
+      "Stanzas": [
+        "XLVII",
+        "LIII",
+        "LII"
+      ],
+      "Primary Attributes": "Fire giant, comes from south, destroys with flame.",
+      "Associated Artifacts": "Sword ('shines bright as slaughter-gods' sun').",
+      "Relationships": "Bane of Freyr (implied by 'Beli's bane' fighting him)."
+    },
+    {
+      "Name": "Hrymr",
+      "Stanzas": [
+        "L"
+      ],
+      "Primary Attributes": "Giant driving from east.",
+      "Associated Artifacts": "Shield.",
+      "Relationships": "Captain of Naglfar (implied)."
+    },
+    {
+      "Name": "Byleist",
+      "Stanzas": [
+        "LI"
+      ],
+      "Primary Attributes": "Unknown (Giant?).",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Brother of Loki."
+    },
+    {
+      "Name": "Muspell",
+      "Stanzas": [
+        "LI"
+      ],
+      "Primary Attributes": "Fire giants/realm.",
+      "Associated Artifacts": "Ship.",
+      "Relationships": "Host led by Loki."
+    },
+    {
+      "Name": "Beli",
+      "Stanzas": [
+        "LIII"
+      ],
+      "Primary Attributes": "Giant (slain by Freyr).",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Enemy of Freyr ('Beli's bane')."
+    }
+  ],
+  "Mythological Creatures": [
+    {
+      "Name": "Modsognir",
+      "Stanzas": [
+        "X"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Durinn",
+      "Stanzas": [
+        "X"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nyi",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nidi",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nordri",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Sudri",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Austri",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Vestri",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Althjofr",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Dvalinn",
+      "Stanzas": [
+        "XIV",
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nar",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nainn",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nipingr",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Dainn",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Bifur",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Bofur",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Bombur",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nori",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "An",
+      "Stanzas": [
+        "XIX",
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Anarr",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Oinn",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Mjodvitnir",
+      "Stanzas": [
+        "XI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Veig",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Gandalfr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Vindalfr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Thrainn",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Thror",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Thrond",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Thekkr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Litr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Vitr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nyr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nyradr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Reginn",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Radsvidr",
+      "Stanzas": [
+        "XII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Fili",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Kili",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Fundinn",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nali",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Hepti",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Vili",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Hanarr",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Sviurr",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Billingr",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Bruni",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Bildr",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Buri",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Frar",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Hornbori",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Fraegr",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Loni",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Aurvangr",
+      "Stanzas": [
+        "XIV",
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Jari",
+      "Stanzas": [
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Eikinskjaldi",
+      "Stanzas": [
+        "XVI",
+        "XIII"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Lofar",
+      "Stanzas": [
+        "XIV",
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Draupnir",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Dolgthrasir",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Har",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Haugspori",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Hlevangr",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Gloinn",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Dori",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Ori",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Dufr",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Andvari",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Skirfir",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Virfir",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Skafidr",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Ai",
+      "Stanzas": [
+        "XV"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Fjalarr",
+      "Stanzas": [
+        "XVI",
+        "XLII"
+      ],
+      "Primary Attributes": "Fair-red rooster.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Crowed above Eggþér."
+    },
+    {
+      "Name": "Alfr",
+      "Stanzas": [
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Yngvi",
+      "Stanzas": [
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Frosti",
+      "Stanzas": [
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Finnr",
+      "Stanzas": [
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Ginnarr",
+      "Stanzas": [
+        "XVI"
+      ],
+      "Primary Attributes": "Dwarf listed in the Dvergatal.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Kin of Dvalinn/Módsognir."
+    },
+    {
+      "Name": "Nidhoggr",
+      "Stanzas": [
+        "LXVI",
+        "XXXIX"
+      ],
+      "Primary Attributes": "Dragon/Serpent, sucks slain men, bears corpses.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Dweller of Náströnd/Niðafjöll."
+    },
+    {
+      "Name": "Fenrir",
+      "Stanzas": [
+        "XL"
+      ],
+      "Primary Attributes": "The Wolf, 'moon's devourer', fostered in Járnviðr.",
+      "Associated Artifacts": "Fetters (implied).",
+      "Relationships": "Brood of the Old One (in Ironwood), Enemy of Odin."
+    },
+    {
+      "Name": "Gullinkambi",
+      "Stanzas": [
+        "XLIII"
+      ],
+      "Primary Attributes": "Rooster waking warriors.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Crows o'er Aesir."
+    },
+    {
+      "Name": "The Wolf",
+      "Stanzas": [
+        "XLIX",
+        "LIV",
+        "LIII",
+        "XLIV",
+        "LV",
+        "LVIII"
+      ],
+      "Primary Attributes": "Mentioned in Völuspá.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None explicitly mentioned."
+    },
+    {
+      "Name": "Garmr",
+      "Stanzas": [
+        "XLIV",
+        "XLIX",
+        "LVIII",
+        "LIV"
+      ],
+      "Primary Attributes": "Hound/Wolf howling at Gnípahellir.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Jormungandr",
+      "Stanzas": [
+        "L",
+        "LXVI",
+        "LVI"
+      ],
+      "Primary Attributes": "Midgard Serpent, writhes in giant-wrath, lashes waves.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Enemy of Thor ('serpent-battle')."
+    },
+    {
+      "Name": "Naglfar",
+      "Stanzas": [
+        "L"
+      ],
+      "Primary Attributes": "Ship of the dead/giants.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Sailed by Hrymr/Loki."
+    },
+    {
+      "Name": "Eagle",
+      "Stanzas": [
+        "L",
+        "LIX"
+      ],
+      "Primary Attributes": "Bird of prey, soars over falls.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "None mentioned."
+    },
+    {
+      "Name": "Dragon",
+      "Stanzas": [
+        "LXVI"
+      ],
+      "Primary Attributes": "Dark flyer.",
+      "Associated Artifacts": "None mentioned.",
+      "Relationships": "Same as Níðhǫggr."
+    }
+  ]
+}
