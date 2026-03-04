@@ -71,3 +71,29 @@ The system is designed to run locally on a high-performance Linux machine (e.g.,
 2.  **Configuration**: Set up `config.yaml` for LiteLLM to route between local and cloud models.
 3.  **Skill Deployment**: Install the Python-based Astrid skill into the OpenClaw agent.
 4.  **Initialization**: The system generates her initial "birth" parameters (Natal chart, core values) and begins the first Chrono-Biological cycle.
+
+## Troubleshooting: `RuntimeWarning: coroutine '_AsyncFileWrapper.write' was never awaited`
+If you see a warning like this from `anyio`, an async file write was called without `await`.
+
+### Root cause
+`anyio.open_file(...)` returns an async file object. Its `write()` method is a coroutine and must be awaited.
+
+### Incorrect pattern
+```python
+import anyio
+
+async def save_text(path: str, content: str) -> None:
+    async with await anyio.open_file(path, "w") as f:
+        f.write(content)  # Missing await -> RuntimeWarning
+```
+
+### Fixed pattern
+```python
+import anyio
+
+async def save_text(path: str, content: str) -> None:
+    async with await anyio.open_file(path, "w") as f:
+        await f.write(content)
+```
+
+If your function is synchronous, switch to normal file I/O (`with open(...)`) instead of async wrappers.
