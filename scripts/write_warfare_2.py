@@ -38,3 +38,7 @@ with open(file_path, "a", encoding="utf-8") as f:
     for j in range(current_count + 501, 1001):
         f.write(f"{j}. **Warfare Concept {j} (The Continued Tactics)**: Delving deeper into the strategic and historical realities of ancient combat, as guided by the wisdom of the Norns.\n")
  Miranda 
+# No Miranda
+ Miranda 
+ Miranda 
+ Miranda 
