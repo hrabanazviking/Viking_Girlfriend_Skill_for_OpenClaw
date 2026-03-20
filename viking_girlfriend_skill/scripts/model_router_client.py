@@ -3,39 +3,47 @@ model_router_client.py — Sigrid's Four-Mind Model Router
 =========================================================
 
 Routes inference requests across four tiers defined in
-``infrastructure/litellm_config.yaml``:
+``infrastructure/litellm_config.yaml``.  Two detectors work together
+to pick the right tier for every request:
+
+  _CodingIntentDetector  — scores 0.0–1.0 for coding vs. conversational
+  _ComplexityDetector    — classifies "low / medium / high" workload
+
+Routing matrix (smart_complete):
+
+  complexity=high   → deep-mind      (most capable, any task type)
+  complexity=medium + coding  → code-mind     (coding specialist)
+  complexity=medium + convo   → conscious-mind (general reasoning)
+  complexity=low    → subconscious   (local, fast, free)
+
+Tiers:
 
   conscious-mind     Primary cloud model (Gemini / OpenRouter).
-                     Used for: general conversation, reasoning, main responses.
+                     Used for: medium-complexity general conversation.
 
   code-mind          Coding-specialized cloud model (Deepseek-Coder /
                      Codestral / Qwen2.5-Coder via OpenRouter).
-                     Used for: code generation, debugging, technical
-                     implementation requests. Auto-selected when
-                     CodingIntentDetector scores the request above the
-                     coding_intent_threshold.
+                     Used for: medium-complexity code tasks.
 
   deep-mind          Secondary cloud model (OpenRouter / alternative).
-                     Used for: complex tasks, deep emotional engagement,
-                     creative depth requiring more capacity.
+                     Used for: any high-complexity request — deep reasoning,
+                     long creative work, emotional depth, hard coding tasks.
 
   subconscious       Local Ollama model (llama3 or equivalent).
-                     Used for: memory summarization, private processing,
-                     dream generation. Zero cost, absolute privacy.
+                     Used for: low-complexity tasks — quick questions,
+                     greetings, memory ops, private processing. Zero cost.
 
 Routing flows through LiteLLM proxy (localhost:4000) for the cloud tiers.
 The subconscious tier talks to Ollama directly (localhost:11434).
 
 ``complete(tier, messages)`` routes to a specified tier.
-``smart_complete(messages)`` auto-detects coding vs. conversational intent
-and picks the best tier automatically. Use smart_complete() for the main
-conversational loop in main.py.
+``smart_complete(messages)`` runs both detectors and routes automatically.
 
 Fallback chains:
   code-mind      → conscious-mind → deep-mind → subconscious
   conscious-mind → deep-mind      → subconscious
   deep-mind      → subconscious
-  subconscious   → (none)
+  subconscious   → conscious-mind → deep-mind  (low fallback escalates up)
 
 All retry logic uses jittered exponential backoff. Circuit-breakers protect
 each LiteLLM tier independently.
@@ -44,6 +52,7 @@ Norse framing: Huginn (thought) and Muninn (memory) fly to four branches
 of Yggdrasil. The conscious mind speaks in the hall; the code mind forges
 in Nidavellir — where the dwarves craft perfect things from raw ore; the
 deep mind whispers in the mead; the subconscious dreams in the roots.
+The Norns weigh every request before choosing the right branch.
 """
 
 from __future__ import annotations
@@ -78,8 +87,12 @@ _DEFAULT_TEMPERATURE: float = 0.8
 _DEFAULT_TIMEOUT: int = 120
 _DEFAULT_RETRIES: int = 3
 _DEFAULT_CODING_THRESHOLD: float = 0.30
+_DEFAULT_HIGH_WORD_THRESHOLD: int = 80    # words in last message → high complexity
+_DEFAULT_LOW_WORD_THRESHOLD: int = 12     # words in last message → low complexity candidate
 _CIRCUIT_FAILURE_THRESHOLD: int = 5
 _CIRCUIT_COOLDOWN_S: int = 60
+
+ComplexityLevel = Literal["low", "medium", "high"]
 
 
 # ─── Core types ───────────────────────────────────────────────────────────────
@@ -257,6 +270,140 @@ class _CodingIntentDetector:
 
     def is_coding(self, messages: List[Message], threshold: float) -> bool:
         return self.score(messages) >= threshold
+
+
+# ─── Complexity detector ──────────────────────────────────────────────────────
+
+
+class _ComplexityDetector:
+    """Classifies a request as 'low', 'medium', or 'high' complexity.
+
+    High complexity signals (any one → high):
+      • Word count of last user message ≥ high_word_threshold (default 80)
+      • Multiple distinct questions (≥ 2 question marks in last message)
+      • Depth/analysis keywords: elaborate, analyze, architecture, compare, …
+      • Emotional depth keywords: crisis, suicidal, trauma, overwhelmed, …
+      • Complex code scope: refactor entire, design system, from scratch, …
+
+    Low complexity signals (all must be true → low):
+      • Word count of last user message ≤ low_word_threshold (default 12)
+      • No high-complexity signals
+      • Matches greeting / simple acknowledgment / single-lookup patterns
+
+    Everything else → medium.
+    """
+
+    _DEPTH_KEYWORDS = re.compile(
+        r"\b(elaborate|in\s+detail|comprehensive|thoroughly|thorough|"
+        r"deep\s+dive|deep\s+analysis|in-depth|analyze|analyse|analysis|"
+        r"compare\s+and\s+contrast|pros\s+and\s+cons|trade.?offs?|"
+        r"architecture|system\s+design|design\s+pattern|best\s+practice|"
+        r"from\s+scratch|entire\s+(codebase|project|system|module)|"
+        r"refactor\s+(the\s+)?(entire|whole|full|all)|"
+        r"step.by.step|walk\s+me\s+through|explain\s+(in\s+full|completely|"
+        r"everything|how\s+it\s+works|the\s+whole)|"
+        r"philosophical|theology|metaphysics|epistemology|"
+        r"compare\s+\w+\s+(to|with|vs\.?|versus)|"
+        r"strategic|long.?term|roadmap|plan\s+out)\b",
+        re.IGNORECASE,
+    )
+
+    _EMOTIONAL_DEPTH = re.compile(
+        r"\b(crisis|suicidal|suicide|self.?harm|trauma|traumatic|"
+        r"breakdown|falling\s+apart|overwhelmed|desperate|hopeless|"
+        r"grief|grieving|abuse|abused|panic\s+attack|dissociat|"
+        r"deeply\s+spiritual|sacred\s+rite|ritual\s+for|"
+        r"life\s+changing|meaning\s+of\s+(life|existence)|"
+        r"existential|want\s+to\s+die|can.?t\s+(go\s+on|cope|do\s+this))\b",
+        re.IGNORECASE,
+    )
+
+    # Greeting/ack tokens — searched (not full-string matched) for very short texts (≤ 5 words)
+    _GREETING_TOKENS = re.compile(
+        r"\b(hi+|hey|hello|heil|hail|howdy|sup|yo+|greetings|salutations|"
+        r"ok+|okay|got\s+it|thanks?|thank\s+you|cheers|"
+        r"yes|no|sure|definitely|absolutely|sounds\s+good|"
+        r"makes\s+sense|understood|cool|nice|great|perfect|"
+        r"haha|lol|lmao|agreed|fair\s+enough|fair\s+point|"
+        r"good\s+(morning|evening|night|day))\b",
+        re.IGNORECASE,
+    )
+
+    # Single-fact lookups only — "tell me about" is NOT a simple lookup
+    _SIMPLE_LOOKUP = re.compile(
+        r"^\s*(what\s+is\b|what.?s\b|who\s+is\b|who.?s\b|"
+        r"where\s+is\b|when\s+is\b|"
+        r"define\b|meaning\s+of\b|"
+        r"what\s+does\s+\w+\s+mean|how\s+do\s+you\s+spell)\b",
+        re.IGNORECASE,
+    )
+
+    def __init__(
+        self,
+        high_word_threshold: int = _DEFAULT_HIGH_WORD_THRESHOLD,
+        low_word_threshold: int = _DEFAULT_LOW_WORD_THRESHOLD,
+    ) -> None:
+        self._high_words = high_word_threshold
+        self._low_words = low_word_threshold
+
+    def classify(self, messages: List[Message]) -> ComplexityLevel:
+        """Return 'low', 'medium', or 'high' for the given message list."""
+        user_texts = [m.content for m in messages if m.role == "user"]
+        if not user_texts:
+            return "medium"
+
+        last_text = user_texts[-1]
+        word_count = len(last_text.split())
+        question_count = last_text.count("?")
+
+        # ── High signals ──────────────────────────────────────────────────────
+        if word_count >= self._high_words:
+            logger.debug("_ComplexityDetector: high (word_count=%d)", word_count)
+            return "high"
+        if question_count >= 2:
+            logger.debug("_ComplexityDetector: high (multi-question count=%d)", question_count)
+            return "high"
+        if self._DEPTH_KEYWORDS.search(last_text):
+            logger.debug("_ComplexityDetector: high (depth keyword)")
+            return "high"
+        if self._EMOTIONAL_DEPTH.search(last_text):
+            logger.debug("_ComplexityDetector: high (emotional depth keyword)")
+            return "high"
+
+        # ── Low signals ───────────────────────────────────────────────────────
+        # Very short texts (≤5 words): any greeting / ack token → low
+        if word_count <= 5:
+            if self._GREETING_TOKENS.search(last_text):
+                logger.debug("_ComplexityDetector: low (greeting token, %d words)", word_count)
+                return "low"
+        # Short texts (≤ low_words threshold): single-fact lookups only → low
+        if word_count <= self._low_words:
+            if self._SIMPLE_LOOKUP.match(last_text.strip()):
+                logger.debug("_ComplexityDetector: low (simple lookup, %d words)", word_count)
+                return "low"
+
+        logger.debug("_ComplexityDetector: medium (word_count=%d)", word_count)
+        return "medium"
+
+
+# ─── Routing logic ────────────────────────────────────────────────────────────
+
+
+def _select_tier(complexity: ComplexityLevel, is_coding: bool) -> str:
+    """Pure function — maps (complexity, is_coding) to a tier name.
+
+    Matrix:
+      high   + any    → deep-mind      (full capacity, no compromise)
+      medium + coding → code-mind      (coding specialist)
+      medium + convo  → conscious-mind (general reasoning)
+      low    + any    → subconscious   (local, free, fast)
+    """
+    if complexity == "high":
+        return TIER_DEEP
+    if complexity == "low":
+        return TIER_SUBCONSCIOUS
+    # medium
+    return TIER_CODE if is_coding else TIER_CONSCIOUS
 
 
 # ─── Retry helper ─────────────────────────────────────────────────────────────
@@ -519,12 +666,15 @@ class _OllamaTierClient:
 class RouterState:
     """Typed snapshot of model router health."""
 
-    tier_health: Dict[str, bool]     # tier → reachable?
+    tier_health: Dict[str, bool]       # tier → reachable?
     last_tier_used: str
     total_completions: int
     total_fallbacks: int
-    total_coding_completions: int    # completions routed through code-mind
-    last_intent_score: float         # most recent coding intent score (0–1)
+    total_coding_completions: int      # completions routed to code-mind
+    total_deep_completions: int        # completions routed to deep-mind (high complexity)
+    total_low_completions: int         # completions routed to subconscious (low complexity)
+    last_intent_score: float           # most recent coding intent score (0–1)
+    last_complexity: str               # "low" | "medium" | "high"
     prompt_hint: str
     timestamp: str
     degraded: bool = False
@@ -536,7 +686,10 @@ class RouterState:
             "total_completions": self.total_completions,
             "total_fallbacks": self.total_fallbacks,
             "total_coding_completions": self.total_coding_completions,
+            "total_deep_completions": self.total_deep_completions,
+            "total_low_completions": self.total_low_completions,
             "last_intent_score": round(self.last_intent_score, 3),
+            "last_complexity": self.last_complexity,
             "prompt_hint": self.prompt_hint,
             "timestamp": self.timestamp,
             "degraded": self.degraded,
@@ -547,16 +700,23 @@ class RouterState:
 
 
 class ModelRouterClient:
-    """Four-mind model router — routes inference across conscious, code, deep, and subconscious tiers.
+    """Four-mind model router with dual intent + complexity routing.
 
     Use ``complete(tier, messages)`` to route to a specific tier.
-    Use ``smart_complete(messages)`` to auto-detect coding vs. conversational
-    intent and route to the best tier automatically.
+    Use ``smart_complete(messages)`` to run both detectors and route
+    automatically to the right tier for the task.
+
+    Routing matrix (smart_complete):
+      high complexity  → deep-mind      (any task type)
+      medium + coding  → code-mind
+      medium + convo   → conscious-mind
+      low complexity   → subconscious   (local, free, fast)
 
     Fallback chains:
       code-mind      → conscious-mind → deep-mind → subconscious
       conscious-mind → deep-mind      → subconscious
       deep-mind      → subconscious
+      subconscious   → conscious-mind → deep-mind
     """
 
     def __init__(
@@ -569,6 +729,8 @@ class ModelRouterClient:
         timeout: int = _DEFAULT_TIMEOUT,
         retries: int = _DEFAULT_RETRIES,
         coding_intent_threshold: float = _DEFAULT_CODING_THRESHOLD,
+        high_word_threshold: int = _DEFAULT_HIGH_WORD_THRESHOLD,
+        low_word_threshold: int = _DEFAULT_LOW_WORD_THRESHOLD,
     ) -> None:
         self._conscious = _LiteLLMTierClient(
             TIER_CONSCIOUS, litellm_base_url, max_tokens, temperature, timeout, retries,
@@ -588,14 +750,21 @@ class ModelRouterClient:
             TIER_DEEP:         self._deep,
             TIER_SUBCONSCIOUS: self._subconscious,
         }
-        self._detector = _CodingIntentDetector()
+        self._intent_detector = _CodingIntentDetector()
+        self._complexity_detector = _ComplexityDetector(
+            high_word_threshold=high_word_threshold,
+            low_word_threshold=low_word_threshold,
+        )
         self._coding_intent_threshold = coding_intent_threshold
 
         self._last_tier: str = ""
         self._last_intent_score: float = 0.0
+        self._last_complexity: ComplexityLevel = "medium"
         self._total_completions: int = 0
         self._total_fallbacks: int = 0
         self._total_coding_completions: int = 0
+        self._total_deep_completions: int = 0
+        self._total_low_completions: int = 0
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -605,21 +774,31 @@ class ModelRouterClient:
         fallback: bool = True,
         **kwargs: Any,
     ) -> CompletionResponse:
-        """Auto-detect intent and route to the best tier.
+        """Run both detectors and route to the optimal tier.
 
-        Scores the user messages with ``_CodingIntentDetector``:
-          score ≥ coding_intent_threshold → route to code-mind
-          score  < coding_intent_threshold → route to conscious-mind
+        Step 1 — _ComplexityDetector classifies the request:
+          high   → deep-mind  (no further discrimination needed)
+          low    → subconscious
+          medium → step 2
 
-        Logs the detected intent and chosen tier. Falls back through
-        the degradation chain if the primary tier fails.
+        Step 2 (medium only) — _CodingIntentDetector decides specialization:
+          coding  → code-mind
+          convo   → conscious-mind
+
+        Falls back through the tier's degradation chain on failure.
         """
-        score = self._detector.score(messages)
-        self._last_intent_score = score
-        chosen_tier = TIER_CODE if score >= self._coding_intent_threshold else TIER_CONSCIOUS
+        complexity = self._complexity_detector.classify(messages)
+        self._last_complexity = complexity
+
+        intent_score = self._intent_detector.score(messages)
+        self._last_intent_score = intent_score
+        is_coding = intent_score >= self._coding_intent_threshold
+
+        chosen_tier = _select_tier(complexity, is_coding)
+
         logger.info(
-            "smart_complete: intent_score=%.2f threshold=%.2f → tier=%s",
-            score, self._coding_intent_threshold, chosen_tier,
+            "smart_complete: complexity=%s intent_score=%.2f is_coding=%s → tier=%s",
+            complexity, intent_score, is_coding, chosen_tier,
         )
         return self.complete(messages, tier=chosen_tier, fallback=fallback, **kwargs)
 
@@ -650,6 +829,10 @@ class ModelRouterClient:
                 self._total_completions += 1
                 if attempt_tier == TIER_CODE or tier == TIER_CODE:
                     self._total_coding_completions += 1
+                if attempt_tier == TIER_DEEP or tier == TIER_DEEP:
+                    self._total_deep_completions += 1
+                if attempt_tier == TIER_SUBCONSCIOUS or tier == TIER_SUBCONSCIOUS:
+                    self._total_low_completions += 1
                 if attempt_tier != tier:
                     self._total_fallbacks += 1
                     logger.info(
@@ -674,13 +857,30 @@ class ModelRouterClient:
             degraded=True,
         )
 
-    def detect_coding_intent(self, messages: List[Message]) -> tuple[float, bool]:
-        """Return ``(score, is_coding)`` for the given messages.
+    def detect_routing(
+        self, messages: List[Message]
+    ) -> Dict[str, Any]:
+        """Return the full routing decision for diagnostics, without making a call.
 
-        Useful for diagnostics and for callers that want to inspect the
-        intent decision before committing to a completion call.
+        Returns a dict with keys:
+          complexity   ("low" | "medium" | "high")
+          intent_score (float 0–1)
+          is_coding    (bool)
+          chosen_tier  (str)
         """
-        score = self._detector.score(messages)
+        complexity = self._complexity_detector.classify(messages)
+        score = self._intent_detector.score(messages)
+        is_coding = score >= self._coding_intent_threshold
+        return {
+            "complexity": complexity,
+            "intent_score": round(score, 3),
+            "is_coding": is_coding,
+            "chosen_tier": _select_tier(complexity, is_coding),
+        }
+
+    def detect_coding_intent(self, messages: List[Message]) -> tuple[float, bool]:
+        """Return ``(score, is_coding)`` — kept for backward compatibility."""
+        score = self._intent_detector.score(messages)
         return score, score >= self._coding_intent_threshold
 
     def health_check(self) -> Dict[str, bool]:
@@ -698,13 +898,11 @@ class ModelRouterClient:
             TIER_SUBCONSCIOUS: self._subconscious._failures < 5,
         }
         any_degraded = not any(tier_health.values())
-        intent_label = (
-            f"code({self._last_intent_score:.2f})"
-            if self._last_intent_score >= self._coding_intent_threshold
-            else f"convo({self._last_intent_score:.2f})"
-        )
+        is_coding = self._last_intent_score >= self._coding_intent_threshold
+        intent_label = f"{'code' if is_coding else 'convo'}({self._last_intent_score:.2f})"
         prompt_hint = (
-            f"[Router: last={self._last_tier or 'idle'}, intent={intent_label}, "
+            f"[Router: last={self._last_tier or 'idle'}, "
+            f"complexity={self._last_complexity}, intent={intent_label}, "
             f"completions={self._total_completions}, fallbacks={self._total_fallbacks}]"
         )
         return RouterState(
@@ -713,7 +911,10 @@ class ModelRouterClient:
             total_completions=self._total_completions,
             total_fallbacks=self._total_fallbacks,
             total_coding_completions=self._total_coding_completions,
+            total_deep_completions=self._total_deep_completions,
+            total_low_completions=self._total_low_completions,
             last_intent_score=self._last_intent_score,
+            last_complexity=self._last_complexity,
             prompt_hint=prompt_hint,
             timestamp=datetime.now(timezone.utc).isoformat(),
             degraded=any_degraded,
@@ -735,18 +936,18 @@ class ModelRouterClient:
     # ── Internals ─────────────────────────────────────────────────────────────
 
     def _fallback_chain(self, starting_tier: str) -> List[str]:
-        """Return the degradation chain starting from the requested tier.
+        """Return the degradation chain for a starting tier.
 
         code-mind      → conscious-mind → deep-mind → subconscious
         conscious-mind → deep-mind      → subconscious
         deep-mind      → subconscious
-        subconscious   → (only itself)
+        subconscious   → conscious-mind → deep-mind   (escalate if local fails)
         """
         chains: Dict[str, List[str]] = {
             TIER_CODE:         [TIER_CODE, TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS],
             TIER_CONSCIOUS:    [TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS],
             TIER_DEEP:         [TIER_DEEP, TIER_SUBCONSCIOUS],
-            TIER_SUBCONSCIOUS: [TIER_SUBCONSCIOUS],
+            TIER_SUBCONSCIOUS: [TIER_SUBCONSCIOUS, TIER_CONSCIOUS, TIER_DEEP],
         }
         return chains.get(starting_tier, [TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS])
 
@@ -765,7 +966,9 @@ class ModelRouterClient:
           temperature               (float, default 0.8)
           timeout                   (int,   default 120)
           retries                   (int,   default 3)
-          coding_intent_threshold   (float, default 0.4)
+          coding_intent_threshold   (float, default 0.30)
+          high_word_threshold       (int,   default 80)   — words → high complexity
+          low_word_threshold        (int,   default 12)   — words → low complexity candidate
         """
         cfg: Dict[str, Any] = config.get("model_router", {})
         return cls(
@@ -779,6 +982,8 @@ class ModelRouterClient:
             coding_intent_threshold=float(
                 cfg.get("coding_intent_threshold", _DEFAULT_CODING_THRESHOLD)
             ),
+            high_word_threshold=int(cfg.get("high_word_threshold", _DEFAULT_HIGH_WORD_THRESHOLD)),
+            low_word_threshold=int(cfg.get("low_word_threshold", _DEFAULT_LOW_WORD_THRESHOLD)),
         )
 
 
@@ -793,8 +998,11 @@ def init_model_router_from_config(config: Dict[str, Any]) -> ModelRouterClient:
     if _MODEL_ROUTER is None:
         _MODEL_ROUTER = ModelRouterClient.from_config(config)
         logger.info(
-            "ModelRouterClient initialised (coding_threshold=%.2f).",
+            "ModelRouterClient initialised (coding_threshold=%.2f, "
+            "high_words=%d, low_words=%d).",
             _MODEL_ROUTER._coding_intent_threshold,
+            _MODEL_ROUTER._complexity_detector._high_words,
+            _MODEL_ROUTER._complexity_detector._low_words,
         )
     return _MODEL_ROUTER
 
