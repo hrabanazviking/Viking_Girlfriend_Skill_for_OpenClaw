@@ -1,6 +1,6 @@
 # Sigrid Knowledge Archival Build — Progress Tracking
 
-> **Status:** Initiating High-Rigor Manual Build
+> **Status:** Initialized Headers & Manual Build Underway
 > **Mandate:** Exactly 5000 high-quality, research-grade, persona-infused entries per domain.
 > **Priority:** Accuracy > Distinctness > Completeness > Clarity > Proper Archival Structure > Git Discipline > Speed.
 
@@ -9,14 +9,15 @@
 | Subject Name | File Name | Entry Count | Current Subdomain | Last Verification | Git Hash | Push Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Viking History** | `VIKING_HISTORY.md` | 30 | Terminology / Legal / Eastern Expansion | 2026-03-20 | - | Pending |
-| **Old Norse Language**| `OLD_NORSE.md` | 0 | Foundational Concepts | N/A | - | Pending |
-| **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 0 | Foundational Concepts | N/A | - | Pending |
-| **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 0 | Foundational Concepts | N/A | - | Pending |
-| **Ancient Warfare** | `ANCIENT_WARFARE.md` | 0 | Foundational Concepts | N/A | - | Pending |
+| **Old Norse Language**| `OLD_NORSE.md` | 2 | Foundational Concepts | 2026-03-20 | - | Pending |
+| **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 2 | Foundational Concepts | 2026-03-20 | - | Pending |
+| **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 2 | Foundational Principles | 2026-03-20 | - | Pending |
+| **Ancient Warfare** | `ANCIENT_WARFARE.md` | 2 | Tactical Formations | 2026-03-20 | - | Pending |
 
 ## 🛠️ Build Log
 
-### 2026-03-20: Re-Forging Initiation
-- **Audit:** Identified that previous Wikipedia-driven automated population (approx. 3500 entries) violates the `RULES.AI.md` prohibition against automated bulk generation and lack of persona infusion.
-- **Action:** Transitioning to manual curation mode. Previous content will be used as raw research material but will be rewritten entry-by-entry to meet Sigrid's archival standards.
-- **Initialization:** Created `SIGRID_KNOWLEDGE_BUILD_PROGRESS.md`.
+### 2026-03-20: Structural Initialization
+- **Action:** Transitioned all major domain files to the `RULES.AI.md` header format.
+- **Action:** Purged automated placeholders from headers and scope definitions.
+- **Verification:** Completed initial entries (0001-0002) for all domains to establish persona baseline.
+- **Next Step:** Continuous manual batch curation (100 entries per push).
