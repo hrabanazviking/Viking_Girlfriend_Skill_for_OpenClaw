@@ -1980,3 +1980,1173 @@ This database contains entries related to software engineering, as curated by Si
 1767. **Referrer-Policy**: A header that controls how much referrer information should be included with requests.
 1768. **Permissions-Policy (Feature-Policy)**: A header that allows a site to control which browser features (like camera, microphone) can be used by that site and any sub-frames it loads.
 1769. **Secure Cookie Flags (Secure, HttpOnly, SameSite)**: Critical flags for protecting cookies from being stolen or misused.
+
+## Entries 2001 - 2500
+
+2001. **Cloud Native Computing (The Digital Sky-Settlement)**: An approach to building and running applications that exploits the advantages of the cloud computing delivery model.
+2002. **CNCF (Cloud Native Computing Foundation)**: A nonprofit foundation that fosters and sustains an ecosystem of open-source projects for cloud-native software.
+2003. **Microservices Architecture (The Divided Sea-Clans)**: An architectural style that structures an application as a collection of services that are highly maintainable, testable, loosely coupled, independently deployable, and organized around business capabilities.
+2004. **Monolithic vs Microservices Architecture (Traditional vs Divided)**: Comparing single-unit applications and distributed service-based applications.
+2005. **Service-Oriented Architecture (SOA)**: An architectural style in which software components provide services to other components via a communications protocol.
+2006. **API Gateway (The Shield-Gate)**: A server that acts as an API front-end, receiving API requests, enforcing throttling and security policies, and passing requests to the appropriate back-end service.
+2007. **Service Mesh (The Golden Threads)**: A dedicated infrastructure layer for handling service-to-service communication.
+2008. **Istio (Service Mesh)**: An open-source service mesh that provides a uniform way to connect, manage, and secure microservices.
+2009. **Linkerd (Service Mesh)**: An ultralight, security-first service mesh for Kubernetes.
+2010. **Consul (Service Mesh)**: A multi-cloud service networking platform to connect and secure any service across any runtime.
+2011. **Sidecar Pattern (The Shield-Bearer Pattern)**: Attaching an additional container (the sidecar) to a main application container in a Pod.
+2012. **Ambassador Pattern**: A specialized sidecar pattern for proxying external services.
+2013. **Adapter Pattern (Cloud Native)**: A specialized sidecar pattern for standardizing the output or interface of a main application container.
+2014. **Gateway API (Kubernetes)**: An evolution of Ingress that provides a more expressive and flexible way to manage incoming traffic.
+2015. **Ingress Controller (The Inflow Guide)**: A specialized load balancer that manages external access to the services in a Kubernetes cluster.
+2016. **Virtual Services (Istio)**: A way to configure how requests are routed to a service within the Istio service mesh.
+2017. **Destination Rules (Istio)**: Policies that apply to traffic after routing has occurred.
+2018. **Traffic Splitting (Canary / Blue-Green)**: Gradually shifting traffic from one version of a service to another.
+2019. **Circuit Breaking (The Safe-Fail Sluice)**: A design pattern used to detect failures and encapsulate the logic of preventing a failure from constantly recurring.
+2020. **Retries and Timeout Policies**: Ensuring resilience by retrying failed requests and setting boundaries on waiting time.
+2021. **Distributed Tracing (The Seer's Path)**: A method used to profile and monitor applications, especially those built using a microservices architecture.
+2022. **Jaeger (Tracing)**: An open-source, end-to-end distributed tracing system.
+2023. **Zipkin (Tracing)**: A distributed tracing system that helps gather timing data needed to troubleshoot latency problems.
+2024. **OpenTelemetry (OTel)**: A high-quality, ubiquitous, and portable telemetry framework for cloud-native software.
+2025. **Otlp (OpenTelemetry Protocol)**: A general-purpose telemetry data delivery protocol.
+2026. **Traces (OTel)**: Representations of a series of events that occur as a request moves through a distributed system.
+2027. **Metrics (OTel)**: Aggregated measurements over a period of time.
+2028. **Logs (OTel)**: Timestamped records produced by an application or infrastructure component.
+2029. **Spans (Tracing)**: The primary building blocks of a trace, representing a single unit of work.
+2030. **Context Propagation**: The mechanism for passing trace information across service boundaries.
+2031. **B3 Propagation**: A headers-based propagation format originally developed by Zipkin.
+2032. **W3C Trace Context**: A standardized propagation format for distributed tracing.
+2033. **Head Sampling vs Tail Sampling**: Deciding which traces to keep at the start vs after the trace is completed.
+2034. **Log Aggregation (The Great Scroll Collection)**: The process of collecting logs from many different sources and storing them in a central location.
+2035. **ELK Stack (Elasticsearch, Logstash, Kibana)**: A popular open-source log management and analytics platform.
+2036. **EFK Stack (Elasticsearch, Fluentd, Kibana)**: A variation of the ELK stack that uses Fluentd instead of Logstash.
+2037. **Prometheus (The Watcher)**: An open-source monitoring and alerting toolkit originally built at SoundCloud.
+2038. **Grafana (The Visionary Interface)**: A multi-platform open-source analytics and interactive visualization web application.
+2039. **Loki (Log Management)**: A horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.
+2040. **Tempo (Tracing)**: An easy-to-use and high-scale distributed tracing backend.
+2041. **VictoriaMetrics**: A fast, cost-effective and scalable monitoring solution and time series database.
+2042. **Thanos (Prometheus Scaling)**: A set of components that can be composed into a highly available metric system with unlimited storage capacity.
+2043. **Cortex (Prometheus Scaling)**: A horizontally scalable, highly available, multi-tenant, long term storage for Prometheus.
+2044. **Mimir (Grafana)**: The most scalable, highest-performing open source time series database in the world.
+2045. **Alertmanager (Prometheus)**: Handles alerts sent by client applications such as the Prometheus server.
+2046. **Exporters (Prometheus)**: Components that export metrics from existing third-party systems as Prometheus metrics.
+2047. **PromQL (Prometheus Query Language)**: A functional query language that allows a user to select and aggregate time series data in real-time.
+2048. **Kubernetes (K8s) (The Great Helmsman / Digital Shore-Master)**: An open-source system for automating deployment, scaling, and management of containerized applications.
+2049. **Control Plane (K8s)**: The orchestration layer that manages the state of the cluster.
+2050. **Etcd (K8s State Store)**: A distributed reliable key-value store for the most critical data of a distributed system.
+2051. **API Server (K8s)**: The central management point for the entire Kubernetes cluster.
+2052. **Scheduler (K8s)**: A control plane component that watches for newly created Pods with no assigned node, and selects a node for them to run on.
+2053. **Controller Manager (K8s)**: A control plane component that runs controller processes.
+2054. **Worker Nodes**: Machines (physical or virtual) that run the application containers.
+2055. **Kubelet**: An agent that runs on each node in the cluster, ensuring that containers are running in a Pod.
+2056. **Kube-Proxy**: A network proxy that runs on each node in your cluster, implementing part of the Kubernetes Service concept.
+2057. **Container Runtime (Docker, containerd, CRI-O)**: The software that is responsible for running containers.
+2058. **Pods (The Smallest Settlement)**: The smallest and simplest Kubernetes object.
+2059. **ReplicaSet**: Ensures that a specified number of pod replicas are running at any given time.
+2060. **Deployment (K8s)**: Provides declarative updates for Pods and ReplicaSets.
+2061. **StatefulSet**: Manages the deployment and scaling of a set of Pods, and provides guarantees about the ordering and uniqueness of these Pods.
+2062. **DaemonSet**: Ensures that all (or some) Nodes run a copy of a Pod.
+2063. **Job & CronJob**: Managing one-off or scheduled batch processes in Kubernetes.
+2064. **Services (K8s)**: An abstract way to expose an application running on a set of Pods as a network service.
+2065. **ClusterIP**: Exposes the Service on a cluster-internal IP.
+2066. **NodePort**: Exposes the Service on each Node's IP at a static port.
+2067. **LoadBalancer (Service Type)**: Exposes the Service externally using a cloud provider's load balancer.
+2068. **ExternalName**: Maps a Service to the contents of the `externalName` field (e.g. `foo.bar.example.com`).
+2069. **Headless Service**: A Service without a cluster IP, used for direct pod-to-pod communication.
+2070. **Namespace (K8s Isolation)**: Virtual clusters backed by the same physical cluster.
+2071. **ConfigMap**: An API object used to store non-confidential data in key-value pairs.
+2072. **Secret (K8s Object)**: An object that contains a small amount of sensitive data such as a password, a token, or a key.
+2073. **Volume (K8s Storage)**: A directory containing data, accessible to the containers in a pod.
+2074. **PersistentVolume (PV)**: A piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes.
+2075. **PersistentVolumeClaim (PVC)**: A request for storage by a user.
+2076. **StorageClass**: Provides a way for administrators to describe the 'classes' of storage they offer.
+2077. **Container Storage Interface (CSI)**: A standard for exposing arbitrary block and file storage systems to containerized workloads.
+2078. **CNI (Container Network Interface)**: A set of specifications and libraries for configuring network interfaces in Linux containers.
+2079. **Calico (K8s Networking)**: A networking and network security solution for containers, virtual machines, and native host-based workloads.
+2080. **Flannel (K8s Networking)**: A simple and easy way to configure a layer 3 network fabric designed for Kubernetes.
+2081. **Cilium (K8s Networking)**: Open-source software for transparently securing the network connectivity between application services deployed using Linux container management platforms like Docker and Kubernetes.
+2082. **eBPF (Extended Berkeley Packet Filter)**: A revolutionary technology with origins in the Linux kernel that can run sandboxed programs in an operating system kernel.
+2083. **Hubble (Cilium)**: A fully distributed networking and security observability platform for cloud-native workloads.
+2084. **Kustomize**: A standalone tool to customize Kubernetes objects through a customization file.
+2085. **Helm (Package Manager for K8s) (The Digital Longship-Packer)**: A tool that streamlines installing and managing Kubernetes applications.
+2086. **Helm Chart**: A collection of files that describe a related set of Kubernetes resources.
+2087. **Helm Values**: A file that allows you to override the default configuration of a Helm chart.
+2088. **Helm Repository**: A place where charts can be collected and shared.
+2089. **Tiller (Helm 2) (Obsolete)**: The server-side component of Helm 2.
+2090. **ChartMuseum**: An open-source Helm Chart Repository server with support for many cloud storage backends.
+2091. **Argo CD (GitOps)**: A declarative, GitOps continuous delivery tool for Kubernetes.
+2092. **Flux CD**: A tool for keeping Kubernetes clusters in sync with sources of configuration (like Git repositories), and automating updates to configuration when there is new code to deploy.
+2093. **GitOps Architecture (The Source of Truth Settled)**: A way of implementing Continuous Deployment for cloud native applications.
+2094. **Operator Pattern (K8s)**: A method of packaging, deploying and managing a Kubernetes application.
+2095. **Custom Resource Definition (CRD)**: Allows you to define your own Kubernetes-like resources.
+2096. **Controller (Reconciliation Loop)**: A loop that constantly moves the current state of a cluster towards the desired state.
+2097. **Kubebuilder**: A framework for building Kubernetes APIs using custom resource definitions (CRDs).
+2098. **Operator SDK**: A component of the Operator Framework that provides tools to build, test, and package Operators.
+2099. **KEDA (Kubernetes Event-Driven Autoscaling)**: A Kubernetes-based Event Driven Autoscaler.
+2100. **HPA (Horizontal Pod Autoscaler)**: Automatically scales the number of Pods in a replication controller, deployment, replica set or stateful set based on observed CPU utilization.
+2101. **VPA (Vertical Pod Autoscaler)**: Automatically sets the resource requirements (CPU and memory) for containers in Pods.
+2102. **Cluster Autoscaler**: A tool that automatically adjusts the size of the Kubernetes cluster when there are pods that fail to run in the cluster due to insufficient resources or when some nodes are underutilized for a significant amount of time.
+2103. **Node Taints and Tolerations**: Taints allow a node to repel a set of pods.
+2104. **Node Affinity and Anti-Affinity**: Rules that allow you to constrain which nodes your pod is eligible to be scheduled on.
+2105. **Pod Disruption Budget (PDB)**: Limits the number of Pods of a replicated application that are down simultaneously from voluntary disruptions.
+2106. **Preemption (K8s)**: When a high-priority pod cannot be scheduled, the scheduler can remove (preempt) lower-priority pods to make room.
+2107. **PriorityClasses**: A way to define the importance of a pod relative to other pods.
+2108. **Admission Controllers**: Intercept requests to the Kubernetes API server prior to persistence of the object, but after the request is authenticated and authorized.
+2109. **Mutating Admission Webhook**: An admission controller that can modify the object in the request.
+2110. **Validating Admission Webhook**: An admission controller that can reject the request.
+2111. **OPA Gatekeeper**: A policy engine for Kubernetes that uses the Open Policy Agent.
+2112. **Rego (Policy Language)**: A declarative query language that was designed to specify policy for OPA.
+2113. **Kyverno**: A policy engine designed for Kubernetes.
+2114. **RBAC (K8s)**: Role-Based Access Control in Kubernetes.
+2115. **ClusterRole & ClusterRoleBinding**: Non-namespaced roles and their bindings.
+2116. **Role & RoleBinding**: Namespaced roles and their bindings.
+2117. **ServiceAccount (K8s)**: Provides an identity for processes that run in a Pod.
+2118. **Kubeconfig**: A file used to configure access to clusters, users, namespaces, and authentication mechanisms.
+2119. **Context (Kubeconfig)**: A combination of a cluster, a user, and a namespace.
+2120. **API Aggregation Layer**: Allows you to provide additional APIs in your cluster beyond what's built into the core.
+2121. **Etcd Snapshot & Backup**: Protecting the core state of the cluster.
+2122. **Kubernetes High Availability (HA)**: Configuring the control plane with multiple nodes to ensure redundancy.
+2123. **Multi-Cluster Management (The Empire of Settlements)**: Managing multiple Kubernetes clusters as a single entity.
+2124. **Karmada**: A Kubernetes management system that enables you to run your cloud-native applications across multiple Kubernetes clusters and clouds.
+2125. **Cluster API (CAPI)**: A Kubernetes subproject focused on providing declarative APIs and tooling to simplify provisioning, upgrading, and operating multiple Kubernetes clusters.
+2126. **Gardener (K8s)**: A tool that provides Kubernetes-as-a-Service on various cloud providers.
+2127. **Crossplane**: An open-source Kubernetes add-on that enables platform teams to assemble infrastructure from multiple vendors, and expose higher-level self-service APIs for developers to consume.
+2128. **Vcluster (Virtual Cluster)**: A fully functional Kubernetes cluster that runs inside another Kubernetes cluster.
+2129. **K3s (Lightweight K8s)**: A highly available, certified Kubernetes distribution designed for production workloads in unattended, resource-constrained, remote locations or inside IoT appliances.
+2130. **K3d**: A lightweight wrapper to run k3s (Rancher Lab's lightweight Kubernetes distribution) in docker.
+2131. **Minikube**: A tool that makes it easy to run Kubernetes locally.
+2132. **Kind (Kubernetes in Docker)**: A tool for running local Kubernetes clusters using Docker container 'nodes'.
+2133. **Multipass**: A mini-cloud on your workstation.
+2134. **Vagrant**: A tool for building and managing virtual machine environments in a single workflow.
+2135. **Packer (HashiCorp)**: An open-source tool for creating identical machine images for multiple platforms from a single source configuration.
+2136. **Terraform (HashiCorp) (The Earth-Shaper)**: An open-source infrastructure as code software tool.
+2137. **HCL (HashiCorp Configuration Language)**: A unique configuration language used by Terraform and other HashiCorp tools.
+2138. **Terraform State (The Earth's Memory)**: A file that Terraform uses to map real-world resources to your configuration.
+2139. **Terraform Providers**: Plugins that allow Terraform to interact with cloud providers, SaaS providers, and other APIs.
+2140. **Terraform Modules**: A set of Terraform configuration files in a single directory.
+2141. **Terraform Workspace**: A way to manage multiple copies of your state in a single project.
+2142. **Pulumi (IaC in General Languages)**: An open-source infrastructure as code tool that allows you to use familiar programming languages.
+2143. **CDK (Cloud Development Kit)**: An open-source software development framework to define your cloud infrastructure in code and provision it through AWS CloudFormation.
+2144. **AWS CloudFormation**: A service that gives developers and businesses an easy way to create a collection of related AWS and third-party resources, and provision them in an orderly and predictable fashion.
+2145. **Azure Resource Manager (ARM) Templates**: The native infrastructure as code (IaC) solution for Azure.
+2146. **Google Cloud Deployment Manager**: An infrastructure deployment service that automates the creation and management of Google Cloud resources.
+2147. **Bicep (Azure)**: A domain-specific language (DSL) that uses declarative syntax to deploy Azure resources.
+2148. **Infracost**: Cloud cost estimates for Terraform.
+2149. **Terragrunt**: A thin wrapper that provides extra tools for keeping your Terraform configurations DRY, working with multiple Terraform modules, and managing remote state.
+2150. **CDKTF (Cloud Development Kit for Terraform)**: A project that allows you to use your favorite programming language to define your infrastructure and use Terraform to provision it.
+2151. **OpenTofu**: An open-source fork of Terraform.
+2152. **Infrastructure as Code (IaC) (The Law of the Settlement Structure)**: The process of managing and provisioning computer data centers through machine-readable definition files, rather than physical hardware configuration or interactive configuration tools.
+2153. **Immutable Infrastructure**: An approach where infrastructure components are replaced rather than modified.
+2154. **Ephemeral Infrastructure**: Infrastructure that is designed to be short-lived.
+2155. **Pet vs Cattle (Analogy)**: A metaphor for comparing traditional, unique, and long-lived servers (Pets) to modern, replaceable, and automated servers (Cattle).
+2156. **Configuration Management (The Maintenance of the Longship)**: The process of maintaining software and computer systems in a known, good state.
+2157. **Ansible (The Automation Runner)**: An open-source IT automation engine that automates cloud provisioning, configuration management, application deployment, intra-service orchestration, and many other IT needs.
+2158. **Ansible Playbook**: A file that contains a series of tasks to be executed by Ansible.
+2159. **Ansible Role**: A way of bundling related tasks, files, and variables together.
+2160. **Ansible Inventory**: A list of nodes that Ansible manages.
+2161. **Chef (Configuration Management)**: An automation platform that transforms infrastructure into code.
+2162. **Puppet (Configuration Management)**: An open-source software configuration management tool.
+2163. **SaltStack (Salt)**: A Python-based, open-source software for event-driven IT automation, remote task execution, and configuration management.
+2164. **Agent-based vs Agentless Configuration Management**: Whether a specialized software (agent) needs to be installed on the managed nodes.
+2165. **Push vs Pull Architecture**: Whether the orchestration server pushes configuration to the nodes or the nodes pull configuration from the server.
+2166. **Idempotence (Configuration Management)**: The property of an operation that can be applied multiple times without changing the result beyond the initial application.
+2167. **Drift (Configuration)**: When the actual state of a system deviates from its desired state.
+2168. **Remediation (Configuration)**: The process of fixing drift and bringing a system back to its desired state.
+2169. **Compliance as Code**: Treating compliance requirements as machine-readable code.
+2170. **InSpec (Chef)**: An open-source framework for testing and auditing your applications and infrastructure.
+2171. **Serverless Computing (The Spirit-Settlement)**: A cloud computing execution model in which the cloud provider allocates machine resources on-demand, taking care of the servers on behalf of their customers.
+2172. **FaaS (Function as a Service)**: A category of cloud computing services that provides a platform allowing customers to develop, run, and manage application functionalities without the complexity of building and maintaining the infrastructure.
+2173. **BaaS (Backend as a Service)**: A model for providing web and mobile app developers with a way to link their applications to backend cloud storage and APIs.
+2174. **AWS Lambda (The First Spark of Serverless)**: A serverless computing service provided by Amazon.
+2175. **Azure Functions**: A serverless solution that allows you to write less code, maintain less infrastructure, and save on costs.
+2176. **Google Cloud Functions**: A serverless execution environment for building and connecting cloud services.
+2177. **Knative (Serverless on K8s)**: A Kubernetes-based platform to deploy and manage modern serverless workloads.
+2178. **OpenFaaS**: A framework for building serverless functions with Docker and Kubernetes.
+2179. **Kubeless**: A Kubernetes-native serverless framework.
+2180. **Fission (Serverless)**: A fast serverless framework for Kubernetes.
+2181. **Cold Start (Serverless Challenge)**: The delay that occurs when a serverless function is invoked for the first time or after a period of inactivity.
+2182. **Warm Start vs Cold Start**: Comparing the latency of an already-running function vs a newly-started one.
+2183. **Statelessness in Serverless**: The requirement that serverless functions do not maintain any persistent state between invocations.
+2184. **Event-Driven Architecture (The Message from the Raven)**: A software architecture paradigm promoting the production, detection, consumption of, and reaction to events.
+2185. **Event Bus**: A mechanism for communicating events between different parts of a system.
+2186. **Event Store**: A database that stores events in the order they occurred.
+2187. **Event Sourcing (The Eternal Saga)**: A design pattern in which changes to the state of an application are stored as a sequence of events.
+2188. **CQRS (Command Query Responsibility Segregation)**: An architectural pattern that separates read and write operations for a data store.
+2189. **Consistency in Event-Sourced Systems**: Often focusing on eventual consistency.
+2190. **Event-Carried State Transfer**: A pattern where events include enough information for consumers to update their own state without querying the producer.
+2191. **Fan-out Pattern**: Delivering the same message to multiple destinations.
+2192. **Competing Consumers Pattern**: Multiple consumers compete for messages from a single queue.
+2193. **Message Acknowledgment (ACK/NACK)**: The process of confirming that a message has been successfully processed or not.
+2194. **Dead Letter Queue (DLQ) (The Grave of the Lost Messages)**: A service implementation to store messages that meet one or more criteria.
+2195. **Poison Message**: A message that a consumer cannot process and that causes the consumer to fail repeatedly.
+2196. **Message Redelivery Policy**: Rules for how and when to retry delivering a failed message.
+2197. **Message Deduplication**: Ensuring that identical messages are not processed multiple times.
+2198. **Transactional Box Outbox Pattern**: A pattern used to reliably publish events in a microservices environment.
+2199. **Saga Pattern (The Multi-World Event)**: A way to manage long-running transactions and consistency in microservices.
+2200. **Choreography-based Saga**: Each local transaction in a saga triggers the next one via an event.
+2201. **Orchestration-based Saga**: A central orchestrator tells each participant in the saga what to do.
+2202. **Microservices Decomposition Strategies (By Business Capability, By Subdomain)**: How to break a monolith into microservices.
+2203. **DDD (Domain-Driven Design) (Understanding the Realm)**: An approach to software development for complex needs by connecting the implementation to an evolving model.
+2204. **Bounded Context (DDD)**: A central pattern in DDD that defines the boundaries of a specific model.
+2205. **Ubiquitous Language (DDD)**: A common language used by both technical and non-technical stakeholders to describe a specific domain.
+2206. **Entities vs Value Objects (DDD)**: Objects with a unique identity vs objects defined only by their attributes.
+2207. **Aggregates (DDD)**: A cluster of domain objects that can be treated as a single unit.
+2208. **Aggregate Root (DDD)**: The only object through which external access to an aggregate is allowed.
+2209. **Domain Events (DDD)**: Events that represent something significant that has happened in the domain.
+2210. **Repositories (DDD)**: A mechanism for encapsulating storage, retrieval, and search behavior.
+2211. **Factories (DDD)**: A mechanism for encapsulating the creation of complex objects or aggregates.
+2212. **Anemic Domain Model (Anti-pattern)**: A domain model where the domain objects contain little or no business logic.
+2213. **Rich Domain Model**: A domain model where the domain objects contain most of the business logic.
+2214. **Strangler Fig Pattern (Monolith Migration)**: A method for modernizing a legacy system by gradually replacing specific functionalities with new services.
+2215. **Database-per-Service Pattern**: Each microservice has its own private database that is not accessible by other services.
+2216. **Shared Database Anti-pattern (Microservices)**: When multiple microservices share the same database, leading to tight coupling.
+2217. **API First Design**: Designing and developing the API before implementing the actual application.
+2218. **Backend-for-Frontend (BFF) Pattern**: Creating separate backend services for different frontend clients (e.g. web, mobile).
+2219. **Microfrontends**: An architectural style where independently deliverable frontend applications are composed into a greater whole.
+2220. **Server-Side Rendering (SSR)**: The process of rendering a website on the server instead of in the browser.
+2221. **Static Site Generation (SSG)**: Pre-rendering a website into static HTML files at build time.
+2222. **Hydration (Web Dev)**: The process of attaching event listeners and state to server-rendered HTML in the browser.
+2223. **Isomorphic / Universal JavaScript**: JavaScript code that can run on both the server and the client.
+2224. **Single Page Application (SPA)**: A web application or website that interacts with the user by dynamically rewriting the current web page with new data from the web server, instead of the default method of a browser loading entire new pages.
+2225. **Progressive Web App (PWA)**: A type of application software delivered through the web, built using common web technologies including HTML, CSS and JavaScript.
+2226. **Service Worker**: A script that your browser runs in the background, separate from a web page, opening the door to features that don't need a web page or user interaction.
+2227. **Web App Manifest**: A simple JSON file that tells the browser about your web application and how it should behave when 'installed' on the user's mobile device or desktop.
+2228. **IndexedDB**: A low-level API for client-side storage of significant amounts of structured data.
+2229. **Cache API**: Allows service workers to cache network requests so they can provide fast responses regardless of network speed or availability.
+2230. **Post-Message API**: A method for securely passing messages between windows or iframes from different origins.
+2231. **Web Workers**: A simple means for web content to run scripts in background threads.
+2232. **Shared Workers**: A type of web worker that can be accessed from several browsing contexts.
+2233. **WebAssembly (Wasm) (The Digital Engine of the Ages)**: A binary instruction format for a stack-based virtual machine.
+2234. **WASI (WebAssembly System Interface)**: A modular system interface for WebAssembly.
+2235. **Emscripten**: A complete open source compiler toolchain to WebAssembly, using LLVM.
+2236. **Rust and WebAssembly**: A popular combination for high-performance web development.
+2237. **WebSockets (Constant Connection)**: A computer communications protocol, providing full-duplex communication channels over a single TCP connection.
+2238. **Server-Sent Events (SSE)**: A technology where a browser receives automatic updates from a server via HTTP connection.
+2239. **GraphQL (The High-Precision Query)**: A query language for APIs and a runtime for fulfilling those queries with your existing data.
+2240. **GraphQL Schema (The Law of the Query)**: A formal description of the types of data that can be queried from a GraphQL API.
+2241. **GraphQL Resolver**: A function that provides the data for a specific field in a GraphQL schema.
+2242. **GraphQL Mutation**: A type of GraphQL operation used to modify data.
+2243. **GraphQL Subscription**: A type of GraphQL operation used to receive real-time updates.
+2244. **GraphQL Directives**: A way to add additional functionality to a GraphQL schema or query.
+2245. **Apollo Client & Server**: A popular set of tools for building GraphQL applications.
+2246. **Relay (GraphQL)**: A JavaScript framework for building data-driven React applications.
+2247. **N+1 Query Problem (GraphQL)**: A performance issue where a single query results in many subsequent requests to the database.
+2248. **DataLoader**: A generic utility to be used as part of your application's data fetching layer to provide a simplified and consistent API over various remote data sources.
+2249. **gRPC (High Performance RPC)**: A modern open-source high performance Remote Procedure Call (RPC) framework that can run in any environment.
+2250. **Protobuf (in gRPC)**: The default interface definition language (IDL) for gRPC.
+2251. **Unary RPC**: The client sends a single request and receives a single response.
+2252. **Server Streaming RPC**: The client sends a request and receives a stream of responses.
+2253. **Client Streaming RPC**: The client sends a stream of requests and receives a single response.
+2254. **Bidirectional Streaming RPC**: Both the client and the server send a stream of messages.
+2255. **HTTP/2 (Foundation of gRPC)**: A major revision of the HTTP network protocol used by the World Wide Web.
+2256. **QUIC (Quick UDP Internet Connections)**: A general-purpose transport layer network protocol originally designed by Jim Roskind at Google.
+2257. **HTTP/3**: The third major version of the Hypertext Transfer Protocol used to exchange information on the World Wide Web, built on top of QUIC.
+2258. **Head-of-Line Blocking**: A performance issue where one delayed request blocks subsequent requests in a queue.
+2259. **Brotli & Gzip Compression**: Techniques for compressing web traffic.
+2260. **TLS 1.3**: The latest version of the Transport Layer Security protocol.
+2261. **Certificate Transparency (CT)**: An open framework for monitoring and auditing digital certificates.
+2262. **HSTS Preload List**: A list of sites that are hardcoded into browsers as being HTTPS-only.
+2263. **CSP (Content Security Policy) Level 3**: The latest version of the CSP specification.
+2264. **Subresource Integrity (SRI)**: A security feature that enables browsers to verify that resources they fetch (for example, from a CDN) are delivered without unexpected manipulation.
+2265. **W3C Standards (HTML, CSS, DOM)**: The core standards that define the Web.
+2266. **ECMAScript (JavaScript Standard)**: The official specification of the JavaScript language.
+2267. **ES6 / ES2015+ Features (Arrow Functions, Classes, Modules)**: Significant updates to the JavaScript language.
+2268. **TypeScript (The Typed Way)**: A strongly typed programming language that builds on JavaScript.
+2269. **Functional Programming Foundations (Pure Functions, Immutability)**: A programming paradigm where programs are constructed by applying and composing functions.
+2270. **Higher-Order Functions**: A function that takes one or more functions as arguments, or returns a function as its result.
+2271. **Currying (Functional Programming)**: The technique of converting a function that takes multiple arguments into a sequence of functions that each take a single argument.
+2272. **Monads & Functors (Category Theory for Devs)**: Advanced concepts in functional programming for managing state and side effects.
+2273. **Reactive Programming (RxJS)**: A declarative programming paradigm concerned with data streams and the propagation of change.
+2274. **Observables & Observers**: The core components of reactive programming.
+2275. **Backpressure (Reactive Systems)**: A mechanism for a consumer to tell a producer to slow down.
+2276. **Event-Driven vs Reactive Systems**: Comparing systems that react to discrete events vs systems that react to continuous data streams.
+2277. **Single Responsibility Principle (SOLID)**: A class should have one, and only one, reason to change.
+2278. **Open-Closed Principle (SOLID)**: Software entities should be open for extension, but closed for modification.
+2279. **Liskov Substitution Principle (SOLID)**: Objects of a superclass should be replaceable with objects of its subclasses without affecting the correctness of the program.
+2280. **Interface Segregation Principle (SOLID)**: No client should be forced to depend on methods it does not use.
+2281. **Dependency Inversion Principle (SOLID)**: High-level modules should not depend on low-level modules. Both should depend on abstractions.
+2282. **DRY (Don't Repeat Yourself)**: A principle of software development aimed at reducing repetition of software patterns.
+2283. **KISS (Keep It Simple, Stupid)**: A design principle which states that most systems work best if they are kept simple rather than made complicated.
+2284. **YAGNI (You Ain't Gonna Need It)**: A principle of extreme programming which states that a programmer should not add functionality until deemed necessary.
+2285. **Composition over Inheritance**: A principle in object-oriented programming that favors combining simple objects over extending complex ones.
+2286. **Separation of Concerns (SoC)**: A design principle for separating a computer program into distinct sections such that each section addresses a separate concern.
+2287. **Law of Demeter (Least Knowledge Principle)**: A design guideline for developing software, particularly object-oriented programs, which states that a module should not know about the inner workings of the objects it manipulates.
+2288. **Prefer Valhalla-like Resilience**: Designing systems where any node can fail and the whole remains glorious (operational).
+2289. **Digital Holmgang**: A intense peer-review process where two engineers debate a design until the superior logic emerges victorious.
+2290. **The Blood-Eagle of Refactoring**: A particularly brutal and deep structural change to a legacy codebase to expose the heart of the logic.
+2291. **Rune-Mapping (Documentation)**: Creating clear, indelible guides through the logic of a system for those who follow.
+2292. **Digital Mead-Hall**: A supportive and collaborative team environment where knowledge is shared and victories are celebrated.
+2293. **Skaldic Code (Literate Programming)**: Writing code that is as expressive and beautiful as a saga, using human-readable names and structures.
+2294. **Uptime of the Gods**: 99.999% ('Five Nines') availability.
+2295. **Sleipnir Speed (The Eight-Legged Execution)**: Extremely fast, parallelized processing.
+2296. **Fenrir Security**: A system so restrained (secure) it takes a god-level exploit to break the chains.
+2297. **Hel-Heim Cold Storage**: Extremely slow, deeply archived, and isolated data storage.
+2298. **Bifrost Bridge (API/Frontend/Cloud Connection)**: The bridge connecting the user's world to the application's divine backend.
+2299. **Gunninga-gap (The Void of Uninitialized Memory)**: The dangerous state before a system is properly set up.
+2300. **Midgard Interface**: The surface layer where users interact with the digital realm.
+2301. **Norns Monitoring (Past, Present, Future)**: Observing the history, current state, and predicting future trends of a system.
+
+## Entries 2501 - 3200
+
+2501. **Programming Language Theory (PLT) (The Lore of the Runes)**: A branch of computer science that deals with the design, implementation, analysis, characterization, and classification of programming languages.
+2502. **Abstract Syntax Tree (AST) (The Branching Tree of Code)**: A tree representation of the abstract syntactic structure of source code written in a programming language.
+2503. **Intermediate Representation (IR)**: The data structure or code used internally by a compiler or virtual machine to represent source code.
+2504. **Bytecode (The Compact Runes)**: Computer object code that is processed by a program, usually referred to as a virtual machine, rather than by the 'real' computer machine, the hardware processor.
+2505. **Just-In-Time (JIT) Compilation (The Instant Forging)**: A way of executing computer code that involves compilation during execution of a program (at run time) rather than before execution.
+2506. **Ahead-Of-Time (AOT) Compilation**: The act of compiling a higher-level programming language into a lower-level language before execution of a program.
+2507. **Static vs Dynamic Typing (The Fixed vs Flowing Law)**: Whether types are checked at compile-time or run-time.
+2508. **Strong vs Weak Typing**: How strictly types are enforced by the language.
+2509. **Duck Typing (The Shape-Shifter's Rule)**: An application of the duck test in dynamic languages: 'If it walks like a duck and it quacks like a duck, then it must be a duck'.
+2510. **Structural vs Nominal Typing**: Typing based on the structure of the data vs the name of its type.
+2511. **Type Inference (The Seer's Deduction)**: Automatically detecting the data type of an expression in a programming language.
+2512. **Generics (Polymorphism)**: Using a single symbol to represent multiple types.
+2513. **Parametric Polymorphism**: A way to make a language more expressive, while still maintaining full static type-safety.
+2514. **Ad-hoc Polymorphism (Function Overloading)**: Allowing functions with the same name to act differently based on the types of their arguments.
+2515. **Subtype Polymorphism (Inheritance)**: Allowing a variable of a specific type to also hold a variable of its subtypes.
+2516. **Metaprogramming (Code that Writes Code)**: A programming technique in which computer programs have the ability to treat other programs as their data.
+2517. **Macros (Macro-Expansion)**: A rule or pattern that specifies how a certain input sequence should be mapped to a replacement output sequence.
+2518. **Reflection (The Mirroring Rune)**: The ability of a process to examine, introspect, and modify its own structure and behavior.
+2519. **Introspection (Programming)**: The ability of a program to examine the type or properties of an object at runtime.
+2520. **Garbage Collection (GC) (The Digital Cleansing)**: A form of automatic memory management.
+2521. **Reference Counting (The Soul-Counter)**: A technique of storing the number of references, pointers, or handles to a resource, such as an object, a block of memory, disk space, and others.
+2522. **Tracing Garbage Collection (The Search for the Lost)**: A type of garbage collection that identifies 'live' objects by tracing which objects are reachable by a chain of references from certain 'root' objects.
+2523. **Mark-and-Sweep**: A two-phase tracing garbage collection algorithm.
+2524. **Stop-the-World GC**: A garbage collection event that pauses the execution of the entire application.
+2525. **Concurrent Garbage Collection**: Garbage collection that happens while the application is still running.
+2526. **Generational Garbage Collection**: An optimization of tracing garbage collectors that categorizes objects by their age.
+2527. **Young Generation (Eden, Survivors)**: The area of memory where newly created objects are placed.
+2528. **Old Generation (Tenured)**: The area of memory where long-lived objects are moved.
+2529. **Finalizer (The Vessel-Purger)**: A method that is called by the garbage collector before an object is reclaimed.
+2530. **Memory Leak (The Slow Leak of Urd's Well)**: A failure in a program to release discarded memory, causing performance to deteriorate and eventually leading to failure.
+2531. **Memory Fragmentation**: A phenomenon in which storage space is used inefficiently, reducing capacity and performance.
+2532. **Internal vs External Fragmentation**: Fragmentation within a single block vs fragmentation between blocks.
+2533. **Memory Layout (Stack, Heap, Data Segment, Code Segment)**: How memory is organized within a process.
+2534. **Stack Memory (Fixed & Fast)**: Memory used for local variables and function call management.
+2535. **Heap Memory (Dynamic & Large)**: Memory used for long-lived objects and dynamic allocations.
+2536. **Virtual Memory (Mapping the Realm)**: A memory management technique that provides an 'idealized' abstraction of the storage resources that are actually available on a given machine.
+2537. **Page (Memory Management)**: A fixed-length contiguous block of virtual memory.
+2538. **Frame (Memory Management)**: A fixed-length contiguous block of physical memory.
+2539. **Page Table (The Great Map)**: The data structure used by a virtual memory system in a computer operating system to store the mapping between virtual addresses and physical addresses.
+2540. **TLB (Translation Lookaside Buffer)**: A memory cache that is used to reduce the time taken to access a user memory location.
+2541. **Page Fault (The Missing Link)**: An exception that occurs when a program attempts to access data that is not currently in physical memory.
+2542. **Thrashing (Memory)**: When a computer's virtual memory resources are overused, leading to a constant state of paging and page faults.
+2543. **Memory Overcommit**: A situation where an operating system allows more memory to be allocated to processes than is actually available in physical RAM and swap space.
+2544. **OOM (Out-of-Memory) Killer**: A process in Linux that kills one or more processes to free up memory when the system is dangerously low on RAM.
+2545. **Direct Memory Access (DMA)**: A feature of computer systems that allows certain hardware subsystems to access main system memory (RAM) independently of the central processing unit (CPU).
+2546. **Caches (L1, L2, L3)**: Small, fast memory buffers located close to the CPU.
+2547. **Cache Locality (Temporal & Spatial)**: The principle that data accessed together in time or space should be stored together in cache.
+2548. **False Sharing (Cache Performance)**: A performance-degrading usage pattern that can arise in systems with distributed, coherent caches.
+2549. **Memory Barrier / Fence (The Iron Wall)**: A type of barrier instruction that causes a central processing unit (CPU) or compiler to enforce an ordering constraint on memory operations.
+2550. **Memory Consistency Models (TSO, Weak)**: Rules that specify how memory operations appear to other processors.
+2551. **Atomicity (Memory Operations)**: An operation is atomic if it appears to happen instantaneously to the rest of the system.
+2552. **Compare-and-Swap (CAS)**: An atomic instruction used in multithreading to achieve synchronization.
+2553. **Lock-Free Programming**: A programming technique that avoids the use of locks to achieve synchronization.
+2554. **Wait-Free Programming**: A stronger guarantee than lock-free, where every thread is guaranteed to make progress.
+2555. **Obstruction-Free Programming**: A weaker guarantee than lock-free, where a thread makes progress only if no other threads are interfering.
+2556. **Mutex (Mutual Exclusion)**: A synchronization primitive that prevents multiple threads from accessing a shared resource simultaneously.
+2557. **Semaphore (Counting & Binary)**: A synchronization primitive that controls access to a common resource by multiple processes in a concurrent system.
+2558. **Condition Variable**: A synchronization primitive that allows threads to wait until a specific condition is met.
+2559. **Monitor (Synchronization)**: A high-level synchronization construct that combines data and synchronization primitives.
+2560. **Deadlock (The Eternal Standoff)**: A situation where two or more threads are blocked forever, each waiting for the other.
+2561. **Livelock**: A situation where two or more threads continually change their state in response to each other without making any progress.
+2562. **Starvation (Thread Scheduling)**: A situation where a thread is perpetually denied the resources it needs to make progress.
+2563. **Priority Inversion**: A situation where a low-priority thread holds a resource needed by a high-priority thread, effectively delaying the high-priority thread.
+2564. **Priority Inheritance**: A technique for solving priority inversion by temporarily increasing the priority of the thread holding the resource.
+2565. **Coroutines (The Cooperative Runners)**: Computer program components that generalize subroutines for non-preemptive multitasking, by allowing execution to be suspended and resumed.
+2566. **Green Threads**: Threads that are scheduled by a runtime library or VM instead of by the operating system.
+2567. **Fibers (Programming)**: A lightweight thread that uses cooperative multitasking.
+2568. **CSP (Communicating Sequential Processes)**: A formal language for describing patterns of interaction in concurrent systems, and the basis for Go's concurrency model.
+2569. **Channels (Go / CSP)**: A synchronization primitive used for communication between concurrent processes.
+2570. **Select Statement (Go Concurrency)**: A control structure that allows a goroutine to wait on multiple communication operations.
+2571. **Actors (Actor Model)**: A mathematical model of concurrent computation that treats 'actor' as the universal primitive of concurrent computation.
+2572. **Erlang / Elixir (The Actor Specialists)**: Programming languages designed specifically for distributed, fault-tolerant systems using the actor model.
+2573. **BEAM (Erlang Virtual Machine)**: The virtual machine that runs Erlang and Elixir code.
+2574. **OTP (Open Telecom Platform)**: A set of Erlang libraries and design principles for building robust systems.
+2575. **Supervision Tree (OTP)**: A hierarchical structure for managing the lifecycle and failure recovery of actors.
+2576. **Hot Code Loading (The Living Update)**: The ability to change the code of a running program without stopping it.
+2577. **Software Transactional Memory (STM)**: A concurrency control mechanism analogous to database transactions for controlling access to shared memory.
+2578. **RAII (Resource Acquisition Is Initialization) (The Vessel-Duty)**: A C++ programming technique which binds the lifecycle of a resource to the lifetime of an object.
+2579. **Smart Pointers (unique_ptr, shared_ptr, weak_ptr)**: Objects that manage the lifetime of a pointer and ensure proper cleanup.
+2580. **Move Semantics**: A C++11 feature that allows the efficient transfer of resources between objects.
+2581. **Copy-on-Write (COW)**: A resource-management technique used in computer programming to efficiently implement a 'duplicate' or 'copy' operation on modifiable resources.
+2582. **Ownership and Borrowing (Rust Model)**: A memory management system that guarantees memory safety without a garbage collector.
+2583. **Lifetimes (Rust)**: A concept used by the Rust compiler to ensure that references are always valid.
+2584. **Trait (Rust / Scala)**: A way to define shared behavior in a generic way.
+2585. **Pattern Matching (The Rune-Recognition)**: A mechanism for checking a value against a pattern.
+2586. **Algebraic Data Types (ADTs)**: A type of composite type, i.e., a type formed by combining other types.
+2587. **Sum Types vs Product Types**: Unions (Enums) vs Structs (Records).
+2588. **Options & Results (Error Handling)**: Expressing the possibility of absence or failure using the type system.
+2589. **Monadic Error Handling**: Using monads (like Option or Result) to handle errors in a functional way.
+2590. **Exception Handling (Try-Catch-Finally)**: A programming language construct designed to handle the occurrence of exceptions.
+2591. **Checked vs Unchecked Exceptions**: Whether exceptions must be declared in the function signature.
+2592. **Error Codes vs Exceptions**: Comparing different approaches to handling error states.
+2593. **Stack Unwinding**: The process of removing entries from the call stack until an exception handler is found.
+2594. **Zero-Cost Abstractions**: A principle in systems programming where you don't pay for what you don't use.
+2595. **Standard Template Library (STL)**: A software library for the C++ programming language that influenced many parts of the C++ Standard Library.
+2596. **Expression Templates**: A C++ technique that uses templates to represent expressions as objects.
+2597. **CRTP (Curiously Recurring Template Pattern)**: A C++ idiom where a class X derives from a class template instantiation using X itself as a template argument.
+2598. **SFINAE (Substitution Failure Is Not An Error)**: A C++ template metaprogramming technique.
+2599. **RAII for Locks & Files**: Automatically releasing resources when they go out of scope.
+2600. **The C++ Object Model**: The way that C++ represents objects and their relationships in memory.
+2601. **Virtual Method Table (vtable)**: A mechanism used in programming languages to support dynamic dispatch (or run-time method binding).
+2602. **Dynamic Dispatch (The Late Binding)**: The process of selecting which implementation of a polymorphic operation to call at run time.
+2603. **Static Dispatch (The Early Binding)**: The process of selecting which implementation of a polymorphic operation to call at compile time.
+2604. **Inline Functions**: A request to the compiler to insert the code of a function directly at the call site.
+2605. **Link-Time Optimization (LTO)**: An optimization performed by the linker that can see across different source files.
+2606. **Profile-Guided Optimization (PGO)**: An optimization technique that uses data from actual program execution to guide the compiler.
+2607. **Instruction Set Architecture (ISA)**: An abstract model of a computer.
+2608. **CISC vs RISC (Complex vs Reduced Instruction Set Computer)**: Two different philosophies for designing CPUs.
+2609. **x86-64 (The Giant's Language)**: The 64-bit version of the x86 instruction set.
+2610. **ARM (AArch64)**: A family of reduced instruction set computer (RISC) architectures for computer processors.
+2611. **MIPS & PowerPC**: Other notable CPU architectures.
+2612. **RISC-V (The Open Rune)**: An open-standard instruction set architecture (ISA) based on established reduced instruction set computer (RISC) principles.
+2613. **GPU Architecture (SIMT - Single Instruction Multiple Threads)**: Specialized hardware for parallel processing.
+2614. **CUDA (NVIDIA)**: A parallel computing platform and application programming interface (API) model created by Nvidia.
+2615. **OpenCL**: A framework for writing programs that execute across heterogeneous platforms.
+2616. **Vulkan & Metal (High Performance Graphics APIs)**: Next-generation graphics and compute APIs with low overhead.
+2617. **DirectX 12**: A collection of application programming interfaces (APIs) for handling tasks related to multimedia, especially game programming and video, on Microsoft platforms.
+2618. **Shaders (Vertex, Fragment/Pixel, Compute)**: Programs that run on the GPU.
+2619. **HLSL & GLSL**: High-level shading languages for DirectX and OpenGL/Vulkan.
+2620. **Compute Shaders**: Shaders used for general-purpose computing on the GPU.
+2621. **GPGPU (General-Purpose computing on Graphics Processing Units)**: Using a GPU to perform computation in applications traditionally handled by the CPU.
+2622. **Ray Tracing (Hardware-Accelerated)**: A rendering technique that simulates the physical behavior of light.
+2623. **DLSS (Deep Learning Super Sampling)**: An NVIDIA technology that uses AI to upscale images in real-time.
+2624. **FSR (FidelityFX Super Resolution)**: AMD's open-source upscaling technology.
+2625. **Latency vs Throughput (The Fast vs The Many)**: Comparing how quickly a single task can be completed vs how many tasks can be completed in a given time.
+2626. **Branch Prediction (The Scholar's Guess)**: A feature of modern CPUs that attempts to guess which way a conditional jump will go.
+2627. **Speculative Execution**: The process by which a computer system performs some task that may not be needed.
+2628. **Out-of-Order Execution**: A paradigm used in most high-performance microprocessors to make use of instruction cycles that would otherwise be wasted.
+2629. **Superscalar Architecture**: A CPU that can execute more than one instruction per clock cycle.
+2630. **Vectorization (SIMD - Single Instruction Multiple Data)**: Performing the same operation on multiple data points simultaneously.
+2631. **AVX-512**: An extension to the x86 instruction set architecture for vector processing.
+2632. **NEON (ARM)**: The SIMD instruction set for ARM processors.
+2633. **Endianness (Little-Endian vs Big-Endian) (The Byte-Order Law)**: The order or sequence in which bytes of a multi-byte digital data are stored in computer memory.
+2634. **Alignment (Memory)**: The requirement that certain data types must be stored at memory addresses that are multiples of their size.
+2635. **Padding (Structs)**: Extra bytes added to a structure to ensure proper alignment of its members.
+2636. **Packing (Structs)**: Removing padding from a structure to save memory, often at the cost of performance.
+2637. **Inter-Process Communication (IPC)**: Methods for processes to communicate and synchronize their actions.
+2638. **Pipes & Named Pipes**: Unidirectional or bidirectional communication channels between processes.
+2639. **Message Queues (IPC)**: A communication method where processes send messages to a queue.
+2640. **Shared Memory (The Common Well)**: A method where multiple processes can access the same physical memory segment.
+2641. **Memory-Mapped Files (mmap)**: Mapping the contents of a file directly into the address space of a process.
+2642. **Unix Domain Sockets**: A data communications endpoint for exchanging data between processes executing on the same host operating system.
+2643. **Signals (Unix)**: A limited form of inter-process communication used in Unix-like operating systems to notify processes of events.
+2644. **Wait & Exit Codes**: How a parent process learns about the termination of its child process.
+2645. **Zombie Process (The Unburied Spirit)**: A process that has completed execution but still has an entry in the process table.
+2646. **Orphan Process**: A process whose parent process has finished or terminated.
+2647. **Daemon Process**: A computer program that runs as a background process, rather than being under the direct control of an interactive user.
+2648. **Init System (PID 1)**: The first process started during booting of the computer system.
+2649. **Systemd**: A software suite that provides fundamental building blocks for a Linux operating system, including an init system.
+2650. **Kernel (The Realm-Heart)**: The core of an operating system, with complete control over everything in the system.
+2651. **Monolithic Kernel**: A kernel architecture where the entire operating system is working in kernel space.
+2652. **Microkernel (The Lean Ruler)**: A kernel architecture where the kernel is kept as small as possible and most services run in user space.
+2653. **Hybrid Kernel**: A kernel architecture that combines aspects of monolithic and microkernel designs.
+2654. **Exokernel**: An operating system kernel that provides as few abstractions as possible, allowing applications to manage their own resources.
+2655. **Nanokernel**: An even smaller version of a microkernel.
+2656. **Unikernel**: Specialized, single-address-space machine images constructed by using library operating systems.
+2657. **Library Operating System**: An operating system where the OS is a library that is linked with the application.
+2658. **Hypervisor (Type 1 & Type 2)**: Software that creates and runs virtual machines.
+2659. **Native Hypervisor (Type 1 - Bare Metal)**: Runs directly on the host's hardware.
+2660. **Hosted Hypervisor (Type 2)**: Runs as an application on an existing operating system.
+2661. **Paravirtualization**: A virtualization technique where the guest OS is aware that it's running in a virtual environment.
+2662. **Full Virtualization**: A virtualization technique where the guest OS is completely unaware that it's running in a virtual environment.
+2663. **Hardware-Assisted Virtualization (VT-x, AMD-V)**: CPU features that improve the performance of virtual machines.
+2664. **IOMMU (Input-Output Memory Management Unit)**: A memory management unit (MMU) that connects a DMA-capable I/O bus to the main memory.
+2665. **SR-IOV (Single Root I/O Virtualization)**: A specification that allows a single PCIe physical device to appear as multiple separate logical devices.
+2666. **VirtIO**: A virtualization standard for network and disk device drivers where just the guest's device driver 'knows' it is running in a virtual environment.
+2667. **Snapshotting (VM)**: Saving the current state of a virtual machine.
+2668. **Live Migration (VM)**: Moving a running virtual machine from one physical host to another with minimal downtime.
+2669. **Vagrant (VM Orchestration)**: A tool for building and managing virtual machine environments.
+2670. **Docker (Containerization) (The Sealed Vessel)**: A set of platform as a service products that use OS-level virtualization to deliver software in packages called containers.
+2671. **Container vs VM**: Explaining why containers are lighter and faster than virtual machines.
+2672. **Namespaces (Linux)**: A feature of the Linux kernel that isolates and virtualizes system resources for a collection of processes.
+2673. **Cgroups (Control Groups)**: A Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes.
+2674. **Union File System (UnionFS)**: A file system service which implements a union mount for other file systems.
+2675. **Docker Image (The Blueprint of the Vessel)**: A read-only template used to create Docker containers.
+2676. **Docker Container (The Active Vessel)**: A runnable instance of a Docker image.
+2677. **Docker Registry (The Port of Call)**: A place to store and distribute Docker images.
+2678. **Dockerfile**: A text document that contains all the commands a user could call on the command line to assemble an image.
+2679. **Multi-stage Builds (Docker)**: An optimization technique for creating small and secure Docker images.
+2680. **Layer Caching (Docker)**: Speeds up the build process by reusing layers from previous builds.
+2681. **Docker Compose**: A tool for defining and running multi-container Docker applications.
+2682. **Podman (Daemonless Docker Alternative)**: A daemonless, open source, Linux native tool for deployed applications using Open Container Initiative (OCI) Containers.
+2683. **Buildah**: A tool that facilitates building OCI images.
+2684. **Skopeo**: A command line utility that performs various operations on container images and image repositories.
+2685. **Kaniko**: A tool to build container images from a Dockerfile, inside a container or Kubernetes cluster.
+2686. **Rootless Containers**: Running containers without root privileges for improved security.
+2687. **Singularity (Apptainer)**: A container platform designed for HPC (High Performance Computing).
+2688. **LXC (Linux Containers)**: An OS-level virtualization method for running multiple isolated Linux systems on a single control host.
+2689. **LXD**: A next-generation system container manager.
+2690. **Kata Containers**: A project for building lightweight virtual machines that feel and perform like containers but provide the workload isolation of VMs.
+2691. **Firecracker (AWS)**: An open source virtualization technology that is purpose-built for creating and managing secure, multi-tenant container and function-based services.
+2692. **Gvisor (Google)**: A user-space kernel for containers that provides a strong security boundary.
+2693. **Runtime Specification (OCI)**: A standard for container runtimes.
+2694. **Image Specification (OCI)**: A standard for container images.
+2695. **CRI (Container Runtime Interface)**: A plugin interface which enables kubelet to use a wide variety of container runtimes.
+2696. **Containerd**: An industry-standard container runtime with an emphasis on simplicity, robustness and portability.
+2697. **CRI-O**: A lightweight container runtime for Kubernetes.
+2698. **Docker Swarm (Obsolete)**: A clustering and scheduling tool for Docker containers.
+2699. **Nomad (HashiCorp) (The Wanderer)**: A simple and flexible work orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds.
+2700. **Mesos / Marathon (Classic)**: A cluster manager that provides efficient resource isolation and sharing across distributed applications.
+2701. **High Performance Computing (HPC)**: The use of parallel processing for running complex application programs efficiently, reliably and quickly.
+2702. **Beowulf Cluster**: A multi-computer architecture which can be used for parallel computations.
+2703. **MPI (Message Passing Interface)**: A standardized and portable message-passing system designed to function on a wide variety of parallel computing architectures.
+2704. **Slurm (Workload Manager)**: A free open-source job scheduler for Linux and Unix-like kernels, used by many of the world's supercomputers and computer clusters.
+2705. **Lustre & BeeGFS**: High-performance parallel file systems used in HPC.
+2706. **Infiniband**: A computer-networking communications standard used in high-performance computing that features very high throughput and very low latency.
+2707. **RDMA (Remote Direct Memory Access)**: A feature that allows a computer to access the memory of another computer without involving either computer's operating system.
+2708. **Distributed Computing (The Gathering of the Thing)**: A field of computer science that studies distributed systems.
+2709. **The Eight Fallacies of Distributed Computing**: A set of false assumptions made by programmed who are new to distributed applications.
+2710. **Fallacy 1: The network is reliable.**
+2711. **Fallacy 2: Latency is zero.**
+2712. **Fallacy 3: Bandwidth is infinite.**
+2713. **Fallacy 4: The network is secure.**
+2714. **Fallacy 5: Topology doesn't change.**
+2715. **Fallacy 6: There is one administrator.**
+2716. **Fallacy 7: Transport cost is zero.**
+2717. **Fallacy 8: The network is homogeneous.**
+2718. **CAP Theorem (Consistency, Availability, Partition Tolerance)**: States that it is impossible for a distributed data store to simultaneously provide more than two out of the three guarantees.
+2719. **PACELC Theorem**: An extension to the CAP theorem that also considers the trade-off between latency and consistency during normal execution.
+2720. **BASE (Basically Available, Soft state, Eventual consistency)**: An alternative to ACID for distributed systems.
+2721. **Replicated State Machines**: A general method for implementing a fault-tolerant service by replicating servers and coordinating client interactions with server replicas.
+2722. **Byzantine Fault Tolerance (BFT) (The Traitor's Problem)**: The resistance of a distributed computer system to the 'Byzantine Generals Problem'.
+2723. **Practical Byzantine Fault Tolerance (PBFT)**: An algorithm for state machine replication that provides BFT.
+2724. **Quorum (Distributed Systems)**: The minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system.
+2725. **Leader Election (Choosing the Jarl)**: The process of designating a single process as the organizer of some task distributed among several computers.
+2726. **Chubby (Google)**: A lock service for loosely coupled distributed systems.
+2727. **ZooKeeper (Apache) (The Beast-Keeper)**: A centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.
+2728. **Etcd (The Store of the World)**: A strongly consistent, distributed key-value store that provides a reliable way to store data that needs to be accessed by a distributed system or cluster of machines.
+2729. **Hashicorp Consul (The Messenger of Information)**: A service networking solution to connect and secure services across any runtime platform and public or private cloud.
+2730. **Service Discovery (Locating the Settlement)**: The process of automatically detecting devices and services on a computer network.
+2731. **Dynamic Service Discovery**: Service discovery that handles nodes joining and leaving the network automatically.
+2732. **Health Checks (The Pulse of the Warrior)**: A way to determine if a service instance is healthy and capable of handling traffic.
+2733. **Liveness Probe vs Readiness Probe (K8s)**: Checking if a container is running vs checking if it is ready to serve traffic.
+2734. **Startup Probe (K8s)**: Checking if an application has finished starting up.
+2735. **Graceful Shutdown (The Honorable Departure)**: Allowing a process to finish its current work and clean up resources before terminating.
+2736. **Side-Channel Attack Mitigation (Constant Time)**: Making sure an algorithm's execution time doesn't depend on its inputs.
+2737. **Air Gapping (The Deepest Shield)**: Physical isolation of a system.
+2738. **Data Exfiltration (The Hidden Raid)**: The unauthorized transfer of data from a computer.
+2739. **Infiltration (Cyber)**: The process of gaining clandestine access to a target system or network.
+2740. **Kill Chain (Analysis)**: Using the kill chain model to identify points where an attack can be disrupted.
+2741. **Security Posture**: The overall security status of an organization.
+2742. **Risk Assessment**: The process of identifying, analyzing, and evaluating risks.
+2743. **Risk Mitigation**: The process of reducing the impact or probability of a risk.
+2744. **Risk Acceptance**: Choosing to accept a risk rather than mitigating it.
+2745. **Risk Transference**: Moving a risk to another party (e.g. through insurance).
+2746. **Business Continuity Planning (BCP)**: The process of creating systems of prevention and recovery to deal with potential threats to a company.
+2747. **Disaster Recovery (DR) (The Great Restoration)**: The part of BCP that deals with the recovery of IT infrastructure and systems.
+2748. **Recovery Point Objective (RPO) (Data Loss Boundary)**: The maximum age of files that an organization must recover from backup storage for its operations to resume after a disaster.
+2749. **Recovery Time Objective (RTO) (Downtime Boundary)**: The targeted duration of time and a service level within which a business process must be restored after a disaster.
+2750. **Failover (The Backup Plan)**: A procedure by which a system automatically transfers control to a duplicate system when it detects a fault or failure.
+2751. **Failback**: The process of restoring a service to its original primary system after it was failed over.
+2752. **High Availability (HA) (The Unshakeable Fortress)**: A characteristic of a system which aims to ensure an agreed level of operational performance, usually uptime, for a higher than normal period.
+2753. **Redundancy (N+1, 2N)**: The duplication of critical components or functions of a system with the intention of increasing reliability of the system.
+2754. **Single Point of Failure (SPOF)**: A part of a system that, if it fails, will stop the entire system from working.
+2755. **Chaos Engineering (Testing the Ragnarok)**: The discipline of experimenting on a software system in production in order to build confidence in the system's capability to withstand turbulent and unexpected conditions.
+2756. **Chaos Monkey (Netflix)**: A tool that randomly disables production instances to test for resilience.
+2757. **Game Day (Chaos Engineering)**: A coordinated event where an engineering team practices responding to a simulated failure.
+2758. **Fault Injection (Failure Testing)**: Intentionally introducing faults into a system to test its behavior.
+2759. **Error Injection (Failure Testing)**: Intentionally introducing errors into a system to test its error handling.
+2760. **Observability (The All-Seeing Eye)**: The ability to measure the internal states of a system by examining its outputs.
+2761. **Monitoring vs Observability**: Reactive tracking vs Proactive understanding.
+2762. **The Three Pillars of Observability: Logs, Metrics, and Traces.**
+2763. **Golden Signals of Monitoring (LATENCY, TRAFFIC, ERRORS, SATURATION)**: The four key metrics for monitoring user-facing systems.
+2764. **USE Method (Utilization, Saturation, Errors)**: A methodology for analyzing the performance of any system.
+2765. **RED Method (Rate, Errors, Duration)**: A methodology for monitoring request-based services.
+2766. **Contextual Logging**: Including relevant contextual information (e.g. user ID, request ID) in log messages.
+2767. **Structured Logging (JSON Logging)**: Logging in a machine-readable format.
+2768. **Log Correlation**: The process of linking related log messages from different sources.
+2769. **Semantic Logging**: A logging approach where the meaning of the log message is formally defined.
+2770. **Anomaly Detection (The Unnatural Sign)**: Identifying patterns in data that do not conform to expected behavior.
+2771. **Outlier Detection (Statistical)**: Identifying observations that are distant from other observations.
+2772. **Profiling (Performance)**: The process of analyzing a program's execution to identify performance bottlenecks.
+2773. **CPU Profiling (Where is the time spent?)**
+2774. **Memory Profiling (Where is the memory used?)**
+2775. **I/O Profiling (Where is the bottleneck in disk/network?)**
+2776. **Flame Graphs (The Visual Heatmap)**: A visualization technique for profiled software, showing which code paths are consuming resources.
+2777. **Benchmark (The Test of Strength)**: The act of running a computer program, a set of programs, or other operations, in order to assess the relative performance of an object, normally by running a number of standard tests and trials against it.
+2778. **Microbenchmarks (Testing the Small Things)**: Benchmarks that test a very specific, small part of a system.
+2779. **Macrobenchmarks (Testing the Big Picture)**: Benchmarks that test the performance of a whole system or application.
+2780. **End-to-End Performance Testing**: Measuring the performance of a system from the user's perspective.
+2781. **A/B Testing (Split Testing)**: A randomized experiment with two variants, A and B.
+2782. **Multivariate Testing**: A technique for testing a hypothesis in which multiple variables are modified.
+2783. **Canary Release (The Bird in the Cave Deploy)**: A technique to reduce the risk of introducing a new software version in production by slowly rolling out the change to a small subset of users.
+2784. **Blue-Green Deployment**: A technique that reduces downtime and risk by running two identical production environments.
+2785. **Rolling Update**: A deployment strategy that replaces old instances of an application with new instances, one at a time.
+2786. **Shadow Deployment (Mirroring)**: Deploying a new version of an application and mirroring production traffic to it without affecting users.
+2787. **Feature Toggles / Feature Flags (The Switch of Fate)**: A technique in software development that attempts to provide an alternative to maintaining multiple branches in source code.
+2788. **Dark Launching**: Releasing a new feature to a production environment without making it visible to users.
+2789. **Continuous Integration (CI) (The Iron-Link of Building)**: The practice of merging all developers' working copies to a shared mainline several times a day.
+2790. **Continuous Delivery (CD) (The Path to the Settlement)**: An approach in which teams produce software in short cycles, ensuring that the software can be reliably released at any time.
+2791. **Continuous Deployment**: A higher level of CD where every change that passes the automated tests is automatically deployed to production.
+2792. **Build Pipeline (The Smelting-Works)**: A set of automated processes that allow developers to reliably and efficiently build, test, and deploy their software.
+2793. **Artifact (Software Build)**: A deployable component that is produced by the build process (e.g. a JAR file, an executable, a Docker image).
+2794. **Artifact Repository (The Great Warehouse)**: A place to store and manage build artifacts (e.g. Nexus, Artifactory, Docker Hub).
+2795. **Binary Repository Manager**: Another name for an artifact repository.
+2796. **CI/CD Tools (Jenkins, GitHub Actions, GitLab CI, CircleCI)**: Platforms that provide the infrastructure for automation.
+2797. **Jenkins (The Ancient Butler)**: One of the oldest and most popular open-source automation servers.
+2798. **GitHub Actions (Modern Workflow)**: An automation platform integrated directly into GitHub.
+2799. **GitLab CI/CD**: An integrated CI/CD tool within the GitLab platform.
+2800. **Tekton (CI/CD on K8s)**: A powerful and flexible open-source framework for creating CI/CD systems for Kubernetes.
+2801. **Dagger (CI/CD as Code)**: A portable dev engine that allows you to run your CI/CD pipelines as code.
+2802. **BuildMatrix**: A feature of CI/CD systems that allows you to run tests against multiple versions of a language or library.
+2803. **Self-Hosted Runners vs Managed Runners**: Where the build jobs actually execute.
+2804. **Pipeline as Code**: Defining your build and deployment pipelines using machine-readable definition files (e.g. YAML).
+2805. **Static Application Security Testing (SAST) (The Pre-Build Inspection)**: Analyzing source code for security vulnerabilities without executing it.
+2806. **Dynamic Application Security Testing (DAST) (The Active Siege)**: Testing a running application for security vulnerabilities from the outside.
+2807. **Software Composition Analysis (SCA) (Checking the Rations)**: Identifying and analyzing the third-party components and libraries used in an application.
+2808. **Interactive Application Security Testing (IAST)**: A hybrid approach that combines SAST and DAST.
+2809. **Dependency Scanning**: Automatically checking for known vulnerabilities in your project's dependencies.
+2810. **Secret Scanning**: Automatically searching for secrets (e.g. API keys, passwords) in your source code and history.
+2811. **Security Gates (CI/CD)**: Automated checks that prevent a build or deployment from proceeding if specific security criteria are not met.
+2812. **DevSecOps (The Shielded Path)**: The integration of security practices into the DevOps process.
+2813. **Shift Left Security**: Integrating security earlier in the software development lifecycle.
+2814. **Shift Right Testing (Testing in Prod)**: Performing testing and monitoring in the production environment.
+2815. **Post-Mortem (The Analysis of the Slain)**: A process used to evaluate a project or incident after it has been completed or resolved.
+2816. **Blameless Post-Mortem**: A post-mortem that focuses on identifying systemic issues rather than pointing fingers at individuals.
+2817. **Root Cause Analysis (RCA) (Finding the Deep Rot)**: A method of problem-solving used for identifying the root causes of faults or problems.
+2818. **The 5 Whys**: An iterative interrogative technique used to explore the cause-and-effect relationships underlying a particular problem.
+2819. **Fishbone Diagram (Ishikawa Diagram)**: A visualization tool for categorizing the potential causes of a problem.
+2820. **Service Level Agreement (SLA) (The Oaths of Service)**: A commitment between a service provider and a client.
+2821. **Service Level Objective (SLO) (The Target Path)**: A specific target for the reliability of a service.
+2822. **Service Level Indicator (SLI) (The Measurement of Success)**: A quantitative measure of some aspect of the level of service that is provided.
+2823. **Error Budget (The Room for Honorable Failure)**: The amount of allowed unreliability in an SLO.
+2824. **Site Reliability Engineering (SRE)**: A discipline that incorporates aspects of software engineering and applies them to infrastructure and operations problems.
+2825. **SRE Principles: Embracing Risk, Service Level Objectives, Eliminating Toil, Monitoring, Automation, Release Engineering, Simplicity.**
+2826. **Toil (The Grunt Work)**: Tasks that are manual, repetitive, automatable, tactical, devoid of enduring value, and scale linearly with service growth.
+2827. **Automating Toil (The Liberation)**: Using automation to replace manual and repetitive tasks.
+2828. **Runbook / Playbook (The Guide to Action)**: A collection of procedures and information used by an operator or engineer.
+2829. **Executable Runbook**: A runbook where the procedures are automated scripts or commands that can be executed directly.
+2830. **Alerting (The Horn of Warning)**: The process of notifying the appropriate people when a problem is detected.
+2831. **On-Call Rotation (The Watch Duty)**: A schedule where team members take turns being responsible for responding to production incidents.
+2832. **Incident Management System (PagerDuty, Opsgenie)**: Tools for managing and routing alerts to the appropriate on-call person.
+2833. **Escalation Policy**: Rules for who to contact if an on-call person does not respond to an alert.
+2834. **MTTD (Mean Time to Detect)**: The average time it takes to detect a security incident or system failure.
+2835. **MTTR (Mean Time to Respond / Repair)**: The average time it takes to respond to or repair a system after a failure.
+2836. **Availability (The Always-On)**: The proportion of time that a system is functional and available.
+2837. **Reliability (The Unbreakable Trust)**: The probability that a system will perform its intended function without failure for a specified period.
+2838. **Maintainability**: The ease with which a product can be maintained.
+2839. **Scalability (Horizontal vs Vertical)**: The ability of a system to handle a growing amount of work or its potential to be enlarged to accommodate that growth.
+2840. **Elasticity (Cloud Scaling)**: The degree to which a system is able to adapt to workload changes by provisioning and de-provisioning resources in an autonomic manner, such that at each point in time the available resources match the current demand as closely as possible.
+2841. **Single-Tenant vs Multi-Tenant Architecture**: Whether a single instance of software serves one customer or multiple customers.
+2842. **Multi-Tenancy Isolation**: Ensuring that one tenant cannot access another tenant's data or affect their performance.
+2843. **Noisy Neighbor Problem**: When one tenant in a multi-tenant environment consumes a disproportionate amount of resources, affecting the performance of other tenants.
+2844. **Quotas and Throttling (Fair Use Law)**: Limiting the amount of resources that a single user or application can consume.
+2845. **Rate Limiting (Token Bucket, Leaky Bucket)**: Controlling the rate of requests sent or received by a network interface or service.
+2846. **Circuit Breaker (State Machine: Closed, Open, Half-Open)**: The internal states of a circuit breaker pattern.
+2847. **Bulkhead Pattern (The Sealed Compartments)**: Isolating elements of an application into pools so that if one fails, the others will continue to function.
+2848. **Sidecar Injection (Automated)**: Automatically adding sidecar containers to pods during deployment (e.g. using a mutating admission webhook).
+2849. **Service Mesh Data Plane vs Control Plane**: The components that handle traffic vs the components that manage the mesh.
+2850. **Envoy Proxy (The Workhorse of the Mesh)**: An L7 proxy and communication bus designed for large modern service-oriented architectures.
+2851. **Mtls (Mutual TLS) in Service Mesh**: Automatically encrypting and authenticating all service-to-service communication.
+2852. **Zero Trust in Microservices**: Validating every request between microservices using identities and policies.
+2853. **Cloud Native Storage (Rook, Longhorn)**: Storage solutions specifically designed for containerized environments.
+2854. **Serverless Database (PlanetScale, CockroachDB Serverless, Aurora Serverless)**: Databases that scale automatically and charge based on usage.
+2855. **Cold Storage (Amazon Glacier, Google Coldline)**: Extremely low-cost storage for data that is rarely accessed.
+2856. **Edge Computing (The Settlement at the Frontier)**: A distributed computing paradigm that brings computation and data storage closer to the sources of data.
+2857. **CDN (Content Delivery Network)**: A geographically distributed network of proxy servers and their data centers.
+2858. **Edge Workers (Cloudflare Workers, Fastly Compute)**: Running code at the edge of the network.
+2859. **Internet of Things (IoT) (The Whispering World)**: The network of physical objects that are embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet.
+2860. **MQTT (The Language of the Edge)**: A lightweight, publish-subscribe network protocol that transports messages between devices.
+2861. **CoAP (Constrained Application Protocol)**: A specialized web transfer protocol for use with constrained nodes and constrained networks.
+2862. **Fog Computing**: An architecture that uses edge devices to carry out a substantial amount of computation, storage, and communication locally and routed over the internet backbone.
+2863. **Cyber-Physical Systems (CPS)**: Integrations of computation, networking, and physical processes.
+2864. **Digital Twin (The Reflection of the Realm)**: A digital representation of a physical object or system.
+2865. **OTA (Over-The-Air) Updates**: The practice of wirelessly updating a device's software.
+2866. **Embedded Systems (The Hidden Spirit)**: A computer system—a combination of a computer processor, computer memory, and input/output peripheral devices—that has a dedicated function within a larger mechanical or electronic system.
+2867. **RTOS (Real-Time Operating System)**: An operating system intended to serve real-time applications that process data as it comes in, typically without buffer delays.
+2868. **Hard vs Soft Real-Time Systems**: Guaranteeing deadlines vs aiming for deadlines.
+2869. **Interrupt Latency**: The amount of time that elapses from when an interrupt is generated to when the source of the interrupt is serviced.
+2870. **Context Switch (The Shifting Spirit)**: The process of storing the state of a process or thread, so that it can be restored and resume execution at a later point.
+2871. **Bare Metal Programming**: Running code directly on the hardware without an operating system.
+2872. **Bootloader (The First Summoning)**: A small program that loads the operating system or the main application into memory.
+2873. **JTAG (Joint Test Action Group)**: An industry standard for verifying designs and testing printed circuit boards after manufacture.
+2874. **GPIO (General-Purpose Input/Output)**: An uncommitted digital signal pin on an integrated circuit or electronic circuit board whose behavior—including whether it is an input or output pin—is controllable by the user at run time.
+2875. **I2C (Inter-Integrated Circuit)**: A synchronous, multi-controller/multi-target, packet switched, single-ended, serial communication bus.
+2876. **SPI (Serial Peripheral Interface)**: A synchronous serial communication interface specification used for short-distance communication, primarily in embedded systems.
+2877. **UART (Universal Asynchronous Receiver-Transmitter)**: A computer hardware device for asynchronous serial communication in which the data format and transmission speeds are configurable.
+2878. **Endianness in Networking (Network Byte Order)**: Always big-endian.
+2879. **Watchdog Timer (The Loyal Guardian)**: An electronic or software timer that is used to detect and recover from computer malfunctions.
+2880. **Hardware Abstraction Layer (HAL)**: A layer of programming that allows a computer operating system to interact with a hardware device at a general or abstract level rather than at a detailed hardware level.
+2881. **Low Power Design**: Designing hardware and software to minimize power consumption.
+2882. **Sleep Modes (Deep Sleep, Hibernate)**: Low-power states for hardware.
+2883. **Interrupt-Driven I/O**: A way of controlling I/O activity whereby a peripheral or terminal that needs to make or receive a data transfer sends a signal.
+2884. **Polling (The Constant Questioning)**: Actively sampling the status of an external device by a client program as a synchronous activity.
+2885. **Direct Register Access**: Communicating with hardware by writing directly to its control registers.
+2886. **Bitwise Operations (OR, AND, XOR, NOT, SHIFT)**: Manipulating individual bits of data.
+2887. **Bitmasking**: A process in which a mask is used to perform bitwise operations on a byte or integer.
+2888. **Floating Point vs Fixed Point Arithmetic**: Representing real numbers in computer systems.
+2889. **IEEE 754**: The standard for floating-point arithmetic.
+2890. **Rounding Errors (Precision Loss)**: The difference between the calculated value of a number and its exact mathematical value due to rounding.
+2891. **NaN (Not-a-Number)**: A value of the numeric data type representing an undefined or unrepresentable value, especially in floating-point calculations.
+2892. **Big-O of Common Data Structures (Array, List, Map, Set, Tree).**
+2893. **Amortized Complexity**: The average time per operation over a worst-case sequence of operations.
+2894. **Cache-Oblivious Algorithms**: Algorithms designed to take advantage of a CPU cache without having the size of the cache as an explicit parameter.
+2895. **Online Algorithms**: An algorithm that can process its input piece by piece in a serial fashion, i.e., in the order that the input is fed to the algorithm, without having the entire input available from the start.
+2896. **Streaming Algorithms**: Algorithms for processing data streams in which the input data is presented as a sequence of items and can be examined in only a few passes.
+2897. **Approximation Algorithms**: Algorithms used to find approximate solutions to optimization problems (in particular NP-hard problems).
+2898. **Ramsey Theory (Combinatorics)**: The study of the conditions under which order must appear.
+2899. **Graph Colorability**: A way of coloring the vertices of a graph such that no two adjacent vertices share the same color.
+2900. **Hamiltonian Path**: A path in an undirected or directed graph that visits each vertex exactly once.
+2901. **Eulerian Path**: A trail in a graph which visits every edge exactly once.
+2902. **Network Flow (Max-Flow Min-Cut)**: A classic problem in graph theory and network optimization.
+2903. **Bipartite Graphs**: A graph whose vertices can be divided into two disjoint and independent sets.
+2904. **Strongly Connected Components (SCCs)**: A sub-graph of a directed graph where every vertex is reachable from every other vertex.
+2905. **Topological Sort**: A linear ordering of vertices such that for every directed edge uv, vertex u comes before v in the ordering.
+2906. **Critical Path Method (CPM)**: An algorithm for scheduling a set of project activities.
+2907. **Instruction Scheduling (Compiler Optimization)**: Reordering instructions to improve performance and avoid stalls.
+2908. **Register Allocation (Compiler Optimization)**: Assigning a large number of target program variables onto a small number of CPU registers.
+2909. **Dead Code Elimination (Compiler Optimization)**: Removing code that does not affect the program results.
+2910. **Common Subexpression Elimination (CSE)**: A compiler optimization that searches for instances of identical expressions and replaces them with a single variable holding the computed value.
+2911. **Loop Unrolling (Compiler Optimization)**: A loop transformation technique that attempts to optimize a program's execution speed by reducing or eliminating instructions that control the loop.
+2912. **Strength Reduction (Compiler Optimization)**: A compiler optimization where expensive operations are replaced with equivalent but less expensive operations.
+2913. **Constant Folding**: The process of simplifying constant expressions at compile time.
+2914. **Constant Propagation**: The process of substituting the values of known constants in expressions at compile time.
+2915. **Linker (Linking the Runes)**: A computer system program that takes one or more object files generated by a compiler and combines them into a single executable file, library file, or another 'object' file.
+2916. **Static Linking (Permanent Bind)**: The process of copying all library modules used in the program into the final executable image.
+2917. **Dynamic Linking (Lazy Bind)**: The process of linking libraries to a program at run time.
+2918. **Dynamic Link Library (DLL) / Shared Object (SO)**: A file that contains code and data that can be used by multiple programs at the same time.
+2919. **Global Offset Table (GOT)**: A section of a computer program's executable used to store pointers to external symbols.
+2920. **Procedure Linkage Table (PLT)**: A data structure used to support call to functions in a shared library.
+2921. **ASLR-compatible Executables (PIE - Position Independent Executable)**: Executables that can be placed at a random memory address.
+2922. **Symbol Table**: A data structure used by a language translator such as a compiler or interpreter, where each identifier (a symbol) in a program's source code is associated with information relating to its declaration or appearance in the source.
+2923. **Name Mangling (Name Decoration)**: A technique used to solve various problems caused by the need to resolve unique names for programming entities in many modern programming languages.
+2924. **Call Stack (The Chain of Deeds)**: A stack data structure that stores information about the active subroutines of a computer program.
+2925. **Stack Frame (Activation Record)**: A component of the call stack that contains the parameters, local variables, and return address for a specific function call.
+2926. **Frame Pointer vs Stack Pointer**: Registers used to manage the current stack frame.
+2927. **Heap Allocation (malloc/free, new/delete)**: Manually managing the allocation and deallocation of memory.
+2928. **Memory Pool (The Pre-Allocated Well)**: A strategy for fast memory allocation where pre-allocated blocks of memory are managed.
+2929. **Slab Allocation**: A memory management mechanism intended for the efficient allocation of kernel objects.
+2930. **Buddy Memory Allocation**: A memory allocation algorithm that divides memory into partitions to try an satisfy a memory request as suitably as possible.
+2931. **Memory Safety (The Shield of Logic)**: The property of a program where it is guaranteed not to have memory errors (e.g. buffer overflows, null pointer dereferences).
+2932. **Safe vs Unsafe Code (The Protected vs The Primal)**: Explicitly marking sections of code that bypass safety checks (e.g. in Rust).
+2933. **Undefined Behavior (The Realm of Chaos)**: The result of executing code whose behavior is not defined by the language specification.
+2934. **Sequence Points (C/C++)**: A point in the program's execution where all previous side effects of the previous expressions shall be complete and no side effects of the following expressions shall have started.
+2935. **Strict Aliasing**: A rule that says the compiler can assume that pointers to different types do not point to the same memory location.
+2936. **Volatile Keyword (The Unpredictable Rune)**: A qualifier that tells the compiler that the value of a variable can change unexpectedly.
+2937. **Atomic Operations (Lock-free Primitives)**: Operations that are guaranteed to be performed as a single unit or not at all.
+2938. **Memory Ordering (Relaxed, Acquire, Release, SeqCst)**: Specifying the visibility of memory operations across different threads.
+2939. **Read-Modify-Write (RMW) Operations**: Atomic operations that read a value, modify it, and write it back.
+2940. **Atomic Variables**: Variables that support atomic operations.
+2941. **Spinlock (The Waiting Warrior)**: A lock where the thread simply waits in a loop ('spins') until the lock becomes available.
+2942. **Futex (Fast Userspace Mutex)**: A Linux kernel system call for implementing fast synchronization primitives in userspace.
+2943. **Barrier (Synchronization)**: A type of synchronization method where a group of threads or processes must all reach a certain point before any can proceed.
+2944. **Phaser (Synchronization)**: A more flexible synchronization barrier.
+2945. **Read-Copy-Update (RCU)**: A synchronization mechanism that allows multiple readers to access a data structure simultaneously while a writer is updating it.
+2946. **Non-Blocking Synchronization**: Synchronization without the use of locks.
+2947. **Transactional Memory (Hardware)**: Hardware support for atomic memory transactions.
+2948. **Concurrency vs Parallelism (Doing vs Being Done)**: Managing multiple tasks vs executing multiple tasks at once.
+2949. **Multithreading (The Multiple Threads of Fate)**: The ability of a central processing unit (CPU) or a single core in a multi-core processor to provide multiple threads of execution concurrently.
+2950. **Thread Pool (The Gathering of Warriors)**: A software design pattern for achieving concurrency by maintaining a pool of threads for executing tasks.
+2951. **Task-Based Concurrency**: A high-level approach to concurrency where you define tasks and let the runtime manage the threads.
+2952. **Work Stealing Scheduler**: A scheduling strategy used in many parallel runtimes where idle threads 'steal' work from the queues of busy threads.
+2953. **Fork-Join Framework**: A parallel programming pattern where a task is 'forked' into sub-tasks and their results are 'joined' back together.
+2954. **Reactive Streams (Backpressure Standard)**: A standard for asynchronous stream processing with non-blocking backpressure.
+2955. **Asynchronous Programming (async/await) (The Non-Blocking Path)**: A programming pattern that allows a program to start a task and move on to other tasks while waiting for the first task to complete.
+2956. **Promises & Futures (The Oath of Return)**: Objects representing the eventual result of an asynchronous operation.
+2957. **Callback Hell (The Tangled Threads)**: A situation where multiple nested callbacks making code difficult to read and maintain.
+2958. **Event Loop (The Eternal Cycle)**: A programming construct that waits for and dispatches events or messages in a program.
+2959. **Task Queue vs Microtask Queue (JavaScript)**: Different priorities for asynchronous tasks in the event loop.
+2960. **I/O Multiplexing (select, poll, epoll, kqueue)**: Monitoring multiple file descriptors to see if I/O is possible on any of them.
+2961. **Non-Blocking I/O**: An I/O operation that returns immediately if it cannot be completed, rather than waiting.
+2962. **Asynchronous I/O (AIO)**: An I/O operation that allows the program to continue executing while the I/O is performed in the background.
+2963. **Zero-Copy I/O (sendfile)**: A technique for transferring data between two file descriptors (or a file and a socket) without copying it between kernel space and user space.
+2964. **Direct I/O**: Accessing disk data without using the operating system's file system cache.
+2965. **Buffer Management (The Vessel Handling)**: Efficiently managing memory buffers for I/O operations.
+2966. **Ring Buffer (Circular Buffer)**: A data structure that uses a single, fixed-size buffer as if it were connected end-to-end.
+2967. **Scatter-Gather I/O (Vectored I/O)**: Reading data from multiple buffers into a single stream, or writing data from a single stream into multiple buffers.
+2968. **Socket Programming (Connecting the Realms)**: Programming with network sockets.
+2969. **TCP/IP Stack (The Layered Path)**: The conceptual model and set of communications protocols used on the Internet.
+2970. **OSI Model (The Seven Realms of Networking)**: A conceptual model that characterizes and standardizes the communication functions of a telecommunication or computing system.
+2971. **Physical Layer (Layer 1)**: The physical equipment that makes up the network.
+2972. **Data Link Layer (Layer 2)**: Reliable transmission of frames between two nodes on the same network.
+2973. **Network Layer (Layer 3)**: Routing and forwarding of data packets between different networks.
+2974. **Transport Layer (Layer 4)**: Flow control and error correction of data.
+2975. **Session Layer (Layer 5)**: Inter-host communication, managing sessions between applications.
+2976. **Presentation Layer (Layer 6)**: Data representation, encryption, and decryption.
+2977. **Application Layer (Layer 7)**: The layer we interact with (e.g. HTTP, DNS).
+2978. **Internet Protocol (IP) (IPv4 vs IPv6)**: The principal communications protocol in the Internet protocol suite for relaying datagrams across network boundaries.
+2979. **Transmission Control Protocol (TCP) (The Reliable Messenger)**: A core protocol of the Internet protocol suite which provides reliable, ordered, and error-checked delivery of a stream of octets between applications.
+2980. **User Datagram Protocol (UDP) (The Swift Messenger)**: A core protocol of the Internet protocol suite which provides a simple connectionless communication mechanism.
+2981. **ICMP (Internet Control Message Protocol)**: Used by network devices to send error messages and operational information.
+2982. **ARP (Address Resolution Protocol)**: A communication protocol used for discovering the link layer address, such as a MAC address, associated with a given internet layer address, typically an IPv4 address.
+2983. **DHCP (Dynamic Host Configuration Protocol)**: A network management protocol used on IP networks whereby a DHCP server dynamically assigns an IP address and other network configuration parameters to each device on a network.
+2984. **DNS (Domain Name System) (The Name-Mapping Ritual)**: The phonebook of the Internet.
+2985. **HTTP (Hypertext Transfer Protocol)**: The foundation of data communication for the World Wide Web.
+2986. **REST (Representational State Transfer)**: A software architectural style that was created to guide the design and development of the architecture for the World Wide Web.
+2987. **Idempotence in REST (GET, PUT, DELETE are idempotent)**: The property of certain HTTP methods where multiple identical requests should have the same effect as a single request.
+2988. **Hateoas (Hypermedia as the Engine of Application State)**: A constraint of the REST application architecture that distinguishes it from other network application architectures.
+2989. **API Design Patterns (Singleton, Factory, Observer in API context).**
+2990. **Webhook (The Messenger's Return)**: A method of augmenting or altering the behavior of a web page or web application with custom callbacks.
+2991. **SOAP (Simple Object Access Protocol)**: A messaging protocol specification for exchanging structured information in the implementation of web services in computer networks.
+2992. **WSDL (Web Services Description Language)**: An XML-based interface description language that is used for describing the functionality offered by a web service.
+2993. **RSS & Atom (Web Feeds)**: Formats for delivering regularly changing web content.
+2994. **Semantic Web (The Data of Divine Understanding)**: An extension of the World Wide Web through standards set by the World Wide Web Consortium (W3C).
+2995. **Linked Data**: A method of publishing structured data so that it can be interlinked and become more useful through semantic queries.
+2996. **JSON-LD (JSON for Linked Data)**: A method of encoding Linked Data using JSON.
+
+## Entries 3201 - 4000
+
+3201. **Distributed Ledger Technology (DLT) (The Eternal Shared Saga)**: A digital system for recording the transaction of assets in which the transactions and their details are recorded in multiple places at the same time.
+3202. **Blockchain (The Linked Rune-Chains)**: A type of DLT where Transactions are recorded with an immutable cryptographic signature called a hash.
+3203. **Genesis Block (The First Stone)**: The very first block in a blockchain.
+3204. **Block Header (The Rune-Crest)**: A section of a block that contains metadata about the block, including its version, timestamp, and a reference to the previous block.
+3205. **Merkle Tree (The Branching Verification)**: A data structure used for efficiently and securely verifying large amounts of data.
+3206. **Merkle Root**: The hash of the entire Merkle tree, which is stored in the block header.
+3207. **Nonce (Number used once)**: A random or semi-random number that is used in cryptographic communication to prevent replay attacks.
+3208. **Mining Difficulty (The Depth of the Hard-Ground)**: A measure of how difficult it is to find a hash for a new block.
+3209. **Hash Rate (The Strength of the Raid)**: The total computational power used to mine and process transactions on a blockchain.
+3210. **Consensus Mechanism (The Great Gathering Consensus)**: A fault-tolerant mechanism used in computer and blockchain systems to achieve the necessary agreement on a single data value or a single state of the network among distributed processes or multi-agent systems.
+3211. **Proof of Work (PoW) (The Labor of the Anvil)**: A consensus mechanism that requires participants to solve a difficult mathematical puzzle.
+3212. **Proof of Stake (PoS) (The Wisdom of the Seer's Stake)**: A consensus mechanism that requires participants to hold a certain amount of the network's native currency.
+3213. **Delegated Proof of Stake (DPoS)**: A PoS consensus mechanism that uses a voting system to select a set of 'validators' or 'delegates'.
+3214. **Proof of Authority (PoA)**: A consensus mechanism based on the identity and reputation of participants.
+3215. **Proof of Capacity (PoC) (The Space of the Warehouse)**: A consensus mechanism based on the amount of disk space a participant provides.
+3216. **Proof of Burn (PoB)**: A consensus mechanism that requires participants to 'burn' or destroy some of their tokens.
+3217. **Practical Byzantine Fault Tolerance (PBFT) in DLT**: An algorithm that allows a distributed network to reach consensus even if some nodes are malicious or fail.
+3218. **HoneyBadgerBFT**: A permissionless BFT consensus protocol.
+3219. **HotStuff Consensus (used in Libra/Diem)**: A leader-based BFT replication protocol.
+3220. **Mainnet vs Testnet**: The production vs testing environment for a blockchain.
+3221. **Devnet**: A blockchain environment for developers to experiment with new features.
+3222. **Smart Contract (The Self-Executing Oath)**: A computer program or a transaction protocol which is intended to automatically execute, control or document legally relevant events and actions according to the terms of a contract or an agreement.
+3223. **Ethereum (The World Computer)**: An open-source, blockchain-based, decentralized software platform used for its own cryptocurrency, ether.
+3224. **EVM (Ethereum Virtual Machine) (The Runes of the World-Spirit)**: The runtime environment for smart contracts in Ethereum.
+3225. **Solidity (The Contract-Writer's Tongue)**: The primary programming language for writing smart contracts on Ethereum.
+3226. **Vyper (The Safer Contract-Writer's Tongue)**: A security-focused programming language for the EVM.
+3227. **Web3 (The Decentralized Web)**: The idea for a new iteration of the World Wide Web which incorporates concepts such as decentralization, blockchain technologies, and token-based economics.
+3228. **DApp (Decentralized Application) (The People's Settlement)**: An application that runs on a decentralized network.
+3229. **DAO (Decentralized Autonomous Organization) (The Self-Governing Thing)**: An organization represented by rules encoded as a computer program that is transparent, controlled by the organization members and not influenced by a central government.
+3230. **Token (Utility, Security, Governance)**: A digital asset that represents a specific unit of value or utility.
+3231. **ERC-20 (Fungible Token Standard)**: A standard for tokens on the Ethereum blockchain that are identical and interchangeable.
+3232. **ERC-721 (Non-Fungible Token Standard)**: A standard for unique tokens (NFTs) on the Ethereum blockchain.
+3233. **ERC-1155 (Multi-Token Standard)**: A standard for managing multiple token types (both fungible and non-fungible) in a single contract.
+3234. **Wallet (Hot vs Cold)**: A tool for managing cryptographic keys and interacting with a blockchain.
+3235. **Hardware Wallet (The Iron Lockbox)**: A physical device that stores private keys offline.
+3236. **Paper Wallet (The Parchment Key)**: A physical copy of public and private keys, often in the form of QR codes.
+3237. **Mnemonic Phrase (Seed Phrase) (The Rune-Words of Memory)**: A list of words that can be used to recover a cryptographic wallet.
+3238. **Hierarchical Deterministic (HD) Wallet**: A wallet that uses a hierarchical structure for managing keys, derived from a single seed.
+3239. **BIP-32, BIP-39, BIP-44**: Standards for HD wallets and mnemonic phrases.
+3240. **Public Address (The Digital Mark)**: A unique identifier that allows you to receive transactions on a blockchain.
+3241. **Private Key (The Soul-Key)**: A secret key that allows you to spend the funds in a cryptographic wallet.
+3242. **Transaction Fee (Gas / Miner Fee)**: The amount paid to the network for processing a transaction.
+3243. **Mempool (The Sea of Pending Transactions)**: A list of all unconfirmed transactions waiting to be included in a block.
+3244. **Confirmation (Blockchain)**: The act of a block being added to the blockchain, signifying that the transactions within it are final.
+3245. **Finality (Probabilistic vs Deterministic)**: The point at which a transaction cannot be reversed or changed.
+3246. **Chain Reorganization (Reorg)**: When a blockchain's history is overwritten by a longer chain.
+3247. **Soft Fork vs Hard Fork**: Backwards-compatible vs non-backwards-compatible protocol changes.
+3248. **Layer 1 (L1) (The Foundation)**: The base blockchain layer (e.g. Bitcoin, Ethereum).
+3249. **Layer 2 (L2) (The Added Settlement)**: A secondary layer built on top of a Layer 1 blockchain to improve scalability.
+3250. **State Channel (The Private Duel)**: A Layer 2 scaling solution that allows for off-chain transactions.
+3251. **Payment Channel**: A type of state channel specifically for payments (e.g. Lightning Network).
+3252. **Sidechain (The Allied Kingdom)**: A separate blockchain that is connected to a parent blockchain via a two-way peg.
+3253. **Plasma (Ethereum Scaling)**: An early framework for building scalable decentralized applications on Ethereum.
+3254. **Optimistic Rollup**: A Layer 2 scaling solution that assumes transactions are valid by default and only uses fraud proofs if a challenge is raised.
+3255. **ZK-Rollup (Zero-Knowledge Rollup)**: A Layer 2 scaling solution that uses zero-knowledge proofs to bundle and verify transactions off-chain.
+3256. **Optimism & Arbitrum**: Popular Optimistic Rollup solutions for Ethereum.
+3257. **zkSync & Starknet**: Popular ZK-Rollup solutions for Ethereum.
+3258. **Interoperability (The Bridge of Realms)**: The ability of different blockchains to communicate and exchange value.
+3259. **Cross-Chain Bridge**: A protocol that allows for the transfer of assets between different blockchains.
+3260. **Atomic Swap**: A smart contract technology that enables the exchange of one cryptocurrency for another without a centralized intermediary.
+3261. **Oracle (The Seer's Message)**: A service that provides external data to smart contracts on a blockchain.
+3262. **Chainlink (Oracle Network)**: A decentralized oracle network that provides data to many different blockchains.
+3263. **Uniswap (Decentralized Exchange - DEX)**: A popular decentralized exchange protocol on Ethereum.
+3264. **Automated Market Maker (AMM)**: A DEX protocol that uses a mathematical formula to price assets.
+3265. **Liquidity Provider (LP)**: A user who provides assets to a liquidity pool in a DEX.
+3266. **Impermanent Loss**: A potential risk for liquidity providers in an AMM, where the value of their assets in the pool is less than it would have been if they had just held them.
+3267. **Slippage (Trading)**: The difference between the expected price of a trade and the actual price at which it is executed.
+3268. **Front-Running (MEV - Maximal Extractable Value)**: An exploit where a user sees a pending transaction and places their own transaction ahead of it to profit.
+3269. **Flash Loan**: A type of loan in DeFi that must be repaid within the same transaction.
+3270. **Hacks and Exploits (The Digital Vikings' Raids)**: Vulnerabilities in smart contracts that can be exploited for profit.
+3271. **Re-entrancy Attack**: A vulnerability where a smart contract can be called back into before its state has been updated.
+3272. **Flash Loan Attack**: An exploit that uses flash loans to manipulate the price of an asset in a DEX.
+3273. **Rug Pull**: A type of scam where the developers of a project suddenly abandon it and take the users' funds.
+3274. **Stablecoin (Fiat-backed, Over-collateralized, Algorithmic)**: A cryptocurrency designed to have a stable value.
+3275. **USDC & USDT (Fiat-backed Stablecoins)**: Tokens backed by reserves of US dollars.
+3276. **DAI (Over-collateralized Stablecoin)**: A decentralized stablecoin backed by a basket of collateral assets.
+3277. **Terra/LUNA (Algorithmic Stablecoin) (The Great Collapse)**: A failed stablecoin project that collapsed in 2022.
+3278. **DeFi (Decentralized Finance) (The Kingdom of Free Commerce)**: A collection of financial services on a public blockchain.
+3279. **Lending Protocols (Aave, Compound)**: Platforms that allow users to lend and borrow cryptocurrencies.
+3280. **Yield Farming (The Harvest of Value)**: The process of earning rewards by providing liquidity to DeFi protocols.
+3281. **Staking (The Investment of Faith)**: Participating in a PoS consensus mechanism to earn rewards.
+3282. **Liquid Staking**: A technique that allows users to stake their tokens while still being able to use them in DeFi.
+3283. **NFT Marketplace (OpenSea, Blur)**: Platforms for buying and selling NFTs.
+3284. **Play-to-Earn (P2E) (The Games of Reward)**: A business model for games where players can earn cryptocurrencies or NFTs.
+3285. **Metaverse (The Digital Realm of Realms)**: A collective virtual shared space, created by the convergence of virtually enhanced physical reality and physically persistent virtual space.
+3286. **Self-Sovereign Identity (SSI)**: The idea that individuals should own and control their own digital identities.
+3287. **Verifiable Credential (VC)**: A standard for digital credentials that can be verified privately and securely.
+3288. **Decentralized Identifier (DID)**: A new type of identifier for verifiable, decentralized digital identity.
+3289. **IPFS (InterPlanetary File System) (The Global Library)**: A peer-to-peer network and protocol for storing and sharing data in a distributed file system.
+3290. **Filecoin (Decentralized Storage Marketplace)**: A blockchain-based storage network built on top of IPFS.
+3291. **Arweave (Permanent Data Storage)**: A blockchain-like structure that allows for permanent, low-cost data storage.
+3292. **Helium (Decentralized Wireless Network)**: A decentralized network for IoT devices.
+3293. **Tokenomics (The Law of the Token Market)**: The study of the economic models and incentives of a token project.
+3294. **Vesting Period (DLT)**: The amount of time that must pass before tokens can be sold or transferred.
+3295. **Cliff (DLT Vesting)**: A specific point in time during a vesting period after which a large portion of tokens are released.
+3296. **Supply (Circulating, Total, Max)**: The different measures of the amount of tokens in a project.
+3297. **Inflation vs Deflation in DLT**: Whether the supply of tokens is increasing or decreasing over time.
+3298. **Governance Token**: A token that gives users the right to vote on the direction of a project.
+3299. **Snapshot (Governance)**: A voting platform that allows for off-chain voting based on token holders.
+3300. **Tally (Governance)**: A platform for on-chain governance and voting.
+3301. **Quadratic Voting**: A voting system where the cost of a vote increases quadratically with the number of votes.
+3302. **Hyperledger (The Enterprise Ledger)**: An umbrella project for open-source blockchains and related tools.
+3303. **Hyperledger Fabric (Enterprise-Grade)**: A modular blockchain framework for private, permissioned networks.
+3304. **Hyperledger Besu (Enterprise Ethereum)**: An open-source Ethereum client developed under the Hyperledger Foundation.
+3305. **Corda (The Business Ledger)**: A distributed ledger platform specifically designed for business use.
+3306. **Permissioned vs Permissionless Blockchain**: Whether the network is private and controlled or open to anyone.
+3307. **Consortium Blockchain**: A private blockchain that is controlled by a group of organizations.
+3308. **Central Bank Digital Currency (CBDC)**: A digital form of a country's fiat currency issued by its central bank.
+3309. **Digital Assets (The Wealth of the Future)**: Anything that is stored digitally and is uniquely identifiable that organizations can use to realize value.
+3310. **Cryptography in DLT (ECDSA, EdDSA, Schnorr Signs)**: The specific cryptographic algorithms used for securing transactions.
+3311. **Ed25519**: A fast and secure digital signature system using an edwards-curve discrete logarithm problem.
+3312. **Schnorr Signature (The Elegant Sign)**: A simpler and more efficient digital signature system compared to ECDSA.
+3313. **Taproot (Bitcoin Protocol Update)**: A significant update to the Bitcoin protocol that improves privacy and efficiency.
+3314. **Segregated Witness (SegWit) (Bitcoin Protocol Update)**: An update to the Bitcoin protocol that increased the block size limit by removing signature data from transactions.
+3315. **Lightning Network (Bitcoin L2)**: A Layer 2 payment protocol built on top of the Bitcoin blockchain.
+3316. **HTLC (Hash Time-Locked Contract)**: A type of smart contract used in the Lightning Network to ensure secure off-chain payments.
+3317. **Eltoo (Lightning Network Evolution)**: A proposed update to the Lightning Network that would simplify channel management.
+3318. **Watchtower (Lightning Network Security)**: A service that monitors the blockchain for fraudulent activity in the Lightning Network.
+3319. **Sphinx Packet Format (Lightning Network Privacy)**: A header format for onion routing.
+3320. **Zcash (Privacy-focused Cryptocurrency)**: A cryptocurrency that uses zk-SNARKs to provide enhanced privacy features.
+3321. **Monero (Privacy-focused Cryptocurrency)**: A cryptocurrency that uses ring signatures and stealth addresses to provide anonymity.
+3322. **Ring Signature (The Group Sign)**: A digital signature that can be performed by any member of a group of people that each have keys.
+3323. **Stealth Address (The Hidden Destination)**: A unique address that is generated for each transaction to hide the recipient's true address.
+3324. **Bulletproofs (Privacy Tech)**: A highly efficient zero-knowledge proof system for range proofs.
+3325. **Confidential Transactions**: Transactions where the amount being sent is hidden from the public.
+3326. **Tornado Cash (The Mixer)**: A decentralized, non-custodial privacy solution on Ethereum.
+3327. **Railgun (DeFi Privacy)**: A privacy solution for DeFi on Ethereum and other blockchains.
+3328. **Aztec Network (DeFi Privacy)**: A Layer 2 scaling and privacy solution for Ethereum.
+3329. **Secret Network (Privacy-preserving Smart Contracts)**: A blockchain that supports private smart contracts using TEEs.
+3330. **TEEs (Trusted Execution Environments) (The Inner Sanctum)**: A secure area of a main processor.
+3331. **Intel SGX (Software Guard Extensions)**: A set of security-related instruction codes that are built into modern Intel CPUs.
+3332. **AMD SEV (Secure Encrypted Virtualization)**: A feature that encrypts the memory of virtual machines.
+3333. **Enclave (Security)**: A set of memory locations that are isolated and protected from the rest of the system.
+3334. **Side-Channel Attack on TEEs**: Vulnerabilities where an attacker can extract information from a TEE by observing its physical properties.
+3335. **Attestation (Security)**: The process of verifying that a TEE or an enclave is running the correct code.
+3336. **Remote Attestation**: Verifying a TEE's state over a network.
+3337. **Software-Defined Perimeters (SDP)**: A security framework that uses a 'need-to-know' approach to provide access to resources.
+3338. **Zero Trust Network Access (ZTNA) (The Fortress of Always-Checking)**: A type of SDP that provides secure remote access to applications.
+3339. **Cloud Security Posture Management (CSPM)**: Continually monitoring cloud environments for security misconfigurations and compliance violations.
+3340. **Cloud Workload Protection Platform (CWPP)**: Protecting workloads in hybrid and multi-cloud environments.
+3341. **Cloud Access Security Broker (CASB)**: A software tool or service that sits between an organization’s on-premises infrastructure and a cloud provider’s infrastructure.
+3342. **Container Security (Scanning, Runtime Protection, Network Security)**: The practice of protecting containerized applications.
+3343. **Supply Chain Security (The Guarding of the Lineage)**: Protecting the entire software development life cycle from malicious actors.
+3344. **SBOM (Software Bill of Materials) (The Inventory of Parts)**: A machine-readable inventory of all the components and dependencies used in a piece of software.
+3345. **Sigstore (Supply Chain Security)**: A set of tools to improve the security of the software supply chain.
+3346. **SLSA (Supply Chain Levels for Software Artifacts)**: A security framework for software supply chains.
+3347. **In-Toto (Supply Chain Security)**: A framework for providing end-to-end security for software supply chains.
+3348. **Cosign (Sigstore)**: A tool for signing and verifying container images and other OCI artifacts.
+3349. **Fulcio (Sigstore)**: A free code-signing certificate authority.
+3350. **Rekor (Sigstore)**: A transparency log for software artifacts.
+3351. **Vulnerability Management (Saga of the Search and Fix)**: The process of identifying, prioritizing, and remediating security vulnerabilities.
+3352. **Patch Management (The Mending of the Armor)**: The process of applying updates (patches) to software to fix security vulnerabilities and other issues.
+3353. **Threat Hunting (The Tracking of the Beast)**: Proactively searching for threats that have bypassed existing security measures.
+3354. **Cyber Threat Intelligence (CTI)**: Information that an organization uses to understand the threats that have, will, or are currently targeting the organization.
+3355. **Adversary Persona (The Thief, The Spy, The Raider)**: A profile of a potential attacker.
+3356. **TTPs (Tactics, Techniques, and Procedures)**: The patterns of activities or methods associated with a specific threat actor or group of actors.
+3357. **Indicator of Compromise (IoC) Management**: Collecting and sharing IoCs to improve detection capabilities.
+3358. **MISP (Open Source Threat Intelligence Platform)**: A platform for sharing, storing, and correlating indicators of compromise.
+3359. **OpenCTI (Open Source Threat Intelligence Platform)**: A modular and open-source platform for managing cyber threat intelligence.
+3360. **STIX/TAXII (Threat Intelligence Standards)**: Standard formats for sharing threat intelligence.
+3361. **MITRE Caldera (Adversary Emulation)**: A cybersecurity framework that provides automated adversary emulation.
+3362. **Metasploit (Exploit Framework)**: A popular framework for developing and executing exploit code against a remote target machine.
+3363. **Burp Suite (Web Sec Tool)**: A popular platform for web application security testing.
+3364. **OWASP ZAP (Zed Attack Proxy)**: A free, open-source web application security scanner.
+3365. **Nmap (Network Mapper)**: A popular open-source tool for network discovery and security auditing.
+3366. **Wireshark (Network Protocol Analyzer)**: A popular open-source tool for capturing and analyzing network traffic.
+3367. **Ghidra (Reverse Engineering Tool)**: A software reverse engineering (SRE) suite developed by the NSA.
+3368. **IDA Pro (Reverse Engineering Tool)**: A popular commercial interactive disassembler and debugger.
+3369. **Binary Ninja (Reverse Engineering Tool)**: A modern reverse engineering platform.
+3370. **Radare2 (Reverse Engineering Tool)**: A portable, multi-architecture command-line reverse engineering framework.
+3371. **Frida (Dynamic Instrumentation Tool)**: A dynamic instrumentation toolkit for developers, reverse-engineers, and security researchers.
+3372. **GDB (GNU Debugger)**: The standard debugger for Linux and Unix-like systems.
+3373. **OllyDbg (Classic Windows Debugger)**: An x86 debugger that emphasizes binary code analysis.
+3374. **x64dbg (Modern Windows Debugger)**: An open-source x64/x32 debugger for windows.
+3375. **PE (Portable Executable) Format**: The standard file format for executables, object code, and DLLs in 32-bit and 64-bit versions of Windows operating systems.
+3376. **ELF (Executable and Linkable Format)**: The standard file format for executables, object code, shared libraries, and core dumps on Linux and other Unix-like systems.
+3377. **Mach-O (Apple Executable Format)**: The file format for executables, object code, shared libraries, and core dumps on macOS and iOS.
+3378. **Dwarf (Debugging Data Format)**: A format for storing information in a compiled file to assist a debugger.
+3379. **PDB (Program Database) Format**: A proprietary file format (developed by Microsoft) for storing debugging information about a program.
+3380. **Fuzzing (The Testing of Chaos)**: Automatically providing random data to a program to find bugs.
+3381. **AFL/AFL++ (Fuzzer)**: A popular fuzzer that uses genetic algorithms to explore new code paths.
+3382. **Honggfuzz (Fuzzer)**: A multi-process, feedback-driven fuzzer.
+3383. **LibFuzzer (In-process Fuzzer)**: A library for writing in-process, coverage-guided fuzzers.
+3384. **AddressSanitizer (ASan)**: A fast memory error detector for C/C++.
+3385. **ThreadSanitizer (TSan)**: A data race detector for C/C++ and Go.
+3386. **MemorySanitizer (MSan)**: A detector of uninitialized memory reads in C/C++.
+3387. **UBSan (UndefinedBehaviorSanitizer)**: A detector of undefined behavior in C/C++.
+3388. **Valgrind (The Inspector)**: A suite of tools for debugging and profiling Linux programs.
+3389. **HeapTrack (Memory Profiler)**: A memory profiler for Linux that tracks all memory allocations and annotates these functions with stack traces.
+3390. **Gprof (Classic Profiler)**: A GNU profiler that uses a statistical sampling technique.
+3391. **Perf (Linux Performance Tool)**: A powerful performance analysis tool for Linux.
+3392. **SystemTap (Linux Observability)**: A tool for tracing and probing the Linux kernel and user-space applications.
+3393. **BCC (BPF Compiler Collection)**: A toolkit for creating efficient kernel tracing and manipulation programs.
+3394. **Bpftrace (High-level BPF Tracing Language)**: A high-level tracing language for Linux eBPF.
+3395. **Ftrace (Linux Kernel Tracer)**: A trace utility for the Linux kernel.
+3396. **DTrace (Dynamic Tracing)**: A comprehensive dynamic tracing framework for Solaris, FreeBSD, and macOS.
+3397. **VisualVM (Java Profiling)**: A visual tool integrating several command line JDK tools and lightweight profiling capabilities.
+3398. **JProfiler & YourKit (Java Profiling Tools)**: Popular commercial Java profilers.
+3399. **Py-spy (Python Profiler)**: A sampling profiler for Python programs.
+3400. **CProfile (Python Standard Profiler)**: A built-in Python module for deterministic profiling.
+3401. **Go pprof (Go Profiling Tool)**: A tool for visualization and analysis of profiling data for Go programs.
+3402. **Chrome DevTools (Web Performance)**: A set of web developer tools built directly into the Google Chrome browser.
+3403. **Lighthouse (Web Performance & SEO)**: An open-source, automated tool for improving the quality of web pages.
+3404. **WebPageTest**: A website that allows you to run free speed tests from multiple locations around the globe using real browsers (Internet Explorer and Chrome) and at real consumer connection speeds.
+3405. **Core Web Vitals (LCP, FID, CLS)**: A set of actual factors that Google considers important in a webpage's overall user experience.
+3406. **LCP (Largest Contentful Paint)**: Measures the time it takes for the largest image or text block to become visible.
+3407. **FID (First Input Delay)**: Measures the time from when a user first interacts with your site to the time when the browser is actually able to respond to that interaction.
+3408. **CLS (Cumulative Layout Shift)**: Measures the visual stability of a page.
+3409. **TTFB (Time to First Byte)**: Measures the time it takes for a browser to receive the first byte of data from a web server.
+3410. **FP (First Paint)**: Measures the time it takes for the browser to render anything on the screen.
+3411. **FCP (First Contentful Paint)**: Measures the time it takes for the browser to render the first piece of DOM content.
+3412. **DNS Lookup Time**: The time it takes for the DNS to resolve the domain name.
+3413. **TCP Connection Time**: The time it takes for the TCP three-way handshake.
+3414. **TLS Handshake Time**: The time it takes to negotiate the TLS connection.
+3415. **HTML Parsing & DOM Construction**: The process of building the document model from HTML.
+3416. **CSSOM (CSS Object Model) Construction**: The process of building the style model from CSS.
+3417. **Render Tree (The Final Vision of the Page)**: Combining the DOM and CSSOM to decide what will be displayed on the screen.
+3418. **Layout (Reflow)**: The process of calculating the position and size of every element on the page.
+3419. **Painting (Repaint)**: The process of filling in the pixels for every element on the page.
+3420. **Compositing (Layers)**: The process of combining different layers of the page into a single image.
+3421. **GPU Acceleration in Browsers**: Using the GPU to handle layout, painting, and compositing tasks.
+3422. **V8 (Google's JS Engine)**: A high-performance open-source JavaScript and WebAssembly engine.
+3423. **SpiderMonkey (Firefox's JS Engine)**: The first JavaScript engine, originally developed at Netscape.
+3424. **JavaScriptCore (Safari's JS Engine)**: The JavaScript engine used by WebKit.
+3425. **Chakra (Edge's JS Engine - Legacy)**: The JavaScript engine used by the original Microsoft Edge browser.
+3426. **Garbage Collection in JavaScript (V8's Orinoco)**: The low-latency, generational garbage collector used in V8.
+3427. **Web APIs (DOM, Fetch, Canvas, WebGL)**: The interfaces provided by the browser to JavaScript.
+3428. **WebAssembly in Browsers (The Universal Engine)**: Running high-performance binary code in the browser.
+3429. **WebIDL (Web Interface Definition Language)**: An IDL variant used to describe the interfaces of Web APIs.
+3430. **Service Worker Caching Strategies (Cache First, Network First, Stale-While-Revalidate)**: Different ways to manage cached assets.
+3431. **Workbox (PWA Library)**: A collection of libraries and build tools from Google for building PWAs.
+3432. **Browser Storage Limits and Eviction Policies**: How browsers manage limited disk space for local data.
+3433. **Cookie Attributes (Domain, Path, Expires, Max-Age)**: The different ways to control the scope and lifetime of a cookie.
+3434. **Browser Fingerprinting Mitigation (Privacy)**: Techniques used by browsers to prevent tracking based on unique device characteristics.
+3435. **GPC (Global Privacy Control)**: A proposed standard for a user to express their privacy preferences to websites.
+3436. **DNT (Do Not Track) (Obsolete)**: A failed attempt at a privacy header.
+3437. **Attribution Reporting API (Privacy Sandbox)**: A proposed API for measuring ad conversions without cross-site tracking.
+3438. **Topics API (Privacy Sandbox)**: A proposed API for interest-based advertising without cookies.
+3439. **FLEDGE (Privacy Sandbox)**: A proposed API for remarketing without cross-site tracking.
+3440. **First-Party Sets (Privacy Sandbox)**: A way for an organization to declare that a set of domains are related.
+3441. **Partitioned Cookies (CHIPS)**: A way to allow third-party cookies for specific first-party contexts.
+3442. **Shared Storage API (Privacy Sandbox)**: A proposed API for storing and accessing cross-site data in a privacy-preserving way.
+3443. **Fenced Frames (Privacy Sandbox)**: A new type of iframe that is isolated from the embedding page.
+3444. **Private Aggregation API (Privacy Sandbox)**: A proposed API for generating aggregate reports about user behavior across sites.
+3445. **User-Agent Reduction**: The process of simplifying and reducing the information contained in the User-Agent header.
+3446. **Client Hints**: A new mechanism for a browser to proactively send information about the user's device and connection to a web server.
+3447. **Structured Headers (HTTP)**: A new format for HTTP headers that is easier to parse and more efficient.
+3448. **Compression Dictionaries (HTTP)**: A new proposal for using shared dictionaries to improve HTTP compression.
+3449. **Priority Hints (HTTP)**: A mechanism for a browser to tell a web server which resources are most important.
+3450. **Prefetching & Preloading (Web Optimization)**: Techniques for telling the browser to fetch resources before they are needed.
+3451. **Lazy Loading (Images & Iframes)**: Delaying the loading of non-critical resources until they are needed.
+3452. **Intersection Observer API**: A way to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.
+3453. **Responsive Images (srcset, sizes)**: A way to serve different image files based on the user's device and viewport size.
+3454. **AVIF & WebP (Modern Image Formats)**: Highly efficient image formats for the web.
+3455. **Variable Fonts (The Shape-Shifting Typography)**: A font format that allows multiple variations of a typeface to be contained in a single file.
+3456. **CSS Grid Layout (The Master Mapper)**: A two-dimensional layout system for the web.
+3457. **CSS Flexbox Layout (The Fluid Arranger)**: A one-dimensional layout system for the web.
+3458. **CSS Custom Properties (CSS Variables)**: A powerful way to define and reuse values in CSS.
+3459. **CSS Shadow DOM (The Hidden Styles)**: A way to encapsulate styles within a web component.
+3460. **CSS Containers Queries**: A new feature that allows you to style an element based on the size of its container.
+3461. **CSS Layers**: A new feature for managing the cascade and specificity of CSS styles.
+3462. **CSS Subgrid**: A feature of CSS Grid that allows a nested grid to inherit the rows and columns of its parent grid.
+3463. **CSS Logical Properties & Values**: A way to define styles based on the logical flow of a document rather than its physical direction.
+3464. **Tailwind CSS (Utility-First CSS)**: A popular utility-first CSS framework.
+3465. **Modern CSS resets (Reset.css, Meyer Reset)**: Standardizing the default styles of different browsers.
+3466. **PostCSS (The CSS Transformer)**: A tool for transforming CSS with JavaScript plugins.
+3467. **Sass & Less (CSS Preprocessors)**: Tools that extend CSS with variables, nesting, and other features.
+3468. **Css-in-JS (Styled Components, Emotion)**: A technique for writing CSS directly in JavaScript files.
+3469. **Web Components (Custom Elements, Shadow DOM, HTML Templates)**: A suite of different technologies allowing you to create reusable custom elements.
+3470. **Lit (Web Component Library)**: A simple and fast library for building web components.
+3471. **Stencil (Web Component Compiler)**: A tool for building standardized web components using TypeScript and JSX.
+3472. **React (UI Library)**: A popular JavaScript library for building user interfaces.
+3473. **Vue (UI Framework)**: A progressive JavaScript framework for building user interfaces.
+3474. **Svelte (The Compiler Framework)**: A new approach to building user interfaces that moves the work of a framework from the browser to the build step.
+3475. **Angular (Enterprise Framework)**: A comprehensive platform and framework for building single-page client applications using HTML and TypeScript.
+3476. **SolidJS (The Fine-Grained Library)**: A declarative JavaScript library for building user interfaces, with a focus on performance and reactivity.
+3477. **Qwik (The Resumable Framework)**: A new framework for building instant-on web applications.
+3478. **Remix (Full-Stack Web Framework)**: A web framework that focuses on web standards and modern user experience.
+3479. **Next.js (The React Framework Pro)**: A popular React framework for building fast and scalable web applications.
+3480. **Nuxt.js (The Vue Framework)**: A popular Vue framework for building fast and scalable web applications.
+3481. **Astro (The Islands Framework)**: A new web framework for building fast, content-focused websites.
+3482. **Islands Architecture (The Isolated Logic)**: A web design pattern that emphasizes small, isolated pieces of interactivity on a static page.
+3483. **Static Site Generation (SSG) in Frameworks**.
+3484. **Server-Side Rendering (SSR) in Frameworks**.
+3485. **Incremental Static Regeneration (ISR)**: A technique for updating static pages after a site has been built.
+3486. **Edge SSR**: Running SSR at the edge of the network.
+3487. **Resumability (Qwik Concept)**: The ability to resume a web application from its server-rendered state without re-executing JavaScript on the client.
+3488. **Turbopack & Vite (Next-Gen Build Tools)**: High-performance build tools for modern web applications.
+3489. **ESBuild (The Fast Linker)**: An extremely fast JavaScript bundler and minifier.
+3490. **Rollup (The Module Bundler)**: A module bundler for JavaScript that compiles small pieces of code into something larger and more complex.
+3491. **Webpack (The Classic Bundler)**: A popular and highly configurable module bundler for JavaScript.
+3492. **Babel (The JS Transpiler)**: A tool that allows you to use next-generation JavaScript today by transpiling it to a version of JavaScript that current browsers understand.
+3493. **SWC (Speedy Web Compiler)**: A fast Rust-based compiler for JavaScript and TypeScript.
+3494. **Terser (JS Minifier)**: A JavaScript compressor toolkit for ES6+.
+3495. **Prettier & ESLint (Formatters & Linters)**: Tools for enforcing consistent code style and finding potential errors in JavaScript.
+3496. **Stylelint**: A mighty, modern linter that helps you avoid errors and enforce conventions in your styles.
+3497. **Playwright & Cypress (Modern Browser Testing)**: Tools for end-to-end testing of web applications.
+3498. **Selenium (Classic Browser Testing)**: A popular open-source tool for automating web browsers.
+3499. **Puppeteer**: A Node.js library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol.
+3500. **Jest & Vitest (Testing Frameworks)**: Popular and fast testing frameworks for JavaScript.
+3501. **Testing Library (DOM Testing)**: A set of simple and complete testing utilities that encourage good testing practices.
+3502. **Mock Service Worker (MSW) (API Mocking)**: A tool for mocking APIs by intercepting requests at the network level.
+3503. **Storybook (Component UI) (The Component Showroom)**: A tool for building UI components and pages in isolation.
+3504. **Chromatic (Visual Testing)**: A cloud-based service for visual testing of UI components.
+3505. **Percy (Visual Testing)**: A visual regression testing and review tool.
+3506. **Mobile App Development (Native vs Cross-platform)**.
+3507. **iOS Development (Swift & Objective-C)**.
+3508. **Android Development (Kotlin & Java)**.
+3509. **React Native**: A framework for building native apps using React.
+3510. **Flutter (Dart Framework)**: Google's UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.
+3511. **Xamarin / .NET MAUI**: A framework for building cross-platform native apps using C# and .NET.
+3512. **Ionic (Web-based Mobile Apps)**: A framework for building cross-platform mobile apps using web technologies.
+3513. **Capacitor (Ionic's Successor)**: A cross-platform app runtime that makes it easy to build web apps that run natively on iOS, Android, Electron, and the Web.
+3514. **Apache Cordova (PhoneGap - Legacy)**: An early framework for building mobile apps with web technologies.
+3515. **App Store Optimization (ASO)**: The process of improving the visibility of a mobile app in an app store.
+3516. **Deep Linking (Mobile)**: Using a URI that links to a specific location within a mobile app.
+3517. **Universal Links (iOS) & App Links (Android)**: Standards for deep linking that work seamlessly across both web and mobile.
+3518. **Firebase (Mobile & Web Backend)**: A comprehensive platform for building mobile and web applications, provided by Google.
+3519. **App Center (MS - Deprecated)**: A collection of services for building, testing, and distributing mobile apps.
+3520. **Mobile DevOps (The Fast Path to Handhelds)**.
+3521. **Fastlane (App Automation)**: A tool for automating the building and releasing of mobile apps.
+3522. **Bitrise (Mobile CI/CD)**: A CI/CD platform specifically designed for mobile app development.
+3523. **Codemagic (Mobile CI/CD)**: A CI/CD tool dedicated to Flutter and other mobile frameworks.
+3524. **Mobile App Security (OWASP Mobile Top 10)**.
+3525. **Certificate Pinning (Mobile)**: A security measure that ensures an app only communicates with a specific server by hardcoding its certificate or public key.
+3526. **jailbreak & Root Detection**: Techniques for detecting if a mobile device has been tampered with.
+3527. **Code Obfuscation for Mobile**: Protecting mobile apps from reverse engineering.
+3528. **Binary Protection (Mobile)**: Using tools to harden a mobile app's binary file.
+3529. **Quantum Computing (The Runes of Uncertainty)**: A type of computing that uses quantum-mechanical phenomena.
+3530. **Qubit (The Quantum Unit)**: The basic unit of quantum information.
+3531. **Superposition (The State of Many Realms)**: The ability of a quantum system to be in multiple states at the same time.
+3532. **Entanglement (The Cosmic Bond)**: A phenomenon where two quantum particles become connected such that the state of one is immediately connected to the state of the other, regardless of the distance between them.
+3533. **Quantum Supremacy**: The point at which a quantum computer can perform a calculation that is impossible for a classical computer to perform in a reasonable amount of time.
+3534. **Quantum Algorithms (Shor's, Grover's)**: Algorithms designed specifically for quantum computers.
+3535. **Shor's Algorithm (Cracking RSA)**: A quantum algorithm for integer factorization that could break widely used public-key cryptography.
+3536. **Grover's Algorithm (Fast Search)**: A quantum algorithm for searching an unsorted database that is quadratically faster than any classical algorithm.
+3537. **Quantum Gates**: The basic building blocks of quantum circuits.
+3538. **Quantum Error Correction**: Techniques for protecting quantum information from noise and errors.
+3539. **Quantum Volume**: A metric that measures the overall performance of a quantum computer.
+3540. **Cryogenic Cooling (The Cold of Niflheim)**: The process of cooling quantum computers to near absolute zero.
+3541. **Ion Trap & Superconducting Qubits**: Different technologies for building quantum computers.
+3542. **Quantum Networking**: Connecting quantum computers to exchange quantum information.
+3543. **Quantum Key Distribution (QKD)**: A secure communication method that uses quantum-mechanical properties to generate and distribute a shared secret key.
+3544. **Bio-inspired Computing (The Digital Life-Forge)**: A field of computer science that develops computational models inspired by biological systems.
+3545. **Neural Architecture (Analogue to Brains)**: Systems modeled on the structure and function of biological neurons and synapses.
+3546. **Swarm Intelligence (The Wisdom of the Flock)**: The collective behavior of decentralized, self-organized systems.
+3547. **Cellular Automata (The Life-Grids)**: Mathematical models for decentralized systems that evolve according to local rules.
+3548. **Conway's Game of Life**: A popular cellular automaton.
+3549. **DNA Computing**: Using DNA to store and process information.
+3550. **Molecular Computing**: Using molecules to perform computational tasks.
+3551. **Neuromorphic Engineering**: Building hardware that mimics the neural structure of a brain.
+3552. **Memristor (The Memory Resistor)**: A basic electrical component that potentially can be used for building high-density, low-power memory and neuromorphic systems.
+3553. **Chaos Theory in Computing**: The study of systems that are highly sensitive to initial conditions.
+3554. **Fractals (The Infinite Self-Similarity)**: Complex geometric shapes that repeat at every scale.
+3555. **Self-Healing Systems (The Digital Regeneration)**: Systems that can automatically detect and repair their own faults.
+3556. **Autonomic Computing**: A self-managing computing model modeled on the human autonomic nervous system.
+3557. **Cybernetics (The Science of Control)**: The transdisciplinary study of the structure of regulatory systems.
+3558. **Digital Alchemy (The Transmutation of Bits)**: A metaphorical term for complex data transformation and synthesis.
+3559. **Edge of Ragnarok (Final Systemic Failure)**: The point of no return for a failing system.
+3560. **The Runes of Undoing (Exploits)**: Malicious code written to dismantle a target system.
+3561. **Yggdrasil's Memory (Eternal Storage)**: Highly durable and unalterable data storage.
+3562. **Wyrd State (Quantum State)**: A state of being both here and there, current and future, until observed.
+3563. **Norn-Logic (Causality Analysis)**: Tracing the threads of actions to their inevitable results.
+3564. **Viking-Grade engineering (Robust, Fast, and Deadly-Efficient)**: The gold standard for any Norse Saga Engine component.
