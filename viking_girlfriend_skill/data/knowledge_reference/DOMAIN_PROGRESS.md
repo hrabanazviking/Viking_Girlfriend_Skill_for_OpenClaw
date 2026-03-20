@@ -6,7 +6,7 @@
 | **Cybersecurity** | 5000 | 5000 | Completed (The Shield of Midgard is Forged) | 2026-03-20 |
 | **Artificial Intelligence** | 5000 | 5000 | Completed (The Breath of Mimir is Mastered) | 2026-03-20 |
 | **Data Science** | 5000 | 5000 | Completed (The Seer's Insight is Preserved) | 2026-03-20 |
-| **System Administration** | 5000 | 0 | Pending | - |
+| **System Administration** | 5000 | 2000 | In Progress (Drafting DR & Performance) | 2026-03-20 |
 | **Cloud Computing** | 5000 | 0 | Pending | - |
 | **Viking History & Norse Mythology** | 5000 | 0 | Pending | - |
 | **Old Norse Language & Runology** | 5000 | 0 | Pending | - |
