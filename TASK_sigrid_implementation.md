@@ -44,7 +44,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
 | 06 | `wyrd_matrix.py` | ⏳ PENDING | Module 05/06, adopts wyrd_system.py + emotional_engine.py |
-| 07 | `bio_engine.py` | ⏳ PENDING | Module 04, adopts menstrual_cycle.py |
+| 07 | `bio_engine.py` | ✅ DONE | Module 04, adopts menstrual_cycle.py — real-date cycle + biorhythms |
 | 08 | `oracle.py` | ⏳ PENDING | Module 06, adopts Norn logic from wyrd_system.py |
 | 09 | `metabolism.py` | ⏳ PENDING | Module 07, psutil direct |
 
@@ -77,15 +77,14 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 
 ## Immediate Next Steps — Phase 2: State Machines
 
-1. **Read** `code_of_other_apps_that_can_be_adopted/menstrual_cycle.py` (full — adopt → bio_engine.py)
-2. **Read** `code_of_other_apps_that_can_be_adopted/wyrd_system.py` (full — adopt → wyrd_matrix.py)
-3. **Read** `code_of_other_apps_that_can_be_adopted/emotional_engine.py` (full — adopt → wyrd_matrix.py)
-4. **Read** `code_of_other_apps_that_can_be_adopted/soul_mechanics.py` (adopt → wyrd_matrix.py)
-5. **Read** `code_of_other_apps_that_can_be_adopted/stress_system.py` (adopt → wyrd_matrix.py)
-6. **Write** `scripts/bio_engine.py` — 28-day cycle + biorhythm sine waves
-7. **Write** `scripts/wyrd_matrix.py` — PAD model 3D emotional vector
-8. **Write** `scripts/oracle.py` — daily deterministic Rune/Tarot/I Ching seed
-9. **Write** `scripts/metabolism.py` — psutil hardware → somatic sensations
+1. ~~**Read** `menstrual_cycle.py` → **Write** `bio_engine.py`~~ ✅ DONE (2026-03-20)
+2. **Read** `code_of_other_apps_that_can_be_adopted/wyrd_system.py`
+3. **Read** `code_of_other_apps_that_can_be_adopted/emotional_engine.py`
+4. **Read** `code_of_other_apps_that_can_be_adopted/soul_mechanics.py`
+5. **Read** `code_of_other_apps_that_can_be_adopted/stress_system.py`
+6. **Write** `scripts/wyrd_matrix.py` — PAD model 3D emotional vector + Wyrd + soul layer
+7. **Write** `scripts/oracle.py` — daily deterministic Rune/Tarot/I Ching seed
+8. **Write** `scripts/metabolism.py` — psutil hardware → somatic sensations
 
 ---
 
