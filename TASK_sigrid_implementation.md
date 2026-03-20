@@ -46,7 +46,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | 06 | `wyrd_matrix.py` | ✅ DONE | PAD vector + SoulLayer + StressAccumulator + bio integration |
 | 07 | `bio_engine.py` | ✅ DONE | Module 04, adopts menstrual_cycle.py — real-date cycle + biorhythms |
 | 08 | `oracle.py` | ✅ DONE | Rune + Tarot (Book T/GD 78-card) + I Ching + Norn atmosphere |
-| 09 | `metabolism.py` | ⏳ PENDING | Module 07, psutil direct |
+| 09 | `metabolism.py` | ✅ DONE | psutil → somatic descriptors (mental_load, body_warmth, memory_pressure, weariness, vitality) |
 
 ### Phase 3 — Mind & Shield (Track C)
 | Step | Module | Status | Notes |
@@ -80,7 +80,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 1. ~~**Read** `menstrual_cycle.py` → **Write** `bio_engine.py`~~ ✅ DONE (2026-03-20)
 2. ~~**Read** source files → **Write** `wyrd_matrix.py`~~ ✅ DONE (2026-03-20)
 7. **Write** `scripts/oracle.py` — daily deterministic Rune/Tarot/I Ching seed
-8. **Write** `scripts/metabolism.py` — psutil hardware → somatic sensations
+8. ~~**Write** `scripts/metabolism.py` — psutil hardware → somatic sensations~~ ✅ DONE (2026-03-20)
 
 ---
 
