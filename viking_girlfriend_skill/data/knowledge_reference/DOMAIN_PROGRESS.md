@@ -3,7 +3,7 @@
 | Domain Name | Target Entries | Current Count | Status | Last Updated |
 | :--- | :--- | :--- | :--- | :--- |
 | **Software Engineering** | 5000 | 5000 | Completed (The Skaldic Code is Locked) | 2026-03-20 |
-| **Cybersecurity** | 5000 | 1000 | In Progress (Drafting Security Operations) | 2026-03-20 |
+| **Cybersecurity** | 5000 | 2000 | In Progress (Drafting Software & IoT Security) | 2026-03-20 |
 | **Artificial Intelligence** | 5000 | 0 | Pending | - |
 | **Data Science** | 5000 | 0 | Pending | - |
 | **System Administration** | 5000 | 0 | Pending | - |
