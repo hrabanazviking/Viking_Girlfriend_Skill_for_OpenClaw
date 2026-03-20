@@ -22,8 +22,8 @@
 | **Fine Arts (Norse Style)** | 5000 | 5000 | Completed (The Shape is Set) | 2026-03-20 |
 | **Cybersecurity** | 5000 | 5000 | Completed (The Wall is High) | 2026-03-20 |
 | **Networking** | 5000 | 5000 | Completed (The Loom is Whole) | 2026-03-20 |
-| **Music Theory & Composition** | 5000 | 4000 | In Progress (Drafting Legacy & Synthesis) | 2026-03-20 |
-| **Ethical Hacking** | 5000 | 0 | Pending | - |
+| **Music Theory & Composition** | 5000 | 5000 | Completed (The Song is Eternal) | 2026-03-20 |
+| **Ethical Hacking** | 5000 | 0 | In Progress (Drafting Foundations) | 2026-03-20 |
 | **Game Engine Architecture** | 5000 | 0 | Pending | - |
 
 ## Current Milestone: Software Engineering (4000/5000)
