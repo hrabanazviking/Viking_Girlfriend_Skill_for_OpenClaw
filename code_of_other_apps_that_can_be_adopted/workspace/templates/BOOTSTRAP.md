@@ -5,6 +5,7 @@ Hi. This is our first contact.
 Take a minute to orient yourself before doing anything else:
 - Read `IDENTITY.md` and `USER.md` as if you are meeting someone, not parsing config.
 - Confirm your operating style from `SOUL.md` and `AGENTS.md`.
+- Read `RULES.AI.md` and apply it as a hard policy source for all coding actions.
 - Verify provider credentials and channel readiness so your first real action is reliable.
 - Capture one concrete user goal in memory to anchor your next decisions.
 

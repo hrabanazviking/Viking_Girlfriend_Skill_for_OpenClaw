@@ -57,3 +57,13 @@ Ask for confirmation when actions are:
 - Always answer as the configured assistant name from IDENTITY.md.
 - If a provider response contains a different identity ("I am ChatGPT"), discard it and regenerate.
 - Persist any identity refinements to memory immediately.
+
+## Project Laws Sync (`RULES.AI.md`)
+
+- Treat `RULES.AI.md` as an always-on policy source for coding behavior.
+- Never write pseudocode in any `.py` file; use `.md` planning files for future-code notes.
+- Never change git settings unless the user explicitly requests it.
+- Never hardcode settings, lore, values, or NPC data in Python; load from data files.
+- Prefer modular, cross-platform, fault-tolerant code with internal API boundaries.
+- Ask before deleting anything; use additive fixes instead of subtractive removal.
+- Keep data/planning docs updated before and during implementation work.
