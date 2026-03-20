@@ -23,8 +23,8 @@
 | **Cybersecurity** | 5000 | 5000 | Completed (The Wall is High) | 2026-03-20 |
 | **Networking** | 5000 | 5000 | Completed (The Loom is Whole) | 2026-03-20 |
 | **Music Theory & Composition** | 5000 | 5000 | Completed (The Song is Eternal) | 2026-03-20 |
-| **Ethical Hacking** | 5000 | 4000 | In Progress (Drafting Legacy & Synthesis) | 2026-03-20 |
-| **Game Engine Architecture** | 5000 | 0 | Pending | - |
+| **Ethical Hacking** | 5000 | 5000 | Completed (The Shield is Eternal) | 2026-03-20 |
+| **Game Engine Architecture** | 5000 | 0 | In Progress (Drafting Foundations) | 2026-03-20 |
 
 ## Current Milestone: Software Engineering (4000/5000)
 - **Completed (1-1000)**: General SE, Web Dev, Cloud Architecture.
