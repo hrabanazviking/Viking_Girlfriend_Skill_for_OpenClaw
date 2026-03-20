@@ -8,10 +8,10 @@ An audit of the `viking_girlfriend_skill/data/knowledge_reference/` directory ha
 ### Affected Files
 | File Path | Total Entries | Placeholder Entries | Real Content | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `ARTIFICIAL_INTELLIGENCE.md` | 5000 | ~4700 | ~300 | **Compromised** |
-| `OLD_NORSE.md` | 5000 | ~4990 | 10 | **Compromised** |
-| `SOFTWARE_ENGINEERING.md` | 4243 | 0 | 4243 | **Incomplete** |
-| `ANCIENT_WARFARE.md` | 0 | - | - | **Missing** |
+| `ARTIFICIAL_INTELLIGENCE.md` | ~1000 | 0 | ~1000 | **Resolved (Wikipedia DB)** |
+| `OLD_NORSE.md` | ~500 | 0 | ~500 | **Resolved (Wikipedia DB)** |
+| `SOFTWARE_ENGINEERING.md` | ~800 | 0 | ~800 | **Resolved (Wikipedia DB)** |
+| `ANCIENT_WARFARE.md` | Comprehensive | 0 | Comprehensive | **Resolved (Hand-Forged)** |
 
 > [!IMPORTANT]
 > Files marked as "Compromised" have reached the 5000-line metric through automated placeholder injection, rendering them useless for high-quality RAG or persona-driven AI interactions.
