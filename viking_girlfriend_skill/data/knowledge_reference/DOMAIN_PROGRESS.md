@@ -19,7 +19,7 @@
 | **Sociology & Cultural Anthropology** | 5000 | 5000 | Completed (The Weave is Whole) | 2026-03-20 |
 | **Linguistics & Etymology** | 5000 | 5000 | Completed (The Roots are Deep) | 2026-03-20 |
 | **Political Science & Governance** | 5000 | 5000 | Completed (The Law is Set) | 2026-03-20 |
-| **Fine Arts (Norse Style)** | 5000 | 2000 | In Progress (Drafting Ornament & Ritual) | 2026-03-20 |
+| **Fine Arts (Norse Style)** | 5000 | 3000 | In Progress (Drafting Adornment & Utility) | 2026-03-20 |
 | **Music Theory & Composition** | 5000 | 0 | Pending | - |
 | **Ethical Hacking** | 5000 | 0 | Pending | - |
 | **Game Engine Architecture** | 5000 | 0 | Pending | - |
