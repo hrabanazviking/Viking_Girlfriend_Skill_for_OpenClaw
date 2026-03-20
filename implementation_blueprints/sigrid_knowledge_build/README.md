@@ -11,6 +11,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `batch_audit_templates/`: batch review template per subject
 - `deduplication_ledgers/`: per-subject duplicate-control records
 - `uniqueness_maps/`: per-subject distinction maps for adjacent concepts
+- `batch_execution_worksheets/`: per-subject batch execution control sheets
+- `claim_validation_logs/`: per-subject hard-claim validation tracking
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note

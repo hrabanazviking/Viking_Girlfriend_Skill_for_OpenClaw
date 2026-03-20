@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: deduplication and uniqueness-control planning expansion
+- Current phase: batch-execution and claim-validation planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -32,6 +32,8 @@
 - Batch audit templates now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_audit_templates/`.
 - Deduplication ledgers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/deduplication_ledgers/`.
 - Uniqueness maps now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/uniqueness_maps/`.
+- Batch execution worksheets now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_execution_worksheets/`.
+- Claim validation logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/claim_validation_logs/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -115,4 +117,5 @@
 - Use subject scope dossiers and verification plans as the controlling pre-entry references for each domain.
 - Use source class matrices and batch audit templates during every validated batch before entries are accepted.
 - Use deduplication ledgers and uniqueness maps during every batch to block same-information-different-wording repetition.
+- Use batch execution worksheets and claim validation logs to control live manual drafting and verification during each 500-entry batch.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
