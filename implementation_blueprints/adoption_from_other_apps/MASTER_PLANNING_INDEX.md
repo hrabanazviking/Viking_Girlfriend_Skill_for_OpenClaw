@@ -40,6 +40,21 @@
 - `wave38/`: approval workflows, escalation paths, oversight checkpoints
 - `wave39/`: closure checklists, value realization reports, post-launch reviews
 - `wave40/`: next-cycle backlogs, innovation tracks, strategic refresh packets
+- `wave41/`: cost models, effort estimation cards, value priority tables
+- `wave42/`: status templates, stakeholder packets, decision announcement logs
+- `wave43/`: dependency upgrade tracks, supply-chain watchlists, remediation queues
+- `wave44/`: response quality rubrics, conversation flow maps, persona checks
+- `wave45/`: archive indexes, historical timeline books, closeout packets
+- `wave46/`: onboarding kits, contributor playbooks, readiness quizzes
+- `wave47/`: audit prep packets, control test logs, evidence chain maps
+- `wave48/`: experiment design cards, AB test tracks, interpretation guides
+- `wave49/`: policy automation specs, workflow maps, approval bot rules
+- `wave50/`: mega indexes, consolidated ledgers, future cycle seed packets
+- `wave51/`: knowledge graph expansions, ontology alignment tables, semantic link audits
+- `wave52/`: planner state machines, decision path templates, transition ledgers
+- `wave53/`: ops cost watchboards, utilization forecast cards, efficiency tuning logs
+- `wave54/`: behavior safety profiles, guardrail coverage maps, policy exception registers
+- `wave55/`: roadmap reforecast packets, scope rebalance ledgers, priority shift reports
 
 ## Fast Start
 1. Pick roadmap step in `wave3/roadmap_step_import_plans/`.
