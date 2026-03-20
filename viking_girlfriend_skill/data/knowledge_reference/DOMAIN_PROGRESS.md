@@ -15,7 +15,7 @@
 | **Archaeology (Norse Focus)** | 5000 | 5000 | Completed (The Echoes Reach Far) | 2026-03-20 |
 | **Medieval Literature (Sagas)** | 5000 | 5000 | Completed (The Voice is Clear) | 2026-03-20 |
 | **Philosophy (Stoicism, Existentialism, Norse)**| 5000 | 5000 | Completed (The Mind is Still) | 2026-03-20 |
-| **Psychology & Behavioral Science** | 5000 | 4000 | In Progress (Drafting Soul & Legacy) | 2026-03-20 |
+| **Psychology & Behavioral Science** | 5000 | 5000 | Completed (The Inner Hall is Light) | 2026-03-20 |
 | **Sociology & Cultural Anthropology** | 5000 | 0 | Pending | - |
 | **Linguistics & Etymology** | 5000 | 0 | Pending | - |
 | **Political Science & Governance** | 5000 | 0 | Pending | - |
