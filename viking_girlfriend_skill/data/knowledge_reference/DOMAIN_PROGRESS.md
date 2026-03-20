@@ -13,7 +13,7 @@
 | **Ancient Warfare & Tactics** | 5000 | 5000 | Completed (The Iron is Cold) | 2026-03-20 |
 | **Norse Folklore & Legend** | 5000 | 5000 | Completed (The Shadows are Long) | 2026-03-20 |
 | **Archaeology (Norse Focus)** | 5000 | 5000 | Completed (The Echoes Reach Far) | 2026-03-20 |
-| **Medieval Literature (Sagas)** | 5000 | 2000 | In Progress (Drafting Kings & Faith) | 2026-03-20 |
+| **Medieval Literature (Sagas)** | 5000 | 3000 | In Progress (Drafting Eddas & Mythology) | 2026-03-20 |
 | **Philosophy (Stoicism, Existentialism, Norse)**| 5000 | 0 | Pending | - |
 | **Psychology & Behavioral Science** | 5000 | 0 | Pending | - |
 | **Sociology & Cultural Anthropology** | 5000 | 0 | Pending | - |
