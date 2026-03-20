@@ -13,6 +13,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `batch_milestone_ledgers/`: per-subject ten-batch milestone tracking
 - `deduplication_ledgers/`: per-subject duplicate-control records
 - `uniqueness_maps/`: per-subject distinction maps for adjacent concepts
+- `contradiction_check_sheets/`: per-subject internal consistency control
+- `entry_merge_decision_logs/`: per-subject merge-history tracking
 - `batch_execution_worksheets/`: per-subject batch execution control sheets
 - `claim_validation_logs/`: per-subject hard-claim validation tracking
 - `citation_tracking_sheets/`: per-subject source citation tracking
