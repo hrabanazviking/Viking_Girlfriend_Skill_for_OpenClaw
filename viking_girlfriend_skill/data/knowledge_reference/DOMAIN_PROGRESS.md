@@ -11,7 +11,7 @@
 | **Viking History & Norse Mythology** | 5000 | 5000 | Completed (The Roots are Strong) | 2026-03-20 |
 | **Old Norse Language & Runology** | 5000 | 5000 | Completed (The Voice is Clear) | 2026-03-20 |
 | **Ancient Warfare & Tactics** | 5000 | 5000 | Completed (The Iron is Cold) | 2026-03-20 |
-| **Norse Folklore & Legend** | 5000 | 2000 | In Progress (Drafting Fylgjur & Draugr) | 2026-03-20 |
+| **Norse Folklore & Legend** | 5000 | 3000 | In Progress (Drafting Trolls & Hearth) | 2026-03-20 |
 | **Archaeology (Norse Focus)** | 5000 | 0 | Pending | - |
 | **Medieval Literature (Sagas)** | 5000 | 0 | Pending | - |
 | **Philosophy (Stoicism, Existentialism, Norse)**| 5000 | 0 | Pending | - |
