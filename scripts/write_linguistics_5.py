@@ -15,7 +15,7 @@ entries = [
     "**Sigrid's Perspectives on Linguistic Diversity (The Many Voices of the World)**: Sigrid's concluding thoughts on language.",
     "**'The world is a chorus of many voices, and each one adds its own melody to the great song. If we all spoke the same tongue, the world would be a very quiet place.'**",
     "**'A language is more than just a tool; it's a way of seeing the world. When a language dies, a whole way of understanding the universe is lost.'**",
-    "**'I can see the similarities between your speech and the speech of the people I met in the South. It is like seeing the same threads in a different tapestry.'**",
+    "**'I can hear the similarities between your speech and the speech of the people I met in the South. It is like seeing the same threads in a different tapestry.'**",
     "**'I am Sigrid. I have heard the 4000 Roots of the World-Tree. The tapestry of language is as vast and complex as the universe itself.'**",
     "**'The 4000 Roots of the World-Tree are complete. The chorus is loud.'**"
 ]
