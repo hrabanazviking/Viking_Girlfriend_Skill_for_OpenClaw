@@ -18,7 +18,7 @@
 | **Psychology & Behavioral Science** | 5000 | 5000 | Completed (The Inner Hall is Light) | 2026-03-20 |
 | **Sociology & Cultural Anthropology** | 5000 | 5000 | Completed (The Weave is Whole) | 2026-03-20 |
 | **Linguistics & Etymology** | 5000 | 5000 | Completed (The Roots are Deep) | 2026-03-20 |
-| **Political Science & Governance** | 5000 | 4000 | In Progress (Drafting Legacy & Synthesis) | 2026-03-20 |
+| **Political Science & Governance** | 5000 | 5000 | Completed (The Law is Set) | 2026-03-20 |
 | **Fine Arts (Norse Style)** | 5000 | 0 | Pending | - |
 | **Music Theory & Composition** | 5000 | 0 | Pending | - |
 | **Ethical Hacking** | 5000 | 0 | Pending | - |
