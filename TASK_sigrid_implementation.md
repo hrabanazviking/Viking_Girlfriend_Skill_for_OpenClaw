@@ -52,7 +52,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
 | 10 | `security.py` | ✅ DONE | Circuit-breaker + sanitize + path guard + secret compare; adopts thor_guardian.py |
-| 11 | `trust_engine.py` | ⏳ PENDING | Module 09, adopts social_ledger.py |
+| 11 | `trust_engine.py` | ✅ DONE | Gebo ledger: trust/intimacy/reliability/friction scores, text inference, friction decay |
 | 12 | `ethics.py` | ⏳ PENDING | Module 10, loads values.json + SOUL.md |
 | 13 | `memory_store.py` | ⏳ PENDING | Module 11, adopts memory_system + enhanced_memory + RAG |
 | 14 | `dream_engine.py` | ⏳ PENDING | Module 12, adopts world_dreams.py |
