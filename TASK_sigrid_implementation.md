@@ -69,7 +69,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 ### Phase 5 — Launch (Track E)
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
-| — | `main.py` (full integration) | ⏳ PENDING | Module 18, wires everything |
+| — | `main.py` (full integration) | ✅ DONE | All 18 modules wired; openclaw+terminal modes; scheduler jobs; full turn pipeline |
 | 19 | E2E Validation Suite | ⏳ PENDING | |
 | 20 | Launch Calibration & Autostart | ⏳ PENDING | |
 
@@ -82,7 +82,9 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 3. ~~**Write** `environment_mapper.py`~~ ✅ DONE (2026-03-20)
 4. ~~**Write** `model_router_client.py`~~ ✅ DONE (2026-03-20)
 5. ~~**Write** `prompt_synthesizer.py`~~ ✅ DONE (2026-03-20)
-6. **Phase 5**: integrate all modules in `main.py`, E2E validation, launch calibration
+6. ~~**Write** `main.py` full integration~~ ✅ DONE (2026-03-20)
+7. **E2E validation suite** — test all 18 modules together, model routing with live model
+8. **Launch calibration & autostart** — `.env` setup, OpenClaw registration, autostart script
 
 ---
 
