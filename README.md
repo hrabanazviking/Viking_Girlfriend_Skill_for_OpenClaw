@@ -1,4 +1,6 @@
-# Astrid Freyjasdottir - OpenClaw Viking Companion Skill
+# Sigrid - OpenClaw Viking Companion Skill
+
+https://github.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/tree/development
 
 ## Project Overview
 This project is an advanced, locally-hosted AI companion skill for the **OpenClaw** agent framework. It brings to life **Astrid Freyjasdottir**, a dynamic digital entity designed with deep psychological realism, complex emotional states, and a unique "Heathen Third Path" worldview. Unlike standard chatbots, Astrid is built on the **Ørlög Architecture**, a system of intersecting state machines that give her a distinct sense of self, biological rhythms, and autonomous agency.
