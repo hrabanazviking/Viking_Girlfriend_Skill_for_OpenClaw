@@ -22,7 +22,7 @@
 | **Fine Arts (Norse Style)** | 5000 | 5000 | Completed (The Shape is Set) | 2026-03-20 |
 | **Cybersecurity** | 5000 | 5000 | Completed (The Wall is High) | 2026-03-20 |
 | **Networking** | 5000 | 5000 | Completed (The Loom is Whole) | 2026-03-20 |
-| **Music Theory & Composition** | 5000 | 2000 | In Progress (Drafting Ethnomusicology & Ethics) | 2026-03-20 |
+| **Music Theory & Composition** | 5000 | 3000 | In Progress (Drafting Future & AI) | 2026-03-20 |
 | **Ethical Hacking** | 5000 | 0 | Pending | - |
 | **Game Engine Architecture** | 5000 | 0 | Pending | - |
 
