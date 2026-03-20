@@ -1,0 +1,14 @@
+# Import Risk - memory_query_engine.py
+
+## Source
+- `code_of_other_apps_that_can_be_adopted/memory_query_engine.py`
+
+## Primary Risk
+- Unsafe queries returning sensitive memory.
+
+## Mitigation
+- Trust-tier filters before query execution.
+
+## Required Test
+- Add at least one failing regression case then verify fix.
+- Verify behavior in degraded/fallback mode.
