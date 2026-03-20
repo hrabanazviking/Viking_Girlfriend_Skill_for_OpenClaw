@@ -29,6 +29,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `archival_completion_scorecards/`: per-subject final completion gates
 - `entry_style_guides/`: per-subject entry-writing style constraints
 - `final_audit_summary_templates/`: per-subject archival closeout templates
+- `archival_risk_registers/`: per-subject archive-quality risk tracking
+- `progress_narrative_logs/`: per-subject factual progress summaries
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note

@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: entry-style and final-audit planning expansion
+- Current phase: archival-risk and progress-narrative planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -50,6 +50,8 @@
 - Archival completion scorecards now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/archival_completion_scorecards/`.
 - Entry style guides now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/entry_style_guides/`.
 - Final audit summary templates now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/final_audit_summary_templates/`.
+- Archival risk registers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/archival_risk_registers/`.
+- Progress narrative logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/progress_narrative_logs/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -142,4 +144,5 @@
 - Use review cadence sheets and exclusion ledgers to keep review timing explicit and to document what is intentionally left out of each subject archive.
 - Use extraction readiness checklists before live drafting and completion scorecards only when a subject truly reaches archival-complete quality.
 - Use entry style guides during drafting and final audit summary templates only when a subject is ready for genuine completion review.
+- Use archival risk registers and progress narrative logs to keep risks visible and to preserve truthful phase-by-phase status for every subject.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
