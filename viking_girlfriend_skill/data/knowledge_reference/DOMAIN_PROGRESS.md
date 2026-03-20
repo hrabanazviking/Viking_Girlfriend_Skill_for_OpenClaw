@@ -5,7 +5,7 @@
 | **Software Engineering** | 5000 | 5000 | Completed (The Skaldic Code is Locked) | 2026-03-20 |
 | **Cybersecurity** | 5000 | 5000 | Completed (The Shield of Midgard is Forged) | 2026-03-20 |
 | **Artificial Intelligence** | 5000 | 5000 | Completed (The Breath of Mimir is Mastered) | 2026-03-20 |
-| **Data Science** | 5000 | 500 | In Progress (Drafting Stats & Viz) | 2026-03-20 |
+| **Data Science** | 5000 | 1000 | In Progress (Drafting Big Data & Ethics) | 2026-03-20 |
 | **System Administration** | 5000 | 0 | Pending | - |
 | **Cloud Computing** | 5000 | 0 | Pending | - |
 | **Viking History & Norse Mythology** | 5000 | 0 | Pending | - |
