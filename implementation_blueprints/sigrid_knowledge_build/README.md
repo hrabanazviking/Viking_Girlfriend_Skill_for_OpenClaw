@@ -8,7 +8,9 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `subject_scope_dossiers/`: inclusion/exclusion boundary plans for each subject
 - `verification_plans/`: per-subject verification discipline notes
 - `source_class_matrices/`: allowed source-class strategy per subject
+- `source_reliability_rubrics/`: per-subject source-strength scoring guidance
 - `batch_audit_templates/`: batch review template per subject
+- `batch_milestone_ledgers/`: per-subject ten-batch milestone tracking
 - `deduplication_ledgers/`: per-subject duplicate-control records
 - `uniqueness_maps/`: per-subject distinction maps for adjacent concepts
 - `batch_execution_worksheets/`: per-subject batch execution control sheets
