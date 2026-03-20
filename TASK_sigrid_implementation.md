@@ -64,7 +64,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | 16 | `project_generator.py` | ✅ DONE | Persistent JSON initiative tracker; add/update/note/list |
 | 17 | `environment_mapper.py` | ✅ DONE | Loads environment.json; area/place keys; rooms fix applied |
 | 18 | `prompt_synthesizer.py` | ✅ DONE | Loads core_identity.md + SOUL.md; assembles system prompt from state hints; token budgets |
-| — | `model_router_client.py` | ✅ DONE | Three-tier LiteLLM + Ollama router; circuit-breaker; fallback chain |
+| — | `model_router_client.py` | ✅ DONE | Four-tier router: conscious/code/deep/subconscious; dual detector (complexity + coding intent); smart routing matrix; circuit-breaker; fallback chains |
 
 ### Phase 5 — Launch (Track E)
 | Step | Module | Status | Notes |
