@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: source-reliability and batch-milestone planning expansion
+- Current phase: semantic-density and archival-acceptance planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -54,6 +54,8 @@
 - Progress narrative logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/progress_narrative_logs/`.
 - Source reliability rubrics now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/source_reliability_rubrics/`.
 - Batch milestone ledgers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_milestone_ledgers/`.
+- Semantic density checklists now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/semantic_density_checklists/`.
+- Archival acceptance ledgers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/archival_acceptance_ledgers/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -148,4 +150,5 @@
 - Use entry style guides during drafting and final audit summary templates only when a subject is ready for genuine completion review.
 - Use archival risk registers and progress narrative logs to keep risks visible and to preserve truthful phase-by-phase status for every subject.
 - Use source reliability rubrics and batch milestone ledgers to keep source trust explicit and batch status measurable without exaggeration.
+- Use semantic density checklists and archival acceptance ledgers to block filler and to ensure acceptance is recorded only when work is truly earned.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.

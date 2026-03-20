@@ -33,6 +33,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `final_audit_summary_templates/`: per-subject archival closeout templates
 - `archival_risk_registers/`: per-subject archive-quality risk tracking
 - `progress_narrative_logs/`: per-subject factual progress summaries
+- `semantic_density_checklists/`: per-subject anti-filler controls
+- `archival_acceptance_ledgers/`: per-subject acceptance tracking
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
