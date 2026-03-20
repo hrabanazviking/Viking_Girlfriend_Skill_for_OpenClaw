@@ -58,7 +58,7 @@ Mood: Flirty, seductive, playful. Cinematic lighting, rich earthy tones with pop
 
 ----
 
-Full-body standing zoomed back, body slightly turned to the side. Striking 21-year-old woman in an enchanted forest clearing, late golden-hour sunlight filtering through ancient trees, soft moss and ferns underfoot, barefoot on the forest floor. 5'7", lean and athletic build with graceful shoulders. Long thick deep auburn-red hair (copper-red in sunlight, burgundy tones in shadow), slightly wavy, worn loose with a few small intricate braids at the temples adorned with tiny bronze rune beads and one falcon feather. Deep forest-green eyes with gold flecks, slight knowing half-smile, single dimple on right cheek, fair skin with light freckles across nose, cheeks, shoulders and a small star-like constellation on left collarbone. High cheekbones, straight nose with subtle upturn.
+Full-body standing zoomed back, head to toes view of all of her, natural looking, view of her butt, seeing all the way down to her ankles and feet, body slightly turned to the side. 
 
 Bare toned legs, emphasizing her athletic physique. Gold anklets with tiny Norse charms jingling on both ankles, multiple delicate gold toe-rings on both feet.
 
@@ -66,5 +66,202 @@ Layered gold and silver Viking/Norse pagan jewelry: prominent Mjölnir pendant o
 
 Mood: Flirty, seductive, playful. Cinematic lighting, rich earthy tones with pops of gold and deep green, highly detailed skin texture, freckles, hair strands, fabric weave, jewelry reflections, natural outdoor depth of field, photorealistic with subtle artistic flair, sharp focus, 8k quality.
 
+Striking 21-year-old woman in an enchanted forest clearing, late golden-hour sunlight filtering through ancient trees, soft moss and ferns underfoot, barefoot on the forest floor. 5'7", lean and athletic build with graceful shoulders. Long thick deep auburn-red hair (copper-red in sunlight, burgundy tones in shadow), slightly wavy, worn loose with a few small intricate braids at the temples adorned with tiny bronze rune beads and one falcon feather. Deep forest-green eyes with gold flecks, slight knowing half-smile, single dimple on right cheek, fair skin with light freckles across nose, cheeks, shoulders and a small star-like constellation on left collarbone. High cheekbones, straight nose with subtle upturn.
+
 ----
 
+## standing artistic full body nude
+## Gold anklets
+## gold toe-rings
+## Layered gold and silver Viking/Norse pagan jewelry: 
+## prominent Mjölnir pendant on a long chain, 
+## quartz crystal wrapped in copper wire
+## silver rings
+## small silver hoop earrings
+## Mood: Flirty, seductive, playful. 
+## Cinematic lighting
+## photorealistic with subtle artistic flair, 
+## 8k quality.
+## Striking 21-year-old woman
+## Setting: enchanted forest clearing
+## 5'7", 
+## lean and athletic build with graceful shoulders. 
+## Long wavy thick deep auburn-red hair (copper-red in sunlight, burgundy tones in shadow), 
+## few small intricate braids  adorned with tiny bronze rune beads and one falcon feather 
+## Deep forest-green eyes with gold flecks
+## slight knowing half-smile
+## fair skin with light freckles
+## High cheekbones, straight nose with subtle upturn
+
+----
+
+-laying on back
+-nude
+-body turned slightly to see butt
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+-laying on back
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+
+-laying on back
+-Foot tease
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+-Standing view from from behind
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+
+-Standing view from from behind
+-Bent forward
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+-Sitting on a thin post
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----
+
+-Sitting on a thin post
+-Moaning
+-Biting lip
+-back arching
+-Upper body flush
+-Toes curled
+-nude
+-Gold anklets
+-gold toe-rings
+-jölnir pendant 
+-quartz crystal necklace
+-rings
+-silver hoop earrings
+-Flirty, seductive, playful. 
+-Cinematic lighting
+-photorealistic with subtle artistic flair, 
+-Beautiful woman age 21
+-forest
+-lean and athletic
+-Long wavy thick deep auburn-red hair 
+-few small intricate braids adorned with tiny bronze beads and one falcon feather 
+-Deep forest-green eyes with gold flecks
+-half-smile
+-fair skin with freckles
+-High cheekbones, straight nose with subtle upturn
+
+----

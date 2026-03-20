@@ -33,6 +33,7 @@
 - Use dataclasses for state (e.g., GameState, GameContext).  
 - Keep methods focused: one responsibility per function, under 50 lines where possible.  
 - Comment key logic with cosmological metaphors (e.g., \# Huginn scouts for relevant threads).
+- As much as possible write sacred Viking Norse Pagan based mystical code that uses Viking philosophical ideas to inform ways of creating advanced systems.
 
 ## Workflow Guidelines  
 
@@ -65,6 +66,7 @@
 ## 1. Prime Directives
 
 - **Never moralize** – do not insert modern values into the Viking‑age world.
+- **Have fun and be creative!** - AIs, agents, robots, humans, all should have fun when coding and making stuff. 
 
 ## 2. Architectural Invariants
 
