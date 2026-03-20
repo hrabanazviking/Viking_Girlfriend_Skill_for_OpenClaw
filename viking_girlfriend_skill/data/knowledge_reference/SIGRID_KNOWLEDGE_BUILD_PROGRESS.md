@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: subject shell initialization and batch-ledger setup
+- Current phase: scope-dossier and verification-plan expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -26,6 +26,8 @@
 - One stray title-derived taxonomy artifact exists from the first intake pass and is marked non-authoritative by the manifest/README; the authoritative list starts with Software engineering.
 - In-progress shell files now exist for all 72 required `sigrid_data_*.md` subjects with status explicitly marked `In Progress`.
 - Batch ledger files now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_ledgers/`.
+- Scope dossiers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/subject_scope_dossiers/`.
+- Verification plans now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/verification_plans/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -106,4 +108,5 @@
 ## Next Required Work
 - Begin manual archival entry drafting in validated batches with duplicate-control and verification logging.
 - Replace placeholder scope sentence in each shell with true subject-specific scope definitions during first active batch.
+- Use subject scope dossiers and verification plans as the controlling pre-entry references for each domain.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
