@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: scope-dossier and verification-plan expansion
+- Current phase: source-matrix and batch-audit planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -28,6 +28,8 @@
 - Batch ledger files now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_ledgers/`.
 - Scope dossiers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/subject_scope_dossiers/`.
 - Verification plans now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/verification_plans/`.
+- Source class matrices now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/source_class_matrices/`.
+- Batch audit templates now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_audit_templates/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -109,4 +111,5 @@
 - Begin manual archival entry drafting in validated batches with duplicate-control and verification logging.
 - Replace placeholder scope sentence in each shell with true subject-specific scope definitions during first active batch.
 - Use subject scope dossiers and verification plans as the controlling pre-entry references for each domain.
+- Use source class matrices and batch audit templates during every validated batch before entries are accepted.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.

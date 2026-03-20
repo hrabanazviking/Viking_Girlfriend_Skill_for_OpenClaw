@@ -7,6 +7,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `subject_taxonomy_plans/`: one taxonomy and coverage plan per subject
 - `subject_scope_dossiers/`: inclusion/exclusion boundary plans for each subject
 - `verification_plans/`: per-subject verification discipline notes
+- `source_class_matrices/`: allowed source-class strategy per subject
+- `batch_audit_templates/`: batch review template per subject
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
