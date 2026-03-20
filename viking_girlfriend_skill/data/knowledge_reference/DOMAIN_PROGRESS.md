@@ -24,7 +24,7 @@
 | **Networking** | 5000 | 5000 | Completed (The Loom is Whole) | 2026-03-20 |
 | **Music Theory & Composition** | 5000 | 5000 | Completed (The Song is Eternal) | 2026-03-20 |
 | **Ethical Hacking** | 5000 | 5000 | Completed (The Shield is Eternal) | 2026-03-20 |
-| **Game Engine Architecture** | 5000 | 1000 | In Progress (Drafting Physics & Dynamics) | 2026-03-20 |
+| **Game Engine Architecture** | 5000 | 2000 | In Progress (Drafting AI & Pathfinding) | 2026-03-20 |
 
 ## Current Milestone: Software Engineering (4000/5000)
 - **Completed (1-1000)**: General SE, Web Dev, Cloud Architecture.
