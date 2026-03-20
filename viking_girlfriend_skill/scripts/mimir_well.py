@@ -1,0 +1,1530 @@
+"""
+mimir_well.py — Mímisbrunnr: The Ground Truth Well
+====================================================
+
+The deep knowledge store of the Ørlög Architecture. Indexes all
+knowledge_reference/ files plus identity anchor files (core_identity.md,
+SOUL.md, values.json, AGENTS.md) into ChromaDB with a three-level hierarchy.
+
+  Level 1 — Raw    : Individual document chunks (≤512 tokens / ~2 048 chars)
+  Level 2 — Cluster: Domain thematic summaries (auto-generated at ingest)
+  Level 3 — Axiom  : Core identity truths (identity files only)
+
+Resilience layers:
+  - ChromaDB reads/writes each protected by a named circuit breaker
+  - Jittered exponential backoff RetryEngine on all ChromaDB calls
+  - Fallback A: in-memory BM25-style keyword index (no ChromaDB required)
+  - Fallback B: empty list  (caller handles gracefully — never crashes)
+  - Self-healing: reindex() detects interrupted ingest via lock file and
+    auto-triggers a clean rebuild. Called by MimirHealthMonitor on corruption.
+
+Norse framing: Odin gave an eye to drink from this Well — wisdom
+extracted at great cost becomes infallible Ground Truth. We give it
+our knowledge files and drink back only verified fact.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import math
+import random
+import re
+import threading
+import time
+import uuid
+from collections import Counter
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+
+import yaml
+
+from scripts.state_bus import StateBus, StateEvent
+
+logger = logging.getLogger(__name__)
+
+# ─── Constants ────────────────────────────────────────────────────────────────
+
+_CHARS_PER_TOKEN: int = 4          # rough approximation: 1 token ≈ 4 chars
+_DEFAULT_CHUNK_SIZE_TOKENS: int = 512
+_DEFAULT_OVERLAP_TOKENS: int = 64
+_DEFAULT_COLLECTION: str = "mimir_well"
+_DEFAULT_PERSIST_DIR: str = "data/chromadb_mimir"
+_DEFAULT_N_RETRIEVE: int = 50
+_DEFAULT_N_FINAL: int = 3
+_LOCK_FILE_NAME: str = ".mimir_ingest_lock"
+_MAX_JSONL_ITEMS_PER_FILE: int = 200   # cap on JSONL chunks to keep index manageable
+_MAX_CSV_ROWS_PER_CHUNK: int = 20
+_CLUSTER_MIN_CHUNKS: int = 5          # min chunks in a domain before cluster is created
+
+
+# ─── Error Taxonomy ───────────────────────────────────────────────────────────
+
+
+class MimirVordurError(Exception):
+    """Base class for all Mímir-Vörðr system errors."""
+
+
+class MimirWellError(MimirVordurError):
+    """Base class for MimirWell-specific errors."""
+
+
+class ChromaDBUnavailableError(MimirWellError):
+    """ChromaDB is unreachable or failed to initialise."""
+
+
+class ChromaDBCorruptionError(MimirWellError):
+    """ChromaDB collection appears to be corrupt or unexpectedly empty."""
+
+
+class IngestError(MimirWellError):
+    """An unrecoverable error occurred during knowledge ingest."""
+
+
+class RetrievalTimeoutError(MimirWellError):
+    """A retrieval operation timed out."""
+
+
+class CircuitBreakerOpenError(MimirVordurError):
+    """Circuit breaker is open — fast-fail, never retry this exception."""
+
+    def __init__(self, component: str, cooldown_remaining_s: float = 0.0) -> None:
+        self.component = component
+        self.cooldown_remaining_s = cooldown_remaining_s
+        super().__init__(
+            f"Circuit breaker '{component}' is OPEN "
+            f"({cooldown_remaining_s:.1f}s remaining in cooldown)"
+        )
+
+
+# ─── Circuit Breaker ──────────────────────────────────────────────────────────
+
+
+class _CBState(Enum):
+    CLOSED = "closed"
+    OPEN = "open"
+    HALF_OPEN = "half_open"
+
+
+@dataclass
+class CircuitBreakerConfig:
+    """Configuration for a single _MimirCircuitBreaker instance."""
+
+    failure_threshold: int = 3      # failures before tripping OPEN
+    success_threshold: int = 2      # consecutive successes to re-CLOSE from HALF_OPEN
+    cooldown_s: float = 30.0        # seconds to wait before HALF_OPEN probe
+
+
+class _MimirCircuitBreaker:
+    """Three-state circuit breaker. Thread-safe via threading.Lock.
+
+    Usage:
+        breaker.before_call()           # raises CircuitBreakerOpenError if OPEN
+        try:
+            result = risky_operation()
+            breaker.on_success()
+        except Exception as exc:
+            breaker.on_failure(exc)
+            raise
+    """
+
+    def __init__(
+        self,
+        name: str,
+        config: Optional[CircuitBreakerConfig] = None,
+    ) -> None:
+        self._name = name
+        self._cfg = config or CircuitBreakerConfig()
+        self._state = _CBState.CLOSED
+        self._failure_count = 0
+        self._success_count = 0
+        self._opened_at: Optional[float] = None
+        self._lock = threading.Lock()
+
+    # ── State probes ──────────────────────────────────────────────────────────
+
+    def _can_probe(self) -> bool:
+        """True if cooldown has elapsed and a half-open probe is allowed."""
+        if self._state != _CBState.OPEN or self._opened_at is None:
+            return False
+        return (time.monotonic() - self._opened_at) >= self._cfg.cooldown_s
+
+    def before_call(self) -> None:
+        """Call before every attempt. Raises CircuitBreakerOpenError when OPEN."""
+        with self._lock:
+            if self._state == _CBState.OPEN:
+                if self._can_probe():
+                    self._state = _CBState.HALF_OPEN
+                    logger.debug(
+                        "CircuitBreaker '%s': entering HALF_OPEN probe", self._name
+                    )
+                else:
+                    elapsed = time.monotonic() - (self._opened_at or 0.0)
+                    remaining = max(0.0, self._cfg.cooldown_s - elapsed)
+                    raise CircuitBreakerOpenError(self._name, remaining)
+
+    def on_success(self) -> None:
+        """Record a successful call. May close an open breaker."""
+        with self._lock:
+            if self._state == _CBState.HALF_OPEN:
+                self._success_count += 1
+                if self._success_count >= self._cfg.success_threshold:
+                    self._state = _CBState.CLOSED
+                    self._failure_count = 0
+                    self._success_count = 0
+                    self._opened_at = None
+                    logger.info(
+                        "CircuitBreaker '%s': CLOSED — service recovered", self._name
+                    )
+            elif self._state == _CBState.CLOSED:
+                self._failure_count = 0
+
+    def on_failure(self, exc: Exception) -> None:
+        """Record a failed call. May trip the breaker OPEN."""
+        with self._lock:
+            self._failure_count += 1
+            self._success_count = 0
+            if self._failure_count >= self._cfg.failure_threshold:
+                if self._state != _CBState.OPEN:
+                    self._state = _CBState.OPEN
+                    self._opened_at = time.monotonic()
+                    logger.warning(
+                        "CircuitBreaker '%s': OPEN after %d failures — last: %s",
+                        self._name,
+                        self._failure_count,
+                        exc,
+                    )
+
+    def reset(self) -> None:
+        """Manually reset to CLOSED. Used by health monitor after reindex."""
+        with self._lock:
+            self._state = _CBState.CLOSED
+            self._failure_count = 0
+            self._success_count = 0
+            self._opened_at = None
+        logger.info("CircuitBreaker '%s': manually reset to CLOSED", self._name)
+
+    def get_state_label(self) -> str:
+        with self._lock:
+            if self._state == _CBState.OPEN and self._can_probe():
+                return "half_open"
+            return self._state.value
+
+    def to_dict(self) -> Dict[str, Any]:
+        with self._lock:
+            return {
+                "name": self._name,
+                "state": self.get_state_label(),
+                "failure_count": self._failure_count,
+                "cooldown_s": self._cfg.cooldown_s,
+            }
+
+
+# ─── Retry Engine ─────────────────────────────────────────────────────────────
+
+
+@dataclass
+class RetryConfig:
+    """Configuration for a _RetryEngine instance."""
+
+    max_attempts: int = 3
+    base_delay_s: float = 0.5
+    backoff_factor: float = 2.0
+    max_delay_s: float = 8.0
+    jitter: bool = True             # adds random ±20% variation to delay
+
+
+_NEVER_RETRY: Tuple[Type[Exception], ...] = (CircuitBreakerOpenError,)
+
+
+class _RetryEngine:
+    """Synchronous retry engine with jittered exponential backoff.
+
+    Automatically skips retry for CircuitBreakerOpenError (and any
+    caller-supplied non-retriable exceptions) since those are structural
+    failures, not transient ones.
+    """
+
+    def __init__(
+        self,
+        config: Optional[RetryConfig] = None,
+    ) -> None:
+        self._cfg = config or RetryConfig()
+
+    def run(
+        self,
+        fn: Callable[..., Any],
+        *args: Any,
+        non_retriable: Tuple[Type[Exception], ...] = (),
+        **kwargs: Any,
+    ) -> Any:
+        """Run fn(*args, **kwargs) with retry. Returns result or re-raises."""
+        no_retry = _NEVER_RETRY + tuple(non_retriable)
+        last_exc: Optional[Exception] = None
+
+        for attempt in range(1, self._cfg.max_attempts + 1):
+            try:
+                return fn(*args, **kwargs)
+            except no_retry:
+                raise
+            except Exception as exc:
+                last_exc = exc
+                if attempt < self._cfg.max_attempts:
+                    delay = min(
+                        self._cfg.base_delay_s
+                        * (self._cfg.backoff_factor ** (attempt - 1)),
+                        self._cfg.max_delay_s,
+                    )
+                    if self._cfg.jitter:
+                        delay *= 0.8 + random.random() * 0.4
+                    logger.debug(
+                        "RetryEngine: attempt %d/%d failed (%s) — retrying in %.2fs",
+                        attempt,
+                        self._cfg.max_attempts,
+                        exc,
+                        delay,
+                    )
+                    time.sleep(delay)
+
+        raise last_exc  # type: ignore[misc]
+
+
+# ─── Data Structures ──────────────────────────────────────────────────────────
+
+
+@dataclass
+class KnowledgeChunk:
+    """A single knowledge unit stored in MimirWell."""
+
+    chunk_id: str               # uuid4
+    text: str                   # raw chunk text (≤512 tokens / ~2048 chars)
+    source_file: str            # relative path within data/
+    domain: str                 # see _FILE_DOMAIN_MAP
+    level: int                  # 1=raw, 2=cluster, 3=axiom
+    metadata: Dict[str, Any]    # position, heading, file_type, etc.
+
+    def to_chroma_metadata(self) -> Dict[str, str]:
+        """Convert metadata to ChromaDB-compatible string-only dict."""
+        return {
+            "source_file": self.source_file,
+            "domain": self.domain,
+            "level": str(self.level),
+            "file_type": str(self.metadata.get("file_type", "unknown")),
+            "heading": str(self.metadata.get("heading", "")),
+            "position": str(self.metadata.get("position", 0)),
+        }
+
+
+@dataclass
+class IngestReport:
+    """Summary of a MimirWell ingest operation."""
+
+    files_processed: int = 0
+    chunks_created: int = 0
+    chunks_skipped: int = 0
+    errors: List[str] = field(default_factory=list)
+    duration_s: float = 0.0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class MimirState:
+    """State snapshot published to StateBus."""
+
+    collection_name: str
+    document_count: int
+    domain_counts: Dict[str, int]
+    last_ingest_at: Optional[str]
+    ingest_count: int
+    is_healthy: bool
+    chromadb_status: str        # "ok" | "degraded" | "down"
+    fallback_mode: str          # "chromadb" | "bm25" | "empty"
+    circuit_breaker_read: str
+    circuit_breaker_write: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+# ─── Domain → File Map ────────────────────────────────────────────────────────
+
+_FILE_DOMAIN_MAP: Dict[str, str] = {
+    # Norse Spirituality — runes, seiðr, galdr, paganism, heathenry
+    "freyjas_aett_grimoire.md": "norse_spirituality",
+    "tyrs_aett_grimoire.md": "norse_spirituality",
+    "heimdalls_aett_grimoire.md": "norse_spirituality",
+    "yrsas_rune_poems.md": "norse_spirituality",
+    "galdrabok_reconstruction.json": "norse_spirituality",
+    "trolldom_and_magick_practices_in_norse_paganism_volume1.jsonl": "norse_spirituality",
+    "viking_trolldom_the_ancient_northern_ways.yaml": "norse_spirituality",
+    "voluspa.json": "norse_spirituality",
+    "voluspa_the_seeresss_vision_the_ultimate_poetic_rendering.jsonl": "norse_spirituality",
+    "the_heathen_third_path_a_river_of_roots,_rebellion,_and_radiant_living.md": "norse_spirituality",
+    "the_heathen_third_path_within_norse_paganism_and_modern_viking_culture.md": "norse_spirituality",
+    "authentic_norse_religious_practices.json": "norse_spirituality",
+    "about_norse_paganism.json": "norse_spirituality",
+    "norse_magick_spells_and_rituals.json": "norse_spirituality",
+    "viking_era_witches_report.md": "norse_spirituality",
+    "9th_century_celtic_pagan_witches.md": "norse_spirituality",
+    "9th_century_finnish_pagan_witches_report.md": "norse_spirituality",
+    "9th_century_slavic_witches_report.md": "norse_spirituality",
+    "norse_paganism_1000_training_pairsv1.jsonl": "norse_spirituality",
+    "norse_paganism_1000_training_pairsv2.jsonl": "norse_spirituality",
+    # Norse Mythology — gods, Eddas, cosmology
+    "norse_gods.json": "norse_mythology",
+    "norse_gods_and_goddesses_personality_traits_volume1.jsonl": "norse_mythology",
+    "poetic_edda_translation.json": "norse_mythology",
+    # Norse Culture — history, geography, society, honor
+    "viking_culture_guide.md": "norse_culture",
+    "viking_cultural_practices.yaml": "norse_culture",
+    "viking_and_norse_pagan_social_protocols.json": "norse_culture",
+    "viking_social_protocols.json": "norse_culture",
+    "viking_frith.json": "norse_culture",
+    "viking_honor.json": "norse_culture",
+    "viking_sexuality.json": "norse_culture",
+    "viking_history_and_important_events_volume1.jsonl": "norse_culture",
+    "the_viking_world_a_geographic_compendium.md": "norse_culture",
+    "viking_era_cities.json": "norse_culture",
+    "viking_geography_volume1.jsonl": "norse_culture",
+    "viking_social_and_political_ideas_volume1.jsonl": "norse_culture",
+    "viking_sailing_travel_trade_raiding_volume1.jsonl": "norse_culture",
+    "famous_legendary_and_heroic_vikings_volume1.jsonl": "norse_culture",
+    "9th_century_viking_pleasure_bondmaids_report.md": "norse_culture",
+    # Coding & Technical
+    "ai_python_programming_guides.md": "coding",
+    "artificial_intelligence.md": "coding",
+    "cybersecurity.md": "coding",
+    "data_science.md": "coding",
+    "software_engineering.md": "coding",
+    "system_administration.md": "coding",
+    # Character — identity, values, emotional expression
+    "emotional_expressions.yaml": "character",
+    "viking_values.yaml": "character",
+    "viking_life_everyday_grounding_questions_dataset_volume1.jsonl": "character",
+    # Roleplay — interactions, conversations, bondmaids, gm
+    "about_the_viking_roleplay.md": "roleplay",
+    "viking_bondmaids.json": "roleplay",
+    "gm_mindset.yaml": "roleplay",
+    "viking_witch_flirty_and_erotic_behavior.jsonl": "roleplay",
+    "viking_everyday_conversations_complete_volume1.jsonl": "roleplay",
+}
+
+# Files in data/ root (not knowledge_reference/) that get level=3 axiom status
+_IDENTITY_FILES: Dict[str, str] = {
+    "core_identity.md": "character",
+    "SOUL.md": "character",
+    "values.json": "character",
+    "AGENTS.md": "character",
+}
+
+# Files to skip during ingest (meta/admin files)
+_SKIP_FILES: frozenset = frozenset({
+    "DOMAIN_PROGRESS.md",
+    "KNOWLEDGE_DOMAINS.md",
+    "MEMORY.md",
+    "README_AI.md",
+    "INTERFACE.md",
+})
+
+
+def _detect_domain_from_filename(filename: str) -> str:
+    """Keyword-based fallback domain detection for unmapped files."""
+    low = filename.lower()
+    if any(k in low for k in ("rune", "aett", "gald", "trolld", "paganism", "heathen",
+                               "witches", "voluspa", "eddic")):
+        return "norse_spirituality"
+    if any(k in low for k in ("gods", "goddess", "myth", "edda", "cosmol")):
+        return "norse_mythology"
+    if any(k in low for k in ("viking", "culture", "honor", "frith", "history",
+                               "geography", "social", "city", "sailing", "bondmaid")):
+        return "norse_culture"
+    if any(k in low for k in ("python", "ai", "code", "software", "cyber",
+                               "data_science", "system_admin", "artificial")):
+        return "coding"
+    if any(k in low for k in ("roleplay", "gm_mindset", "conversation", "flirty",
+                               "erotic", "bondmaids")):
+        return "roleplay"
+    return "norse_culture"   # sensible default
+
+
+# ─── In-Memory BM25-Style Flat Index ─────────────────────────────────────────
+
+
+class _FlatIndex:
+    """In-memory keyword index for ChromaDB-free fallback retrieval.
+
+    Uses a simplified BM25-inspired scoring:
+      score(query, chunk) = Σ_w (tf(w, chunk) / sqrt(len(chunk_words))
+                                 * log(1 + N / df(w)))
+    Built once at ingest time; rebuilt on reindex.
+    Thread-safe reads via per-query immutable snapshot of _entries.
+    """
+
+    def __init__(self) -> None:
+        self._entries: List[Tuple[str, str, Counter]] = []
+        # Each entry: (chunk_id, text, word_counter)
+        self._idf_cache: Dict[str, float] = {}
+        self._lock = threading.Lock()
+
+    def add(self, chunk: KnowledgeChunk) -> None:
+        """Add a chunk to the flat index."""
+        words = Counter(re.findall(r"[a-zA-Z0-9\u00C0-\u024F]+", chunk.text.lower()))
+        with self._lock:
+            self._entries.append((chunk.chunk_id, chunk.text, words))
+            self._idf_cache.clear()   # invalidate cache on mutation
+
+    def clear(self) -> None:
+        with self._lock:
+            self._entries.clear()
+            self._idf_cache.clear()
+
+    def search(
+        self,
+        query: str,
+        chunks_by_id: Dict[str, KnowledgeChunk],
+        n: int = 50,
+    ) -> List[KnowledgeChunk]:
+        """Return top-n chunks by BM25-style keyword score."""
+        if not self._entries:
+            return []
+
+        query_words = re.findall(r"[a-zA-Z0-9\u00C0-\u024F]+", query.lower())
+        if not query_words:
+            return []
+
+        with self._lock:
+            entries = list(self._entries)
+            n_docs = len(entries)
+
+        # Compute IDF for each query word
+        idfs: Dict[str, float] = {}
+        for qw in set(query_words):
+            if qw in self._idf_cache:
+                idfs[qw] = self._idf_cache[qw]
+            else:
+                df = sum(1 for _, _, wc in entries if qw in wc)
+                idf = math.log(1.0 + n_docs / (1 + df))
+                idfs[qw] = idf
+
+        scored: List[Tuple[float, str]] = []
+        for chunk_id, _text, word_counter in entries:
+            total_words = max(1, sum(word_counter.values()))
+            score = sum(
+                (word_counter.get(qw, 0) / total_words) * idfs.get(qw, 0.0)
+                for qw in query_words
+            )
+            if score > 0.0:
+                scored.append((score, chunk_id))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        result: List[KnowledgeChunk] = []
+        for _, cid in scored[:n]:
+            chunk = chunks_by_id.get(cid)
+            if chunk is not None:
+                result.append(chunk)
+        return result
+
+    @property
+    def size(self) -> int:
+        with self._lock:
+            return len(self._entries)
+
+
+# ─── Chunker ─────────────────────────────────────────────────────────────────
+
+
+class _Chunker:
+    """Splits raw file content into KnowledgeChunk objects.
+
+    Supports: .md, .txt, .json, .jsonl, .yaml/.yml, .csv
+    Each chunk targets chunk_size_chars characters with overlap_chars overlap.
+    """
+
+    def __init__(
+        self,
+        chunk_size_tokens: int = _DEFAULT_CHUNK_SIZE_TOKENS,
+        overlap_tokens: int = _DEFAULT_OVERLAP_TOKENS,
+    ) -> None:
+        self._max_chars = chunk_size_tokens * _CHARS_PER_TOKEN
+        self._overlap_chars = overlap_tokens * _CHARS_PER_TOKEN
+
+    def chunk_file(
+        self,
+        path: Path,
+        source_rel: str,
+        domain: str,
+        level: int,
+    ) -> List[KnowledgeChunk]:
+        """Dispatch to the correct chunking strategy based on extension."""
+        ext = path.suffix.lower()
+        try:
+            raw = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            try:
+                raw = path.read_text(encoding="latin-1")
+            except Exception as exc:
+                logger.warning("_Chunker: cannot read %s: %s", path.name, exc)
+                return []
+        except Exception as exc:
+            logger.warning("_Chunker: cannot read %s: %s", path.name, exc)
+            return []
+
+        if ext in (".md", ".txt"):
+            return self._chunk_markdown(raw, source_rel, domain, level, path.name)
+        if ext == ".json":
+            return self._chunk_json(raw, source_rel, domain, level, path.name)
+        if ext == ".jsonl":
+            return self._chunk_jsonl(raw, source_rel, domain, level, path.name)
+        if ext in (".yaml", ".yml"):
+            return self._chunk_yaml(raw, source_rel, domain, level, path.name)
+        if ext == ".csv":
+            return self._chunk_csv(raw, source_rel, domain, level, path.name)
+        # Unknown format — treat as plain text
+        return self._chunk_text_blocks(raw, source_rel, domain, level, path.name, heading="")
+
+    # ── Format-specific chunkers ──────────────────────────────────────────────
+
+    def _chunk_markdown(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+    ) -> List[KnowledgeChunk]:
+        """Split by ## headings, then sub-chunk each section by char count."""
+        chunks: List[KnowledgeChunk] = []
+        sections = re.split(r"(?m)^(#{1,3}\s+.+)$", raw)
+        current_heading = ""
+        buffer = ""
+
+        for part in sections:
+            if re.match(r"^#{1,3}\s+", part):
+                # Flush buffer before new heading
+                if buffer.strip():
+                    chunks.extend(
+                        self._split_text(
+                            buffer.strip(), source_rel, domain, level, filename, current_heading
+                        )
+                    )
+                current_heading = part.strip().lstrip("#").strip()
+                buffer = part + "\n"
+            else:
+                buffer += part
+
+        if buffer.strip():
+            chunks.extend(
+                self._split_text(
+                    buffer.strip(), source_rel, domain, level, filename, current_heading
+                )
+            )
+
+        return chunks
+
+    def _chunk_json(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+    ) -> List[KnowledgeChunk]:
+        """Split JSON by top-level keys (if dict) or items (if list)."""
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            # Try BOM-stripped recovery
+            try:
+                data = json.loads(raw.lstrip("\ufeff"))
+            except Exception:
+                logger.warning("_Chunker: cannot parse JSON: %s", filename)
+                return self._chunk_text_blocks(raw, source_rel, domain, level, filename, "")
+
+        chunks: List[KnowledgeChunk] = []
+        if isinstance(data, dict):
+            items = [(k, json.dumps(v, ensure_ascii=False)) for k, v in data.items()]
+        elif isinstance(data, list):
+            items = [(str(i), json.dumps(item, ensure_ascii=False)) for i, item in enumerate(data)]
+        else:
+            items = [("root", json.dumps(data, ensure_ascii=False))]
+
+        buffer = ""
+        buffer_heading = ""
+        pos = 0
+
+        for key, val_str in items:
+            entry = f'"{key}": {val_str}\n'
+            if len(buffer) + len(entry) > self._max_chars and buffer:
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level, filename,
+                                               buffer_heading, pos))
+                pos += 1
+                buffer = entry
+                buffer_heading = key
+            else:
+                if not buffer:
+                    buffer_heading = key
+                buffer += entry
+
+        if buffer.strip():
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level, filename,
+                                           buffer_heading, pos))
+        return chunks
+
+    def _chunk_jsonl(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+    ) -> List[KnowledgeChunk]:
+        """Split JSONL by line groups, cap at _MAX_JSONL_ITEMS_PER_FILE chunks."""
+        lines = [l.strip() for l in raw.splitlines() if l.strip()]
+        chunks: List[KnowledgeChunk] = []
+        buffer = ""
+        pos = 0
+
+        for i, line in enumerate(lines):
+            if i >= _MAX_JSONL_ITEMS_PER_FILE * 5:
+                # Hard cap: skip remainder of very large files
+                logger.debug("_Chunker: capping JSONL at line %d for %s", i, filename)
+                break
+
+            if len(buffer) + len(line) + 1 > self._max_chars and buffer:
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
+                                               filename, f"item_{pos}", pos))
+                pos += 1
+                buffer = line + "\n"
+                if len(chunks) >= _MAX_JSONL_ITEMS_PER_FILE:
+                    break
+            else:
+                buffer += line + "\n"
+
+        if buffer.strip() and len(chunks) < _MAX_JSONL_ITEMS_PER_FILE:
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
+                                           filename, f"item_{pos}", pos))
+        return chunks
+
+    def _chunk_yaml(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+    ) -> List[KnowledgeChunk]:
+        """Split YAML by top-level keys."""
+        try:
+            data = yaml.safe_load(raw)
+        except yaml.YAMLError:
+            return self._chunk_text_blocks(raw, source_rel, domain, level, filename, "")
+
+        if not isinstance(data, dict):
+            return self._chunk_text_blocks(str(data), source_rel, domain, level, filename, "")
+
+        chunks: List[KnowledgeChunk] = []
+        buffer = ""
+        buffer_heading = ""
+        pos = 0
+
+        for key, val in data.items():
+            entry = f"{key}:\n{yaml.dump(val, allow_unicode=True, default_flow_style=False)}\n"
+            if len(buffer) + len(entry) > self._max_chars and buffer:
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
+                                               filename, buffer_heading, pos))
+                pos += 1
+                buffer = entry
+                buffer_heading = str(key)
+            else:
+                if not buffer:
+                    buffer_heading = str(key)
+                buffer += entry
+
+        if buffer.strip():
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
+                                           filename, buffer_heading, pos))
+        return chunks
+
+    def _chunk_csv(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+    ) -> List[KnowledgeChunk]:
+        """Split CSV into chunks of _MAX_CSV_ROWS_PER_CHUNK rows each."""
+        lines = raw.splitlines()
+        if not lines:
+            return []
+        header = lines[0]
+        rows = lines[1:]
+        chunks: List[KnowledgeChunk] = []
+        pos = 0
+
+        for i in range(0, len(rows), _MAX_CSV_ROWS_PER_CHUNK):
+            batch = rows[i: i + _MAX_CSV_ROWS_PER_CHUNK]
+            text = header + "\n" + "\n".join(batch)
+            chunks.append(self._make_chunk(text.strip(), source_rel, domain, level,
+                                           filename, f"rows_{i}", pos))
+            pos += 1
+
+        return chunks
+
+    def _chunk_text_blocks(
+        self,
+        raw: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+        heading: str,
+    ) -> List[KnowledgeChunk]:
+        """Generic: split by blank lines (paragraphs), then by char limit."""
+        paragraphs = re.split(r"\n\s*\n", raw.strip())
+        buffer = ""
+        pos = 0
+        chunks: List[KnowledgeChunk] = []
+
+        for para in paragraphs:
+            if len(buffer) + len(para) + 2 > self._max_chars and buffer:
+                chunks.extend(
+                    self._split_text(buffer.strip(), source_rel, domain, level, filename, heading)
+                )
+                pos += len(chunks)
+                buffer = para + "\n\n"
+            else:
+                buffer += para + "\n\n"
+
+        if buffer.strip():
+            chunks.extend(
+                self._split_text(buffer.strip(), source_rel, domain, level, filename, heading)
+            )
+
+        return chunks
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def _split_text(
+        self,
+        text: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+        heading: str,
+    ) -> List[KnowledgeChunk]:
+        """Hard-split a text block at max_chars with overlap."""
+        if not text:
+            return []
+
+        if len(text) <= self._max_chars:
+            return [self._make_chunk(text, source_rel, domain, level, filename, heading, 0)]
+
+        chunks: List[KnowledgeChunk] = []
+        start = 0
+        pos = 0
+        while start < len(text):
+            end = min(start + self._max_chars, len(text))
+            chunk_text = text[start:end].strip()
+            if chunk_text:
+                chunks.append(
+                    self._make_chunk(chunk_text, source_rel, domain, level, filename, heading, pos)
+                )
+                pos += 1
+            start = end - self._overlap_chars if end < len(text) else end
+
+        return chunks
+
+    @staticmethod
+    def _make_chunk(
+        text: str,
+        source_rel: str,
+        domain: str,
+        level: int,
+        filename: str,
+        heading: str,
+        position: int,
+    ) -> KnowledgeChunk:
+        return KnowledgeChunk(
+            chunk_id=str(uuid.uuid4()),
+            text=text,
+            source_file=source_rel,
+            domain=domain,
+            level=level,
+            metadata={
+                "file_type": Path(filename).suffix.lower().lstrip("."),
+                "heading": heading,
+                "position": position,
+                "filename": filename,
+            },
+        )
+
+
+# ─── MimirWell ────────────────────────────────────────────────────────────────
+
+
+class MimirWell:
+    """Mímisbrunnr — the Ground Truth Well.
+
+    Indexes knowledge files into ChromaDB with in-memory BM25 fallback.
+    All public methods are safe to call even when ChromaDB is unavailable.
+    Never raises to the caller — all errors are logged and fallbacks engaged.
+
+    Ingest is idempotent: calling ingest_all() on an already-populated
+    collection is a no-op unless force=True.
+
+    Singleton: use init_mimir_well_from_config() + get_mimir_well().
+    """
+
+    def __init__(
+        self,
+        collection_name: str = _DEFAULT_COLLECTION,
+        persist_dir: Union[str, Path] = _DEFAULT_PERSIST_DIR,
+        chunk_size_tokens: int = _DEFAULT_CHUNK_SIZE_TOKENS,
+        chunk_overlap_tokens: int = _DEFAULT_OVERLAP_TOKENS,
+        n_retrieve: int = _DEFAULT_N_RETRIEVE,
+        n_final: int = _DEFAULT_N_FINAL,
+    ) -> None:
+        self._collection_name = collection_name
+        self._persist_dir = Path(persist_dir).resolve()
+        self._n_retrieve = n_retrieve
+        self._n_final = n_final
+
+        # Infrastructure
+        self._chunker = _Chunker(chunk_size_tokens, chunk_overlap_tokens)
+        self._flat_index = _FlatIndex()
+        self._chunks_by_id: Dict[str, KnowledgeChunk] = {}
+
+        # Circuit breakers
+        self._cb_read = _MimirCircuitBreaker(
+            "mimir_chromadb_read",
+            CircuitBreakerConfig(failure_threshold=3, cooldown_s=30.0),
+        )
+        self._cb_write = _MimirCircuitBreaker(
+            "mimir_chromadb_write",
+            CircuitBreakerConfig(failure_threshold=3, cooldown_s=60.0),
+        )
+
+        # Retry engines
+        self._retry_read = _RetryEngine(
+            RetryConfig(max_attempts=3, base_delay_s=0.5, backoff_factor=2.0, max_delay_s=4.0)
+        )
+        self._retry_write = _RetryEngine(
+            RetryConfig(max_attempts=3, base_delay_s=1.0, backoff_factor=2.0, max_delay_s=8.0)
+        )
+
+        # State tracking
+        self._domain_counts: Dict[str, int] = {}
+        self._last_ingest_at: Optional[str] = None
+        self._ingest_count: int = 0
+        self._fallback_mode: str = "chromadb"
+
+        # ChromaDB
+        self._chromadb_available: bool = False
+        self._collection = None
+        self._init_chromadb()
+
+    # ─── ChromaDB Initialisation ──────────────────────────────────────────────
+
+    def _init_chromadb(self) -> None:
+        """Attempt to connect to ChromaDB. Degrades gracefully on failure."""
+        try:
+            import chromadb  # type: ignore
+
+            self._persist_dir.mkdir(parents=True, exist_ok=True)
+            client = chromadb.PersistentClient(path=str(self._persist_dir))
+            self._collection = client.get_or_create_collection(
+                name=self._collection_name,
+                metadata={"hnsw:space": "cosine"},
+            )
+            self._chromadb_available = True
+            logger.info(
+                "MimirWell: ChromaDB collection '%s' ready at '%s'.",
+                self._collection_name,
+                self._persist_dir,
+            )
+        except ImportError:
+            logger.warning(
+                "MimirWell: chromadb not installed — using BM25 keyword fallback only. "
+                "Install with: pip install chromadb"
+            )
+            self._fallback_mode = "bm25"
+        except Exception as exc:
+            logger.warning(
+                "MimirWell: ChromaDB init failed (%s) — BM25 fallback active.", exc
+            )
+            self._fallback_mode = "bm25"
+
+    # ─── Lock File Management ─────────────────────────────────────────────────
+
+    def _lock_path(self, data_root: Path) -> Path:
+        return data_root / _LOCK_FILE_NAME
+
+    def _set_lock(self, data_root: Path) -> None:
+        try:
+            self._lock_path(data_root).write_text(
+                datetime.now(timezone.utc).isoformat(), encoding="utf-8"
+            )
+        except Exception as exc:
+            logger.debug("MimirWell: could not write lock file: %s", exc)
+
+    def _clear_lock(self, data_root: Path) -> None:
+        try:
+            lp = self._lock_path(data_root)
+            if lp.exists():
+                lp.unlink()
+        except Exception as exc:
+            logger.debug("MimirWell: could not remove lock file: %s", exc)
+
+    def _check_interrupted_ingest(self, data_root: Path) -> bool:
+        """Returns True if a previous ingest was interrupted (lock file present)."""
+        return self._lock_path(data_root).exists()
+
+    # ─── Ingest ───────────────────────────────────────────────────────────────
+
+    def ingest_all(self, data_root: Path, force: bool = False) -> IngestReport:
+        """Index all knowledge files under data_root.
+
+        Idempotent: if ChromaDB already has documents and force=False, returns
+        a quick report with 0 chunks ingested.
+
+        force=True: drops and rebuilds the collection from scratch.
+        If a lock file is found (interrupted previous ingest), forces a rebuild.
+        """
+        t0 = time.monotonic()
+        report = IngestReport()
+
+        # Detect interrupted previous ingest
+        if self._check_interrupted_ingest(data_root):
+            logger.warning(
+                "MimirWell: previous ingest was interrupted (lock file found) — forcing rebuild."
+            )
+            force = True
+
+        # Early exit if already populated and not forced
+        if not force and self._chromadb_available and self._collection is not None:
+            try:
+                count = self._collection.count()
+                if count > 0:
+                    logger.info(
+                        "MimirWell: collection already has %d documents — skipping ingest "
+                        "(pass force=True to rebuild).",
+                        count,
+                    )
+                    self._last_ingest_at = datetime.now(timezone.utc).isoformat()
+                    report.duration_s = time.monotonic() - t0
+                    return report
+            except Exception:
+                pass  # Can't check count — proceed with ingest
+
+        # Force rebuild: drop collection
+        if force and self._chromadb_available and self._collection is not None:
+            try:
+                import chromadb  # type: ignore
+
+                self._collection.delete(where={"domain": {"$ne": "___never___"}})
+                logger.info("MimirWell: cleared existing collection for rebuild.")
+            except Exception as exc:
+                logger.warning("MimirWell: could not clear collection: %s", exc)
+
+        self._flat_index.clear()
+        self._chunks_by_id.clear()
+        self._domain_counts.clear()
+
+        # Set lock file before starting work
+        self._set_lock(data_root)
+
+        try:
+            # ── Ingest identity files (level=3, axiom) ────────────────────────
+            for fname, domain in _IDENTITY_FILES.items():
+                fpath = data_root / fname
+                if not fpath.exists():
+                    continue
+                chunks = self._chunker.chunk_file(fpath, fname, domain, level=3)
+                ingested, errors = self._upsert_chunks(chunks)
+                report.files_processed += 1
+                report.chunks_created += ingested
+                report.errors.extend(errors)
+
+            # ── Ingest knowledge_reference/ files (level=1, raw) ─────────────
+            kr_dir = data_root / "knowledge_reference"
+            if kr_dir.is_dir():
+                for fpath in sorted(kr_dir.iterdir()):
+                    if fpath.is_dir():
+                        continue  # skip subdirs (e.g. dnd-5e-srd-json)
+                    if fpath.name in _SKIP_FILES:
+                        continue
+                    if fpath.suffix.lower() not in {
+                        ".md", ".txt", ".json", ".jsonl", ".yaml", ".yml", ".csv"
+                    }:
+                        continue
+
+                    domain = _FILE_DOMAIN_MAP.get(
+                        fpath.name.lower(),
+                        _FILE_DOMAIN_MAP.get(
+                            fpath.name,
+                            _detect_domain_from_filename(fpath.name),
+                        ),
+                    )
+                    source_rel = f"knowledge_reference/{fpath.name}"
+
+                    try:
+                        chunks = self._chunker.chunk_file(fpath, source_rel, domain, level=1)
+                        ingested, errors = self._upsert_chunks(chunks)
+                        report.files_processed += 1
+                        report.chunks_created += ingested
+                        report.errors.extend(errors)
+                        if errors:
+                            logger.warning(
+                                "MimirWell: %d errors ingesting %s", len(errors), fpath.name
+                            )
+                    except Exception as exc:
+                        err_msg = f"{fpath.name}: {exc}"
+                        report.errors.append(err_msg)
+                        logger.warning("MimirWell: failed to ingest %s: %s", fpath.name, exc)
+
+        finally:
+            # Always clear the lock file — even if ingest partially failed
+            self._clear_lock(data_root)
+
+        self._last_ingest_at = datetime.now(timezone.utc).isoformat()
+        self._ingest_count += 1
+        report.duration_s = time.monotonic() - t0
+
+        logger.info(
+            "MimirWell: ingest complete — %d files, %d chunks, %d errors in %.1fs.",
+            report.files_processed,
+            report.chunks_created,
+            len(report.errors),
+            report.duration_s,
+        )
+        return report
+
+    def reindex(self) -> IngestReport:
+        """Force a full drop-and-rebuild. Called by MimirHealthMonitor on corruption."""
+        logger.info("MimirWell: triggering full reindex...")
+        # Find the data root from an existing chunk's source_file (if available)
+        # or fall back to the known persist_dir sibling path
+        data_root = self._persist_dir.parent
+        report = self.ingest_all(data_root, force=True)
+        self._cb_read.reset()
+        self._cb_write.reset()
+        logger.info("MimirWell: reindex complete. Circuit breakers reset.")
+        return report
+
+    def _upsert_chunks(
+        self, chunks: List[KnowledgeChunk]
+    ) -> Tuple[int, List[str]]:
+        """Upsert a list of chunks into ChromaDB + flat index. Returns (ingested, errors)."""
+        ingested = 0
+        errors: List[str] = []
+
+        for chunk in chunks:
+            # Always add to flat index (no dependencies, never fails)
+            try:
+                self._flat_index.add(chunk)
+                self._chunks_by_id[chunk.chunk_id] = chunk
+                self._domain_counts[chunk.domain] = (
+                    self._domain_counts.get(chunk.domain, 0) + 1
+                )
+            except Exception as exc:
+                errors.append(f"flat_index add {chunk.chunk_id}: {exc}")
+                continue
+
+            # Upsert to ChromaDB (optional — fallback already has the data)
+            if self._chromadb_available and self._collection is not None:
+                try:
+                    self._cb_write.before_call()
+
+                    def _do_upsert(c: KnowledgeChunk) -> None:
+                        self._collection.upsert(  # type: ignore[union-attr]
+                            ids=[c.chunk_id],
+                            documents=[c.text],
+                            metadatas=[c.to_chroma_metadata()],
+                        )
+
+                    self._retry_write.run(_do_upsert, chunk)
+                    self._cb_write.on_success()
+                    ingested += 1
+                except CircuitBreakerOpenError:
+                    # Breaker is open — count as "ingested" since flat index has it
+                    ingested += 1
+                except Exception as exc:
+                    self._cb_write.on_failure(exc)
+                    errors.append(f"chromadb upsert {chunk.source_file}: {exc}")
+                    ingested += 1  # flat index is the fallback — still "ingested"
+            else:
+                ingested += 1
+
+        return ingested, errors
+
+    # ─── Retrieval ────────────────────────────────────────────────────────────
+
+    def retrieve(
+        self,
+        query: str,
+        n: int = _DEFAULT_N_RETRIEVE,
+        domain: Optional[str] = None,
+    ) -> List[KnowledgeChunk]:
+        """Semantic search over the Well. Never raises — always returns a list.
+
+        Primary: ChromaDB semantic search (with optional domain metadata filter).
+        Fallback A: in-memory BM25 keyword search.
+        Fallback B: empty list (logged as warning).
+        """
+        if not query.strip():
+            return []
+
+        # Try ChromaDB primary path
+        if self._chromadb_available and self._collection is not None:
+            try:
+                self._cb_read.before_call()
+                results = self._retry_read.run(
+                    self._chromadb_retrieve, query, n, domain
+                )
+                self._cb_read.on_success()
+                self._fallback_mode = "chromadb"
+                return results
+            except CircuitBreakerOpenError as exc:
+                logger.debug(
+                    "MimirWell: ChromaDB read circuit breaker open (%s) — using BM25 fallback.",
+                    exc.cooldown_remaining_s,
+                )
+            except Exception as exc:
+                self._cb_read.on_failure(exc)
+                logger.warning(
+                    "MimirWell: ChromaDB retrieve failed (%s) — using BM25 fallback.", exc
+                )
+
+        # Fallback A: BM25 keyword search
+        results = self._bm25_retrieve(query, n, domain)
+        if results:
+            self._fallback_mode = "bm25"
+            logger.debug(
+                "MimirWell: BM25 fallback returned %d results for query=%.60s", len(results), query
+            )
+            return results
+
+        # Fallback B: empty
+        self._fallback_mode = "empty"
+        logger.warning(
+            "MimirWell: all retrieval fallbacks exhausted — returning empty context."
+        )
+        return []
+
+    def _chromadb_retrieve(
+        self,
+        query: str,
+        n: int,
+        domain: Optional[str],
+    ) -> List[KnowledgeChunk]:
+        """Raw ChromaDB query. Raises on any error (RetryEngine handles retry)."""
+        where: Optional[Dict[str, Any]] = {"domain": domain} if domain else None
+        query_kwargs: Dict[str, Any] = {
+            "query_texts": [query],
+            "n_results": min(n, self._collection.count() or 1),  # type: ignore
+        }
+        if where:
+            query_kwargs["where"] = where
+
+        results = self._collection.query(**query_kwargs)  # type: ignore
+
+        chunks: List[KnowledgeChunk] = []
+        for doc, meta, cid in zip(
+            results.get("documents", [[]])[0],
+            results.get("metadatas", [[]])[0],
+            results.get("ids", [[]])[0],
+        ):
+            # Prefer in-memory version (has full Python dict metadata)
+            chunk = self._chunks_by_id.get(cid)
+            if chunk is None:
+                # Reconstruct from ChromaDB result
+                chunk = KnowledgeChunk(
+                    chunk_id=cid,
+                    text=doc or "",
+                    source_file=meta.get("source_file", ""),
+                    domain=meta.get("domain", ""),
+                    level=int(meta.get("level", 1)),
+                    metadata={
+                        "file_type": meta.get("file_type", ""),
+                        "heading": meta.get("heading", ""),
+                        "position": int(meta.get("position", 0)),
+                    },
+                )
+            chunks.append(chunk)
+
+        return chunks
+
+    def _bm25_retrieve(
+        self,
+        query: str,
+        n: int = _DEFAULT_N_RETRIEVE,
+        domain: Optional[str] = None,
+    ) -> List[KnowledgeChunk]:
+        """BM25-style keyword search over the in-memory flat index.
+
+        Fallback A — no ChromaDB required. Always safe to call.
+        Returns up to n results (domain-filtered if domain is specified).
+        """
+        if self._flat_index.size == 0:
+            return []
+
+        results = self._flat_index.search(query, self._chunks_by_id, n=n * 3)
+
+        if domain:
+            results = [c for c in results if c.domain == domain]
+
+        return results[:n]
+
+    # ─── Reranking ────────────────────────────────────────────────────────────
+
+    def rerank(
+        self,
+        query: str,
+        chunks: List[KnowledgeChunk],
+        n: int = _DEFAULT_N_FINAL,
+    ) -> List[KnowledgeChunk]:
+        """Hybrid rerank: 0.7 * keyword_overlap + 0.3 * original_order_bonus.
+
+        Pure Python — never raises. Returns up to n best chunks.
+        When ChromaDB is the source, original order already reflects semantic
+        similarity, so we boost keyword overlap to refine rather than replace.
+        """
+        if not chunks:
+            return []
+        if len(chunks) <= n:
+            return chunks
+
+        query_words = frozenset(
+            re.findall(r"[a-zA-Z0-9\u00C0-\u024F]+", query.lower())
+        )
+
+        scored: List[Tuple[float, int, KnowledgeChunk]] = []
+        for idx, chunk in enumerate(chunks):
+            chunk_words = frozenset(
+                re.findall(r"[a-zA-Z0-9\u00C0-\u024F]+", chunk.text.lower())
+            )
+            overlap = len(query_words & chunk_words) / max(1, len(query_words))
+            order_bonus = 1.0 - (idx / len(chunks))   # earlier = higher
+            score = 0.7 * overlap + 0.3 * order_bonus
+            scored.append((score, idx, chunk))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [c for _, _, c in scored[:n]]
+
+    # ─── Axioms ───────────────────────────────────────────────────────────────
+
+    def get_axioms(self) -> List[KnowledgeChunk]:
+        """Return all level=3 (axiom) chunks — Sigrid's non-negotiable core truths.
+
+        Used by VordurChecker for persona consistency validation.
+        Always returns a list (never raises). Falls back to BM25 search on
+        "core identity values soul" if ChromaDB is unavailable.
+        """
+        # Check in-memory first (fastest)
+        axioms = [c for c in self._chunks_by_id.values() if c.level == 3]
+        if axioms:
+            return axioms
+
+        # ChromaDB query for level=3
+        if self._chromadb_available and self._collection is not None:
+            try:
+                self._cb_read.before_call()
+
+                def _query_axioms() -> List[KnowledgeChunk]:
+                    count = self._collection.count()  # type: ignore
+                    if count == 0:
+                        return []
+                    results = self._collection.query(  # type: ignore
+                        query_texts=["core identity values soul Sigrid"],
+                        n_results=min(20, count),
+                        where={"level": "3"},
+                    )
+                    return self._chromadb_retrieve.__func__(  # type: ignore[attr-defined]
+                        self,
+                        "core identity values soul",
+                        20,
+                        None,
+                    )
+
+                ax = self._retry_read.run(_query_axioms)
+                self._cb_read.on_success()
+                ax = [c for c in ax if c.level == 3]
+                if ax:
+                    return ax
+            except Exception as exc:
+                self._cb_read.on_failure(exc)
+                logger.debug("MimirWell.get_axioms: ChromaDB failed (%s) — using BM25.", exc)
+
+        # BM25 fallback
+        return self._bm25_retrieve("core identity values soul Sigrid character", n=20)
+
+    # ─── Context String ───────────────────────────────────────────────────────
+
+    def get_context_string(self, chunks: List[KnowledgeChunk]) -> str:
+        """Format chunks as numbered Ground Truth citations for prompt injection.
+
+        Output format:
+            [GROUND TRUTH — retrieved from the Well]
+            [GT-1] (Source: freyjas_aett_grimoire.md) ...chunk text...
+            [GT-2] ...
+        """
+        if not chunks:
+            return ""
+
+        lines = ["[GROUND TRUTH — retrieved from the Well]"]
+        for i, chunk in enumerate(chunks, 1):
+            source = chunk.metadata.get("filename", chunk.source_file)
+            # Truncate very long chunks for prompt efficiency
+            text = chunk.text[:1200] + "..." if len(chunk.text) > 1200 else chunk.text
+            lines.append(f"[GT-{i}] (Source: {source}) {text}")
+
+        return "\n".join(lines)
+
+    # ─── State & Bus ──────────────────────────────────────────────────────────
+
+    def get_state(self) -> MimirState:
+        """Build a current state snapshot."""
+        doc_count = 0
+        chroma_status = "down"
+
+        if self._chromadb_available and self._collection is not None:
+            try:
+                doc_count = self._collection.count()
+                chroma_status = "ok"
+            except Exception:
+                chroma_status = "degraded"
+        elif self._flat_index.size > 0:
+            doc_count = self._flat_index.size
+            chroma_status = "down"
+
+        return MimirState(
+            collection_name=self._collection_name,
+            document_count=doc_count,
+            domain_counts=dict(self._domain_counts),
+            last_ingest_at=self._last_ingest_at,
+            ingest_count=self._ingest_count,
+            is_healthy=chroma_status != "down" or self._flat_index.size > 0,
+            chromadb_status=chroma_status,
+            fallback_mode=self._fallback_mode,
+            circuit_breaker_read=self._cb_read.get_state_label(),
+            circuit_breaker_write=self._cb_write.get_state_label(),
+        )
+
+    def publish(self, bus: StateBus) -> None:
+        """Publish current state to the StateBus."""
+        try:
+            state = self.get_state()
+            event = StateEvent(
+                source_module="mimir_well",
+                event_type="mimir_state",
+                payload=state.to_dict(),
+            )
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(bus.publish_state(event, nowait=True))
+        except Exception as exc:
+            logger.debug("MimirWell.publish: failed to publish state: %s", exc)
+
+    # ─── Convenience properties ───────────────────────────────────────────────
+
+    @property
+    def chromadb_available(self) -> bool:
+        return self._chromadb_available
+
+    @property
+    def flat_index_size(self) -> int:
+        return self._flat_index.size
+
+    @property
+    def collection_name(self) -> str:
+        return self._collection_name
+
+
+# ─── Singleton ────────────────────────────────────────────────────────────────
+
+_MIMIR_WELL: Optional[MimirWell] = None
+
+
+def get_mimir_well() -> MimirWell:
+    """Return the global MimirWell instance. Raises if not yet initialised."""
+    if _MIMIR_WELL is None:
+        raise RuntimeError(
+            "MimirWell not initialised — call init_mimir_well_from_config() first."
+        )
+    return _MIMIR_WELL
+
+
+def init_mimir_well_from_config(
+    config: Any,
+    data_root: Optional[Union[str, Path]] = None,
+    auto_ingest: bool = True,
+) -> MimirWell:
+    """Create and register the global MimirWell from the skill config dict.
+
+    config  — the dict loaded by ConfigLoader (may be a nested dict or Any).
+    data_root — override for the data directory root. If None, derived from config.
+    auto_ingest — if True (default), triggers ingest_all() when the collection
+                  is empty. Set to False in tests.
+
+    Config keys read (all optional, have defaults):
+        mimir_well.collection_name
+        mimir_well.persist_dir
+        mimir_well.chunk_size_tokens
+        mimir_well.chunk_overlap_tokens
+        mimir_well.n_retrieve
+        mimir_well.n_final
+        mimir_well.auto_ingest
+        mimir_well.force_reindex
+    """
+    global _MIMIR_WELL
+
+    mw_cfg: Dict[str, Any] = {}
+    if isinstance(config, dict):
+        mw_cfg = config.get("mimir_well", {}) or {}
+    elif hasattr(config, "get"):
+        mw_cfg = config.get("mimir_well", {}) or {}
+
+    well = MimirWell(
+        collection_name=mw_cfg.get("collection_name", _DEFAULT_COLLECTION),
+        persist_dir=mw_cfg.get("persist_dir", _DEFAULT_PERSIST_DIR),
+        chunk_size_tokens=int(mw_cfg.get("chunk_size_tokens", _DEFAULT_CHUNK_SIZE_TOKENS)),
+        chunk_overlap_tokens=int(mw_cfg.get("chunk_overlap_tokens", _DEFAULT_OVERLAP_TOKENS)),
+        n_retrieve=int(mw_cfg.get("n_retrieve", _DEFAULT_N_RETRIEVE)),
+        n_final=int(mw_cfg.get("n_final", _DEFAULT_N_FINAL)),
+    )
+
+    do_auto_ingest = auto_ingest and bool(mw_cfg.get("auto_ingest", True))
+    force_reindex = bool(mw_cfg.get("force_reindex", False))
+
+    if do_auto_ingest and data_root is not None:
+        dr = Path(data_root)
+        try:
+            report = well.ingest_all(dr, force=force_reindex)
+            if report.errors:
+                logger.warning(
+                    "MimirWell init: ingest completed with %d errors.", len(report.errors)
+                )
+        except Exception as exc:
+            logger.error("MimirWell init: ingest failed: %s", exc)
+
+    _MIMIR_WELL = well
+    logger.info(
+        "MimirWell singleton registered (collection='%s', chromadb=%s, flat_index=%d).",
+        well.collection_name,
+        well.chromadb_available,
+        well.flat_index_size,
+    )
+    return _MIMIR_WELL
