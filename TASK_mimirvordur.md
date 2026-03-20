@@ -1181,8 +1181,8 @@ Query expansion: before ChromaDB retrieve, expand query keywords via graph.
 |------|-------------|-----------|--------|
 | 1 | `mimir_well.py` | config_loader, state_bus, chromadb | ✅ DONE (2026-03-20) — 57 files, 25 160 chunks, BM25+ChromaDB dual path |
 | 2 | `vordur.py` | mimir_well, model_router_client | ✅ DONE (2026-03-20) — NLI pipeline, 4-tier fallback chain, persona guard, circuit breakers |
-| 3 | `huginn.py` | mimir_well, memory_store | ⏳ NEXT |
-| 4 | `cove_pipeline.py` | huginn, model_router_client, vordur | ⏳ PENDING |
+| 3 | `huginn.py` | mimir_well, memory_store | ✅ DONE (2026-03-20) — domain detection, federated retrieval, 4-tier fallback, episodic integration, 54/54 tests passed |
+| 4 | `cove_pipeline.py` | huginn, model_router_client, vordur | ⏳ NEXT |
 | 5 | Extend `memory_store.py` | huginn | ⏳ PENDING |
 | 6 | Extend `model_router_client.py` | vordur, huginn, cove | ⏳ PENDING |
 | 7 | Extend `main.py` | all above | ⏳ PENDING |
