@@ -8,7 +8,7 @@
 
 | Subject Name | File Name | Entry Count | Current Subdomain | Last Verification | Git Hash | Push Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Viking History** | `VIKING_HISTORY.md` | 70 | Major Figures / Battles / Explorers | 2026-03-20 | - | Pending |
+| **Viking History** | `VIKING_HISTORY.md` | 90 | Trade / Commodities / Economic Centers | 2026-03-20 | - | Pending |
 | **Old Norse Language**| `OLD_NORSE.md` | 32 | Phonology / Runology / Poetics / Esoteric | 2026-03-20 | - | Pending |
 | **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 32 | Training / Optimization / NLP / Ethics | 2026-03-20 | - | Pending |
 | **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 32 | Design Patterns / Clean Code / Concurrency | 2026-03-20 | - | Pending |
