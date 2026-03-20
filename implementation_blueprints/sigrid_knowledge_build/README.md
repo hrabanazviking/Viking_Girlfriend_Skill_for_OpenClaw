@@ -9,6 +9,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `verification_plans/`: per-subject verification discipline notes
 - `source_class_matrices/`: allowed source-class strategy per subject
 - `batch_audit_templates/`: batch review template per subject
+- `deduplication_ledgers/`: per-subject duplicate-control records
+- `uniqueness_maps/`: per-subject distinction maps for adjacent concepts
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
