@@ -17,6 +17,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `coverage_review_dashboards/`: per-subject coverage balance review
 - `dispute_registers/`: per-subject contested-claim tracking
 - `entry_status_boards/`: per-subject live entry progress boards
+- `source_gap_trackers/`: per-subject weak-source gap tracking
+- `adjacency_overlap_maps/`: per-subject neighboring-domain overlap maps
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
