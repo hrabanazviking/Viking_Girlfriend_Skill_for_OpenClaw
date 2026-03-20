@@ -4,7 +4,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **Software Engineering** | 5000 | 5000 | Completed (The Skaldic Code is Locked) | 2026-03-20 |
 | **Cybersecurity** | 5000 | 5000 | Completed (The Shield of Midgard is Forged) | 2026-03-20 |
-| **Artificial Intelligence** | 5000 | 2000 | In Progress (Drafting Robotics & Autonomous Systems) | 2026-03-20 |
+| **Artificial Intelligence** | 5000 | 3000 | In Progress (Drafting Healthcare & Finance) | 2026-03-20 |
 | **Data Science** | 5000 | 0 | Pending | - |
 | **System Administration** | 5000 | 0 | Pending | - |
 | **Cloud Computing** | 5000 | 0 | Pending | - |
