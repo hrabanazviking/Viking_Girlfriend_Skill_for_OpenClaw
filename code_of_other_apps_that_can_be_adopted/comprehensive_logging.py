@@ -1,0 +1,339 @@
+"""Comprehensive, crash-resistant logging for Norse Saga Engine."""
+
+from __future__ import annotations
+
+import json
+import logging
+import traceback
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from functools import wraps
+from pathlib import Path
+from threading import Lock
+from typing import Any, Callable, Dict, List, Optional
+
+from systems.crash_reporting import get_crash_reporter
+
+
+@dataclass
+class AICallLog:
+    timestamp: str
+    call_id: str
+    realm: str
+    call_type: str
+    prompt_length: int
+    prompt_preview: str
+    full_prompt: str
+    context_keys: List[str]
+    characters_involved: List[str]
+    response_length: int
+    response_preview: str
+    full_response: str
+    processing_time: float
+    success: bool
+    error: Optional[str] = None
+    data_sources: List[str] = field(default_factory=list)
+    data_path: List[str] = field(default_factory=list)
+
+
+@dataclass
+class TurnLog:
+    turn_number: int
+    timestamp: str
+    player_input: str
+    player_character: str
+    location: str
+    ai_calls: List[AICallLog] = field(default_factory=list)
+    realm_visits: Dict[str, int] = field(default_factory=dict)
+    narrative_output: str = ""
+    events_detected: List[str] = field(default_factory=list)
+    memories_formed: List[Dict[str, Any]] = field(default_factory=list)
+    state_changes: Dict[str, Any] = field(default_factory=dict)
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+
+
+class ComprehensiveLogger:
+    """High-detail logger with fail-safe writes and per-turn snapshots."""
+
+    def __init__(self, logs_dir: str = "logs"):
+        self.logs_dir = Path(logs_dir)
+        self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.session_dir = self.logs_dir / f"session_{self.session_id}"
+        self.session_dir.mkdir(parents=True, exist_ok=True)
+
+        self._call_counter = 0
+        self._lock = Lock()
+        self.current_turn: Optional[TurnLog] = None
+        self.turn_logs: List[TurnLog] = []
+
+        self.crash_reporter = get_crash_reporter(str(self.logs_dir))
+        self._setup_loggers()
+        self.main_logger.info("Session started: %s", self.session_id)
+
+    def _setup_loggers(self) -> None:
+        formatter = logging.Formatter(
+            "%(asctime)s | %(name)s | %(levelname)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+
+        def _build_logger(name: str, filename: str, level: int) -> logging.Logger:
+            logger = logging.getLogger(name)
+            logger.setLevel(level)
+            logger.propagate = False
+            logger.handlers.clear()
+            handler = logging.FileHandler(self.session_dir / filename, encoding="utf-8")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            return logger
+
+        self.main_logger = _build_logger(f"saga.{self.session_id}", "full_log.log", logging.DEBUG)
+        self.ai_logger = _build_logger(f"saga.{self.session_id}.ai", "ai_calls.log", logging.DEBUG)
+        self.path_logger = _build_logger(f"saga.{self.session_id}.path", "data_paths.log", logging.DEBUG)
+        self.error_logger = _build_logger(f"saga.{self.session_id}.error", "errors.log", logging.WARNING)
+        self.memory_logger = _build_logger(f"saga.{self.session_id}.memory", "memory_events.log", logging.DEBUG)
+
+    def _safe_json_dump(self, path: Path, payload: Any) -> None:
+        try:
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, default=str, ensure_ascii=False)
+        except Exception as exc:
+            self.error_logger.error("Failed writing %s: %s", path, exc)
+
+    def _get_call_id(self) -> str:
+        with self._lock:
+            self._call_counter += 1
+            return f"{self.session_id}_{self._call_counter:06d}"
+
+    def start_turn(self, turn_number: int, player_input: str, player_character: str, location: str) -> None:
+        self.current_turn = TurnLog(
+            turn_number=turn_number,
+            timestamp=datetime.now().isoformat(),
+            player_input=player_input,
+            player_character=player_character,
+            location=location,
+        )
+        self.main_logger.info("=== TURN %s START ===", turn_number)
+        self.main_logger.info("Player: %s at %s", player_character, location)
+        self.crash_reporter.trace_event(
+            category="turn",
+            message="turn_start",
+            details={
+                "turn_number": turn_number,
+                "player_character": player_character,
+                "location": location,
+                "input_preview": (player_input or "")[:250],
+            },
+        )
+
+    def end_turn(self, narrative_output: str = "") -> None:
+        if not self.current_turn:
+            return
+
+        self.current_turn.narrative_output = narrative_output
+        self.main_logger.info("=== TURN %s END ===", self.current_turn.turn_number)
+        turn_file = self.session_dir / f"turn_{self.current_turn.turn_number:04d}.json"
+        self._safe_json_dump(turn_file, asdict(self.current_turn))
+
+        self.turn_logs.append(self.current_turn)
+        self.current_turn = None
+
+    def log_ai_call(
+        self,
+        realm: str,
+        call_type: str,
+        prompt: str,
+        response: str,
+        context: Optional[Dict[str, Any]] = None,
+        characters: Optional[List[str]] = None,
+        processing_time: float = 0.0,
+        success: bool = True,
+        error: Optional[str] = None,
+        data_sources: Optional[List[str]] = None,
+        data_path: Optional[List[str]] = None,
+    ) -> str:
+        call_id = self._get_call_id()
+        call_log = AICallLog(
+            timestamp=datetime.now().isoformat(),
+            call_id=call_id,
+            realm=realm,
+            call_type=call_type,
+            prompt_length=len(prompt or ""),
+            prompt_preview=(prompt or "")[:500],
+            full_prompt=prompt or "",
+            context_keys=list((context or {}).keys()),
+            characters_involved=characters or [],
+            response_length=len(response or ""),
+            response_preview=(response or "")[:500],
+            full_response=response or "",
+            processing_time=processing_time,
+            success=success,
+            error=error,
+            data_sources=data_sources or [],
+            data_path=data_path or [],
+        )
+
+        self.ai_logger.info("[%s] REALM=%s TYPE=%s SUCCESS=%s", call_id, realm, call_type, success)
+        self.ai_logger.debug("[%s] PROMPT: %s", call_id, call_log.full_prompt)
+        self.ai_logger.debug("[%s] RESPONSE: %s", call_id, call_log.full_response)
+        if error:
+            self.ai_logger.error("[%s] ERROR: %s", call_id, error)
+
+        if data_path:
+            self.path_logger.info("[%s] PATH: %s", call_id, " -> ".join(data_path))
+        if data_sources:
+            self.path_logger.info("[%s] SOURCES: %s", call_id, ", ".join(data_sources))
+
+        if self.current_turn:
+            self.current_turn.ai_calls.append(call_log)
+            self.current_turn.realm_visits[realm] = self.current_turn.realm_visits.get(realm, 0) + 1
+
+        self.crash_reporter.trace_event(
+            category="ai_call",
+            message=f"{realm}:{call_type}",
+            severity="error" if not success else "info",
+            details={
+                "call_id": call_id,
+                "realm": realm,
+                "call_type": call_type,
+                "success": success,
+                "prompt_length": call_log.prompt_length,
+                "response_length": call_log.response_length,
+                "processing_time": processing_time,
+                "error": error,
+            },
+        )
+
+        # Append to a single JSONL file instead of one JSON file per call.
+        # All per-call data is preserved in current_turn.ai_calls and flushed
+        # at end_turn(), so this is only needed for cross-turn crash recovery.
+        try:
+            jsonl_path = self.session_dir / "ai_calls.jsonl"
+            with open(jsonl_path, "a", encoding="utf-8") as _fh:
+                _fh.write(json.dumps(asdict(call_log), default=str, ensure_ascii=False) + "\n")
+        except Exception as _exc:
+            self.error_logger.error("Failed appending AI call log: %s", _exc)
+        return call_id
+
+    def log_memory_formation(
+        self,
+        memory_type: str,
+        content: str,
+        importance: int,
+        related_characters: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+        memory_payload: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        self.memory_logger.info(
+            "MEMORY FORMED type=%s importance=%s chars=%s tags=%s",
+            memory_type,
+            importance,
+            related_characters or [],
+            tags or [],
+        )
+        self.memory_logger.debug("Content: %s", (content or "")[:1000])
+        if memory_payload is not None:
+            self.memory_logger.debug("Payload: %s", json.dumps(memory_payload, default=str)[:2500])
+
+        if self.current_turn:
+            self.current_turn.memories_formed.append(
+                {
+                    "type": memory_type,
+                    "content": content,
+                    "importance": importance,
+                    "characters": related_characters or [],
+                    "tags": tags or [],
+                    "payload": memory_payload or {},
+                }
+            )
+
+    def log_error(self, error: Exception, context: str = "", extra: Optional[Dict[str, Any]] = None) -> None:
+        tb = traceback.format_exc()
+        self.error_logger.error("ERROR in %s: %s", context, error)
+        self.error_logger.error("TRACEBACK:\n%s", tb)
+        if extra:
+            self.error_logger.error("EXTRA: %s", json.dumps(extra, default=str))
+
+        telemetry = {
+            "context": context,
+            "error_type": type(error).__name__,
+            "error_message": str(error),
+            "turn_number": getattr(self.current_turn, "turn_number", None),
+            "extra": extra or {},
+        }
+        self.crash_reporter.trace_event(
+            category="error",
+            message=f"{context}:{type(error).__name__}",
+            severity="error",
+            details=telemetry,
+        )
+        self.crash_reporter.report_exception(
+            error,
+            context or "comprehensive_logger",
+            metadata=telemetry,
+            tb_text=tb,
+        )
+
+        if self.current_turn:
+            self.current_turn.errors.append(f"{context}: {error}")
+
+    def log_warning(self, message: str, context: str = "") -> None:
+        self.error_logger.warning("WARNING in %s: %s", context, message)
+        if self.current_turn:
+            self.current_turn.warnings.append(f"{context}: {message}")
+
+
+def log_ai_function(realm: str, call_type: str) -> Callable:
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            import time
+
+            start = time.time()
+            comp_logger = getattr(wrapper, "_comprehensive_logger", None)
+            try:
+                result = func(*args, **kwargs)
+                if comp_logger:
+                    comp_logger.log_ai_call(
+                        realm=realm,
+                        call_type=call_type,
+                        prompt=str(kwargs.get("prompt", args[0] if args else "")),
+                        response=result if isinstance(result, str) else str(result),
+                        processing_time=time.time() - start,
+                        success=True,
+                    )
+                return result
+            except Exception as exc:
+                if comp_logger:
+                    comp_logger.log_error(exc, f"{realm}.{func.__name__}")
+                    comp_logger.log_ai_call(
+                        realm=realm,
+                        call_type=call_type,
+                        prompt=str(kwargs.get("prompt", "")),
+                        response="",
+                        processing_time=time.time() - start,
+                        success=False,
+                        error=str(exc),
+                    )
+                raise
+
+        return wrapper
+
+    return decorator
+
+
+_comprehensive_logger: Optional[ComprehensiveLogger] = None
+
+
+def get_comprehensive_logger() -> ComprehensiveLogger:
+    global _comprehensive_logger
+    if _comprehensive_logger is None:
+        _comprehensive_logger = ComprehensiveLogger()
+    return _comprehensive_logger
+
+
+def init_comprehensive_logger(logs_dir: str = "logs") -> ComprehensiveLogger:
+    global _comprehensive_logger
+    _comprehensive_logger = ComprehensiveLogger(logs_dir)
+    return _comprehensive_logger
