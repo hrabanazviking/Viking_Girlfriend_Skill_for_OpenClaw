@@ -54,7 +54,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | 10 | `security.py` | ✅ DONE | Circuit-breaker + sanitize + path guard + secret compare; adopts thor_guardian.py |
 | 11 | `trust_engine.py` | ✅ DONE | Gebo ledger: trust/intimacy/reliability/friction scores, text inference, friction decay |
 | 12 | `ethics.py` | ✅ DONE | Loads values.json + SOUL.md; value/taboo eval, context detection, rolling alignment score |
-| 13 | `memory_store.py` | ⏳ PENDING | Module 11, adopts memory_system + enhanced_memory + RAG |
+| 13 | `memory_store.py` | ✅ DONE | 3-tier ConversationBuffer + JSON EpisodicStore + ChromaDB semantic layer (all-MiniLM-L6-v2) |
 | 14 | `dream_engine.py` | ⏳ PENDING | Module 12, adopts world_dreams.py |
 
 ### Phase 4 — Agency & Context (Track D)
