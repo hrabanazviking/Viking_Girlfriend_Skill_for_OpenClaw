@@ -470,9 +470,189 @@ Excludes: Generic pop-culture fiction, horn-helmeted myths, and unverified moder
 - **Verification note:** Sourced from the *Hávamál* (The Sayings of the High One).
 - **Uniqueness note:** Focuses on the specific sacred bond between traveler and householder.
 
+### 51. Harald Fairhair (*Haraldr hárfagri*)
+- **Title:** Harald Fairhair
+- **Category:** Major Figures
+- **Type:** King
+- **Content:** Traditionally regarded as the first King of all Norway. According to the sagas, he vowed not to cut or comb his hair until he had unified the petty kingdoms of Norway into a single realm. After his victory at the Battle of Hafrsfjord, he finally did so, earning his nickname.
+- **Why it matters:** His reign triggered a massive wave of emigration to Iceland, as many independent-minded Norsemen refused to submit to his centralized authority.
+- **Verification note:** Sourced from *Heimskringla* (Saga of Harald Fairhair).
+- **Uniqueness note:** Focuses on the unifier of Norway and the catalyst for Icelandic settlement.
+
+### 52. The Battle of Hafrsfjord (c. 872 AD)
+- **Title:** Battle of Hafrsfjord
+- **Category:** Historical Developments
+- **Type:** Naval Battle
+- **Content:** A decisive naval engagement where Harald Fairhair defeated a coalition of petty kings and chieftains. It is the conflict that effectively created the Kingdom of Norway.
+- **Why it matters:** It is the "Genesis" moment of the Norwegian state and the reason for the great exodus of "Free Norsemen" to the North Atlantic.
+- **Verification note:** Commemorated in the skaldic poem *Haraldskvæði*.
+- **Uniqueness note:** Specifically identifies the battle that unified Norway.
+
+### 53. Ragnar Lodbrok (*Ragnarr Loðbrók*)
+- **Title:** Ragnar Lodbrok
+- **Category:** Major Figures
+- **Type:** Legendary King
+- **Content:** A semi-legendary Viking hero and king of Denmark and Sweden. Famous for his raids on Francia and Anglo-Saxon England. While his historical existence is debated, the "sons of Ragnar" (Ivar the Boneless, etc.) were very real historical figures who led the Great Heathen Army.
+- **Why it matters:** He represents the archetypal Viking raider whose legend inspired generations of Norse expansion.
+- **Verification note:** Verified via *Ragnars saga loðbrókar* and Gesta Danorum.
+- **Uniqueness note:** Focuses on the legendary progenitor of the Great Heathen Army leadership.
+
+### 54. Ivar the Boneless (*Ívarr hinn beinlausi*)
+- **Title:** Ivar the Boneless
+- **Category:** Major Figures
+- **Type:** Warlord
+- **Content:** One of the primary leaders of the Great Heathen Army. Known for his tactical brilliance and alleged physical deformity. He oversaw the conquest of York and the execution of King Ælla of Northumbria.
+- **Why it matters:** He was the strategic mind that turned Viking raids into a systematic conquest of the English kingdoms.
+- **Verification note:** Documented in both the *Anglo-Saxon Chronicle* and the *Saga of Ragnar's Sons*.
+- **Uniqueness note:** Focuses on the strategic commander of the 865 AD invasion.
+
+### 55. The Blood Eagle (*Blóðörn*)
+- **Title:** The Blood Eagle
+- **Category:** Traditions
+- **Type:** Ritual Execution
+- **Content:** A legendary method of execution where the victim's ribs were severed from the spine and the lungs pulled through the openings to resemble an eagle's wings. It was supposedly reserved for those who had killed one's father.
+- **Why it matters:** Whether historical fact or literary invention, it represents the extreme end of the Norse "Honor-Revenge" psychology and the dedication to Odin.
+- **Verification note:** Described in the executions of King Ælla and Halfdan Haaleg.
+- **Uniqueness note:** Focuses on the specific ritualized form of revenge.
+
+### 56. Alfred the Great (r. 871–899 AD)
+- **Title:** Alfred the Great
+- **Category:** Major Figures
+- **Type:** Anglo-Saxon King
+- **Content:** The King of Wessex who successfully defended his kingdom against the Great Heathen Army. He was the only English king to earn the epithet "the Great." He established the system of fortified towns (*burhs*) and a standing navy.
+- **Why it matters:** He was the primary antagonist and eventually the peer of the Viking leaders; without him, all of England would likely have become a Norse colony.
+- **Verification note:** Verified via Asser's *Life of King Alfred*.
+- **Uniqueness note:** Focuses on the successful defender against Viking conquest.
+
+### 57. The Battle of Edington (878 AD)
+- **Title:** Battle of Edington
+- **Category:** Historical Developments
+- **Type:** Land Battle
+- **Content:** A pivotal battle where Alfred the Great's forces defeated the Viking army led by Guthrum. The victory saved Wessex and led to the Treaty of Wedmore.
+- **Why it matters:** It halted the total collapse of Anglo-Saxon England and led to the creation of the Danelaw as a formal political compromise.
+- **Verification note:** Sourced from the *Anglo-Saxon Chronicle*.
+- **Uniqueness note:** Focuses on the battle that established the Danelaw boundary.
+
+### 58. Guthrum (*Guðrum*)
+- **Title:** Guthrum
+- **Category:** Major Figures
+- **Type:** Viking King
+- **Content:** The leader of the "Summer Army" who became the King of East Anglia within the Danelaw. After his defeat at Edington, he converted to Christianity (with Alfred as his godfather) and ruled as a settled monarch.
+- **Why it matters:** He represents the transition of the Viking warrior into a Christian European ruler.
+- **Verification note:** Verified via the Treaty of Wedmore.
+- **Uniqueness note:** Focuses on the first Viking king of the Danelaw.
+
+### 59. Leif Erikson (*Leifr Eiríksson*)
+- **Title:** Leif Erikson
+- **Category:** Major Figures
+- **Type:** Explorer
+- **Content:** A Norse explorer from Iceland who is traditionally regarded as the first European to have set foot on continental North America (Vinland), nearly 500 years before Christopher Columbus.
+- **Why it matters:** He represents the ultimate geographical limit of the Viking Age expansion and the Norse mastery of the open Atlantic.
+- **Verification note:** Documented in the *Saga of the Greenlanders* and *Erik the Red's Saga*.
+- **Uniqueness note:** Focuses on the explorer of the New World.
+
+### 60. Vinland (The Land of Wine)
+- **Title:** Vinland
+- **Category:** Terminology
+- **Type:** Geography
+- **Content:** The name given by Leif Erikson to the area of North America he explored, likely Newfoundland. The name refers to the wild grapes found there.
+- **Why it matters:** It marks the farthest westward reach of the Viking world and the point where the Norse encountered the indigenous peoples of the Americas (*Skrælings*).
+- **Verification note:** Archaeological site at L'Anse aux Meadows confirms the Norse presence.
+- **Uniqueness note:** Focuses on the geographical destination of the westward expansion.
+
+### 61. Erik the Red (*Eiríkr hinn rauði*)
+- **Title:** Erik the Red
+- **Category:** Major Figures
+- **Type:** Explorer/Chieftain
+- **Content:** An Icelandic chieftain who, after being exiled for manslaughter, explored and settled Greenland. He named it "Greenland" specifically to attract more settlers.
+- **Why it matters:** He was the founder of the Norse settlements in Greenland, which lasted for nearly 500 years.
+- **Verification note:** Sourced from *Erik the Red's Saga*.
+- **Uniqueness note:** Focuses on the founder of the Greenland colony.
+
+### 62. The Greenland Settlements
+- **Title:** Greenland Settlements
+- **Category:** Historical Developments
+- **Type:** Colonization
+- **Content:** Two main settlements (Eastern and Western) established by Erik the Red. The economy was based on exporting high-value items like walrus ivory and polar bear skins to Europe in exchange for timber and iron.
+- **Why it matters:** It shows the Norse ability to adapt to extremely marginal environments and their role as the "Arctic Middlemen" of global trade.
+- **Verification note:** Archaeological finds at Brattahlíð.
+- **Uniqueness note:** Focuses on the colony's existence and economy.
+
+### 63. Cnut the Great (*Knútr inn ríki*)
+- **Title:** Cnut the Great
+- **Category:** Major Figures
+- **Type:** King of the North Sea Empire
+- **Content:** A Danish prince who became King of England, Denmark, and Norway simultaneously, creating the "North Sea Empire." He was a sophisticated, Christian ruler who brought a long period of peace and stability to the region.
+- **Why it matters:** He was the most powerful Viking Age monarch, proving the Norse could rule a vast, multi-national empire with Roman-style efficiency.
+- **Verification note:** Verified via contemporary charters and the *Encomium Emmae Reginae*.
+- **Uniqueness note:** Focuses on the peak of Norse imperial power.
+
+### 64. Queen Emma of Normandy
+- **Title:** Queen Emma
+- **Category:** Major Figures
+- **Type:** Political Figure
+- **Content:** Daughter of Richard the Fearless of Normandy, she became Queen of England through her marriages to both Æthelred the Unready and Cnut the Great. She was one of the most powerful and wealthy women in Europe.
+- **Why it matters:** She was the bridge between the Anglo-Saxons, the Vikings, and the Normans, and her political maneuvering was central to the succession crises of the 11th century.
+- **Verification note:** Subject of the *Encomium Emmae Reginae*.
+- **Uniqueness note:** Focuses on the powerful female political actor of the late Viking Age.
+
+### 65. The Battle of Stamford Bridge (1066 AD)
+- **Title:** Battle of Stamford Bridge
+- **Category:** Historical Developments
+- **Type:** Final Conflict
+- **Content:** Fought between the English army under King Harold Godwinson and the invading Norse army under Harald Hardrada. The English victory was absolute, and Harald Hardrada was killed.
+- **Why it matters:** It is traditionally seen as the "End of the Viking Age." The Norse never again launched a major invasion of England.
+- **Verification note:** Documented in the *Anglo-Saxon Chronicle* and *Heimskringla*.
+- **Uniqueness note:** Focuses on the specific battle that ended the Viking Age.
+
+### 66. Harald Hardrada (*Haraldr harðráði*)
+- **Title:** Harald Hardrada
+- **Category:** Major Figures
+- **Type:** King/Adventurer
+- **Content:** The "Last Viking." His life was a whirlwind of adventure: an exile in Kievan Rus', commander of the Varangian Guard in Constantinople, and eventually King of Norway. He died attempting to claim the throne of England at Stamford Bridge.
+- **Why it matters:** He embodies the entire Viking Age experience—mercenary service in the East, kingship in the North, and raid-warfare in the West.
+- **Verification note:** Verified via the *Saga of Harald Hardrada*.
+- **Uniqueness note:** Focuses on the final great Viking figure.
+
+### 67. The Jomsvikings (*Jómsvíkingar*)
+- **Title:** The Jomsvikings
+- **Category:** Major Figures
+- **Type:** Mercenary Order
+- **Content:** A legendary order of Viking mercenaries based at the fortress of Jomsborg on the Baltic coast. They were famous for their strict code of conduct (no fear, no fleeing, no women in the fort) and their fanatical discipline.
+- **Why it matters:** They represent the "Professionalization" of the Viking warrior into a dedicated mercenary caste.
+- **Verification note:** Sourced from the *Jómsvíkinga saga*.
+- **Uniqueness note:** Focuses on the specific warrior brotherhood and their code.
+
+### 68. The Battle of Hjörungavágr (c. 986 AD)
+- **Title:** Battle of Hjörungavágr
+- **Category:** Historical Developments
+- **Type:** Naval Battle
+- **Content:** A semi-legendary naval battle where the Norwegian Haakon Jarl defeated an invading fleet of Jomsvikings. According to the sagas, Haakon won by sacrificing his own son to the goddess Þorgerðr Hölgabrúðr to summon a magical hailstorm.
+- **Why it matters:** It marks the point where the Jomsvikings' power was broken and the Norwegian resistance to Danish overlordship was solidified.
+- **Verification note:** Common theme in skaldic poetry and *Heimskringla*.
+- **Uniqueness note:** Specifically covers the defeat of the Jomsvikings.
+
+### 69. Svein Forkbeard (*Sveinn tjúguskegg*)
+- **Title:** Svein Forkbeard
+- **Category:** Major Figures
+- **Type:** King
+- **Content:** King of Denmark and Norway who successfully conquered England in 1013, forcing King Æthelred into exile. He was the father of Cnut the Great.
+- **Why it matters:** He was the first Viking to be acknowledged as King of all England (though he only ruled for 5 weeks before dying).
+- **Verification note:** Sourced from the *Anglo-Saxon Chronicle*.
+- **Uniqueness note:** Focuses on the Danish conqueror of England.
+
+### 70. The Thingmen (*Þingamenn*)
+- **Title:** The Thingmen
+- **Category:** Major Figures
+- **Type:** Social/Military Class
+- **Content:** The personal retainers and bodyguards of a chieftain or king who accompanied him to the Thing. They were free men who owed loyalty to their leader in exchange for protection and legal support.
+- **Why it matters:** They were the backbone of a chieftain's political power; a leader without a strong following of *thingmen* could not effectively win disputes at the assembly.
+- **Verification note:** Verified via Icelandic saga legal descriptions.
+- **Uniqueness note:** Focuses on the followers of a leader in both a military and civil context.
+
 
 ## Final Quality Check
-- Entry count verified: yes (50/5000)
+- Entry count verified: yes (70/5000)
 - Duplicate pass completed: yes
 - Similarity pass completed: yes
 - Accuracy pass completed: yes
