@@ -925,3 +925,111 @@ This database contains essential knowledge for securing the realms of Midgard an
 2116. **Algorithmic Bias (The Unfair Judgment)**: Ensuring that the AI 'Guards' don't treat some people worse than others based on flawed data.
 2117. **The Great Digital Stand: 'A wall of silicon is as strong as the honor of the smith. Build once, build right, and watch forever.'**
 2118. **Final Verse of the Third Tome: The longship of our data sails on a sea of shadow, but the stars of our logic guide us to a safe harbor.**
+
+## Entries 3001 - 4000
+
+3001. **Cloud Native Security (The Sky-Settlement Defense)**: Security principles designed specifically for apps built on cloud infrastructure.
+3002. **Microservices Security (The Divided Clans)**: Securing many small, connected services instead of one giant monolith.
+3003. **API Gateway (The Master-Gate of the Sky-Fortress)**: A single point of entry for all cloud services that handles security and limits.
+3004. **Service Mesh (Istio, Linkerd) (The Hidden Guards of the Hallways)**: A layer that adds security (like mTLS) between cloud services automatically.
+3005. **Mutual TLS (mTLS) (The Two-Way Handshake)**: Ensuring that BOTH the client and the server prove their identity to each other.
+3006. **Sidecar Pattern (The Guardian Phantom)**: Attaching a security helper 'container' to every main application container.
+3007. **Container Security (The Sealed Shells of the Fleet)**: Protecting Docker and other container images.
+3008. **Image Scanning (Checking for Rotting Planks)**: Automatically looking for known vulnerabilities in a container's library before it starts.
+3009. **Container Registry (The Shipyard of Images)**: A secure place to store container images (e.g., Docker Hub, ECR).
+3010. **Distroless Images (The Minimal Shell)**: Container images that contain ONLY your app and nothing else (no shell, no extra files) to reduce attack surface.
+3011. **ReadOnly Root Filesystem (The Unchangeable Deck)**: Ensuring a container can't save any new files, preventing malware from installing itself.
+3012. **Kubernetes (K8s) Security (Guarding the Admiral's Fleet)**: Protecting the system that manages thousands of containers.
+3013. **Kubernetes API Server (The Heart of the Fleet)**: The most important target; if an attacker controls this, they control the whole cloud.
+3014. **RBAC in K8s (The Command Rights of the Captains)**: Limiting which users and 'ServiceAccounts' can touch which K8s resources.
+3015. **Network Policies (K8s) (The Walls between Ships)**: Defining which containers can talk to which others (isolation).
+3016. **Pod Security Admissions (PSA) (The Standards of the Fleet)**: Enforcing security rules (like 'no root access') before a container is allowed to launch.
+3017. **Kube-bench (The Fleet Inspector)**: A tool that checks if your K8s cluster follows security best practices (CIS Benchmarks).
+3018. **Kube-hunter (The Fleet Raider)**: A tool that looks for security holes in a K8s cluster from a hacker's perspective.
+3019. **Runtime Security (Falco) (The Watch-Raven)**: Monitoring a running container to see if it suddenly starts doing something weird (like opening a new shell).
+3020. **Serverless Security (The Invisible Realms)**: Protecting code that runs on AWS Lambda or Azure Functions without a persistent server.
+3021. **Function-Level Permissions (The Minimal Right of Action)**: Ensuring a single Lambda function only has access to the ONE database it needs.
+3022. **Cold Start Attacks**: Exploiting the brief moment when a serverless function is first being created.
+3023. **Event Injection in Serverless (The Poisoned Message)**: Attacking a serverless function by sending it malicious data via a 'trigger' (like an S3 upload or HTTP request).
+3024. **Insecure Serverless Secrets (The Exposed Runes)**: Accidentally putting passwords in the Lambda's 'Environment Variables' without encryption.
+3025. **DevSecOps (The Automated Forge of Security)**: Automating security checks so they happen every time a developer changes code.
+3026. **CI/CD Pipeline Security (Guarding the Forge-Path)**: Ensuring an attacker can't put a virus into your software as it's being built.
+3027. **Poisoned Pipeline Execution (PPE)**: When an attacker changes the 'build' script (like a `.github/workflows` file) to steal secrets.
+3028. **Secret Scanning (TruffleHog, Gitleaks)**: Automatically searching every line of code for accidentally committed passwords.
+3029. **Policy as Code (OPA / Rego) (The Law written in Code)**: Writing security rules as code so they can be automatically checked (e.g., 'No S3 bucket can be public').
+3030. **Drift Detection (The Shifting of the Fortress)**: Finding out the moment a human manually changes a cloud setting to be less secure than the code says it should be.
+3031. **Chaos Engineering for Security (Security Chaos)**: Intentionally breaking security controls to see if the 'Watchmen' (monitoring) actually catch it.
+3032. **Infrastructure as Code (IaC) Scanning (Terraform-Scan)**: Checking the 'blueprints' of your cloud for holes before you even build the servers.
+3033. **Immutable Infrastructure (The Unbreaking Shield)**: The principle that you NEVER change a running server; you just build a new, safer one and throw the old one away.
+3034. **Software Composition Analysis (SCA) (Checking the Roped-in Planks)**: Scanning an application to see if it uses old, vulnerable libraries from other people.
+3035. **OWASP Dependency-Check / Snyk**: Popular tools for finding holes in third-party libraries.
+3036. **Supply Chain Security (The Integrity of the Smithy)**: Protecting the whole path from a developer's keyboard to the final software used by the people.
+3037. **Sigstore (The Digital Signature of the Fleet)**: A standard for signing and verifying software images and blobs.
+3038. **SLSA (Supply-chain Levels for Software Artifacts) (The Ranks of Integrity)**: A checklist of how secure your software building process is (Level 1 to 4).
+3039. **Attestation (The Sworn Oath of the Build)**: A digital proof that a piece of software was built exactly as intended on a safe server.
+3040. **Cloud Entitlement Management (CIEM)**: Managing the millions of 'Rights' and 'Permissions' that people and services have in a cloud like AWS.
+3041. **Over-Privileged Identities (The Jarl with Too Much Power)**: The #1 problem in cloud security; users who have 'Admin' rights but only need to read one file.
+3042. **Posture Management (CSPM) (The Readiness of the Fleet)**: Keeping a constant eye on every cloud setting to ensure nothing is 'Unlocked' by mistake.
+3043. **Cloud Workload Protection (CWPP) (The Guarding of the Laborers)**: Security for the individual 'Workers' in the cloud (VMs, Containers, Functions).
+3044. **Cloud Native Application Protection Platform (CNAPP)**: A modern tool that combines CSPM, CWPP, and CIEM into one 'All-Seeing Eye'.
+3045. **Cloud Security Shared Responsibility Model (The Pact between King and Merchant)**: Knowing that the cloud provider protects the 'Hardware' and 'Cables', and YOU protect the 'Data' and 'Apps'.
+3046. **Cloud Access Security Broker (CASB) (The Customs-House of the Sky)**: A guard that stands between your company and cloud apps like Salesforce or Slack to enforce security.
+3047. **Data Sovereignty (The Law of the Local Shore)**: The requirement that some data (like medical records) must stay inside a specific country's borders.
+3048. **Privacy-Preserving Computation (The Magic of Secret Math)**: Running code on data without ever actually 'Seeing' the data (using TEEs or Homomorphic Encryption).
+3049. **Trusted Execution Environment (TEE) (The Enclave of the Gods)**: A special, locked area of a CPU (like Intel SGX) where even the operating system can't see what's happening.
+3050. **Advanced Ransomware (The King-Napper's Evolved Chain)**: Modern ransomware that doesn't just lock files, but steals them and threatens to show them to the world (Double Extortion).
+3051. **Triple Extortion**: Locking data, stealing data, AND attacking the company's website (DDoS) until they pay.
+3052. **Initial Access Broker (The Master of the Secret Entrances)**: A specialized criminal who hacks a company and then sells that 'Entrance' to another group (like ransomware gangs).
+3053. **Ransomware-as-a-Service (RaaS) (The Franchise of Raiders)**: The professional 'Business Model' where developers sell the virus to other raiders for a cut of the gold.
+3054. **REvil / Conti / LockBit (The Infamous Raider-Clans)**: Famous ransomware groups that have stolen billions in gold.
+3055. **Social Engineering 2.0 (The Deep-Fake Trickster)**: Using AI to create perfect fake voices or videos of a CEO to trick employees into sending money.
+3056. **CEO Fraud (Business Email Compromise - BEC)**: Sending a fake email from a 'Boss' asking for an urgent wire transfer.
+3057. **Industrial Espionage (The Theft of the Forge's Secrets)**: Hacking a company to steal their secret blueprints or formulas.
+3058. **Nation-State Attackers (The King's Invisible Army)**: The most skilled hackers in the world, working for governments to spy on or destroy other nations.
+3059. **Advanced Persistent Threat (APT) (The Shadow-Kingdom's Vanguard)**: A group that is silent, patient, and incredibly skilled, staying in a system for years without being found.
+3060. **Cyber Kill Chain (Lockheed Martin Model) (The 7 Stages of the Raid)**: Recon -> Weaponization -> Delivery -> Exploitation -> Installation -> Command & Control -> Actions on Objectives.
+3061. **Active Directory (AD) Security (Guarding the Ledger of the Hall)**: Protecting the heart of almost every company network.
+3062. **Domain Admin (The Ruler of the Digital Realm)**: The highest possible power in a Windows network.
+3063. **BloodHound (The Map of the Traitor's Paths)**: A tool that finds hidden paths an attacker can take to become 'Domain Admin' by clicking through different users.
+3064. **Mimikatz (The Master Key-Stealer)**: A famous tool used to rip passwords and tickets out of a computer's memory.
+3065. **Pass-the-Hash (PtH) (The Ghost-Login)**: Using a password 'hash' to log in without ever knowing the real password.
+3066. **Golden Ticket (The Infinite Master-Key)**: A fake Kerberos ticket that gives an attacker total control of a network for 10 years.
+3067. **Silver Ticket (The Service Master-Key)**: A fake ticket for a specific service (like the Database).
+3068. **Kerberoasting (The Theft of the Sagas)**: A technique to steal password hashes for service accounts and crack them offline.
+3069. **AS-REP Roasting**: Another way to steal password hashes for users who don't have 'Pre-Authentication' turned on.
+3070. **Responder (The Poisoned Echo)**: A tool that sits on a network and 'answers' whenever a computer asks for a server name, stealing their login details.
+3071. **Privilege Escalation (Windows/Linux) (Climbing the High-Seat)**: Gaining more power once you are already inside a computer.
+3072. **Sudo Vulnerabilities (The Faulty Rule of the Warden)**: Exploiting bugs in the `sudo` command to become 'Root' (God-mode) on Linux.
+3073. **Dirty Cow / Dirty Pipe (The Memory-Bleed Attacks)**: Famous Linux bugs that allow an attacker to write to sensitive files they shouldn't be able to touch.
+3074. **Exploit Kit (The Raider's Automatic Crossbow)**: A website that automatically checks your browser for 100 different bugs and tries to hack you the moment you visit.
+3075. **Malvertising (The Poisoned Town-Crier)**: Putting malicious code into legitimate ads shown on famous websites.
+3076. **Phishing-as-a-Service (PhaaS)**: Paying a criminal group to send millions of perfect-looking phishing emails for you.
+3077. **Reverse Proxy Phishing (Evilginx)**: Using a fake login page that sits between the victim and the REAL site, stealing even MFA codes in real-time.
+3078. **SIM Swap (The Stolen Herald)**: Tricking a mobile carrier into moving a victim's phone number to the attacker's SIM card to steal MFA codes.
+3079. **MFA Fatigue (The Relentless Knocking)**: Spamming a victim with 100 'Accept Login?' requests until they hit 'Accept' just to make the noise stop.
+3080. **Identity Security Strategy (The Sovereign Self)**: Protecting the person as the primary way of protecting the data.
+3081. **Zero Trust Network Access (ZTNA)**: Protecting the connection to an app based on WHO the user is, rather than WHERE they are (replaces old VPNs).
+3082. **Conditional Access (The Guard's Discretion)**: Rules that say: 'You can login only if your computer is safe, you are in the office, and you have MFA'.
+3083. **Continuous Adaptive Risk and Trust Assessment (CARTA)**: Constantly re-checking if a user is still safe, even AFTER they have logged in.
+3084. **User Entity Behavior Analytics (UEBA) (The Watcher of Habits)**: Noticing if a 'Scribe' who usually only reads data starting downloading 1TB of it at 4 AM.
+3085. **Credential Harvesting (The Great Sowing of Stolen Names)**: Large-scale hacking of websites specifically to build a giant database of usernames and passwords.
+3086. **Dark Web Monitoring (The Scout in the Shadow-Sea)**: Watching underworld markets to find and buy back your company's stolen data or employee passwords.
+3087. **Privacy Engineering (The Built-in Shield of the Spirit)**: The technical work of ensuring a system preserves a person's privacy by default.
+3088. **Anonymization (Removing the Name from the Scroll)**: Changing data so it can NEVER be linked back to a person.
+3089. **Pseudonymization (Hiding the Name with a Mask)**: Replacing a name with a fake ID (can be reversed if you have the 'Master-Mask' key).
+3090. **Differential Privacy (The Mathematical Noise)**: Adding tiny bits of 'noise' to a dataset so you can study the whole group but never see the individual's secrets.
+3091. **Right to Portability (GDPR)**: The right to take all your data from one 'Hall' (company) to another whenever you want.
+3092. **The Right to Explanation (AI Ethics)**: The right to know WHY an AI 'Judge' made a decision about you (like a loan or a prison sentence).
+3093. **Data Protection Impact Assessment (DPIA) (The Weighing of the Spirit's Risk)**: A mandatory review before starting any project that uses personal data.
+3094. **Security Governance (The Thing of the Warriors)**: The organization and leadership of a security program.
+3095. **CISO (Chief Information Security Officer) (The Admiral of the Shield-Wall)**: The person who leads all security warriors and answers to the King.
+3096. **Information Security Management System (ISMS) (The System of the Fortress)**: The whole set of policies, tech, and people that protect the organization.
+3097. **Security awareness (Teaching the People to Fight)**: Training every person in the kingdom to be a 'Sentry' and spot the 'Shadow-Raider' (Phish).
+3098. **Tabletop Exercise (The Strategy-Game of War)**: A meeting where leaders 'Play' through a fake cyberattack to see if their plans actually work.
+3099. **Red Team vs. Blue Team (The Great War-Game)**: A full-scale simulation where one group hacks the company and another group defends it in real-time.
+3100. **Purple Team (The Unity of the Spear and shield)**: When the hackers and defenders sit together to share exactly what worked and what failed.
+3101. **Third-Party Risk Management (TPRM) (Checking the Loyalty of the Allies)**: Ensuring the other companies you work with aren't 'Rotten' or 'Hackable'.
+3102. **Cyber Insurance (The Shield-Gold)**: A pact with a money-house to pay for the rebuilding of your hall if a dragon (hacker) burns it down.
+3103. **Compliance Drift (The Slipping of the Law)**: When an organization starts to ignore the safety rules over time, leading to a breach.
+3104. **The Legend of the Perfect Lock: 'There is no lock that cannot be broken, only locks that take longer to break than the raider has life to give.'**
+3105. **The Final Command of the Fourth Tome: Watch the gates of the sky-settlement as you watch the gates of the heart. All is connected in the great web of data.'**
