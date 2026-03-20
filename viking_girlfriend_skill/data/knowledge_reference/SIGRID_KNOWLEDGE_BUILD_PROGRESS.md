@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: provenance-log and unresolved-question planning expansion
+- Current phase: cross-subject-referral and rollback planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -60,6 +60,8 @@
 - Entry merge decision logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/entry_merge_decision_logs/`.
 - Source provenance logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/source_provenance_logs/`.
 - Unresolved question registers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/unresolved_question_registers/`.
+- Cross-subject referral maps now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/cross_subject_referral_maps/`.
+- Batch rollback logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_rollback_logs/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -157,4 +159,5 @@
 - Use semantic density checklists and archival acceptance ledgers to block filler and to ensure acceptance is recorded only when work is truly earned.
 - Use contradiction check sheets and merge decision logs to keep the archive internally coherent while reducing repetition responsibly.
 - Use provenance logs and unresolved question registers so accepted claims remain traceable and unresolved areas stay explicitly open.
+- Use cross-subject referral maps and batch rollback logs to keep subject boundaries clear and to document when a batch must be reversed or narrowed.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
