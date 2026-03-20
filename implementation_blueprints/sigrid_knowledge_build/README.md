@@ -25,6 +25,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `misconception_watchlists/`: per-subject distortion and myth controls
 - `review_cadence_sheets/`: per-subject review timing controls
 - `exclusion_ledgers/`: per-subject deliberate omission tracking
+- `extraction_readiness_checklists/`: per-subject pre-drafting readiness controls
+- `archival_completion_scorecards/`: per-subject final completion gates
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note

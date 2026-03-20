@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: review-cadence and exclusion-ledger planning expansion
+- Current phase: extraction-readiness and completion-scorecard planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -46,6 +46,8 @@
 - Misconception watchlists now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/misconception_watchlists/`.
 - Review cadence sheets now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/review_cadence_sheets/`.
 - Exclusion ledgers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/exclusion_ledgers/`.
+- Extraction readiness checklists now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/extraction_readiness_checklists/`.
+- Archival completion scorecards now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/archival_completion_scorecards/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -136,4 +138,5 @@
 - Use batch sequencing plans and research queue sheets to order manual work and keep unresolved research needs explicit before drafting proceeds.
 - Use terminology audit sheets and misconception watchlists to keep language exact and to prevent common false simplifications from entering the archive.
 - Use review cadence sheets and exclusion ledgers to keep review timing explicit and to document what is intentionally left out of each subject archive.
+- Use extraction readiness checklists before live drafting and completion scorecards only when a subject truly reaches archival-complete quality.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
