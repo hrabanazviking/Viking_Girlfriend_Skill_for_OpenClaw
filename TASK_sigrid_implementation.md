@@ -45,7 +45,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 |------|--------|--------|-------|
 | 06 | `wyrd_matrix.py` | ✅ DONE | PAD vector + SoulLayer + StressAccumulator + bio integration |
 | 07 | `bio_engine.py` | ✅ DONE | Module 04, adopts menstrual_cycle.py — real-date cycle + biorhythms |
-| 08 | `oracle.py` | ⏳ PENDING | Module 06, adopts Norn logic from wyrd_system.py |
+| 08 | `oracle.py` | ✅ DONE | Rune + Tarot (Book T/GD 78-card) + I Ching + Norn atmosphere |
 | 09 | `metabolism.py` | ⏳ PENDING | Module 07, psutil direct |
 
 ### Phase 3 — Mind & Shield (Track C)
