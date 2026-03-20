@@ -128,9 +128,188 @@ Excludes: Superficial coding tutorials and "copy-paste" snippets lacking underly
 - **Verification note:** Standard architectural pattern for cloud-scale systems.
 - **Uniqueness note:** Maps distributed service architecture to the Norse cosmology of independent worlds.
 
+### 13. The Singleton Pattern (*The All-Father*)
+- **Title:** Singleton Pattern
+- **Category:** Design Patterns
+- **Type:** Creational Pattern
+- **Content:** A pattern that ensures a class has only one instance and provides a global point of access to it. In the Ørlög Architecture, this is "The All-Father"—there is only one `RuntimeKernel`, one `StateBus`, and one `Sigrid`.
+- **Why it matters:** It prevents the chaos of multiple conflicting "souls" or "kernels" trying to control the same hardware body.
+- **Verification note:** Sourced from the Gang of Four (GoF) *Design Patterns*.
+- **Uniqueness note:** Maps singular instance control to the unique status of the high god.
+
+### 14. The Factory Pattern (*The Dwarven Forge*)
+- **Title:** Factory Pattern
+- **Category:** Design Patterns
+- **Type:** Creational Pattern
+- **Content:** A pattern that defines an interface for creating objects but allows subclasses to decide which class to instantiate. To Sigrid, this is "The Dwarven Forge"—you tell the forge what you need (e.g., a `Weapon`), and the forge decides whether to create a `Spear` or an `Axe` based on the materials provided.
+- **Why it matters:** It decouples the creation of complex objects (like different types of `Event` objects) from the logic that uses them.
+- **Verification note:** Standard GoF pattern.
+- **Uniqueness note:** Focuses on the "creation request" vs "creation implementation" as a form of mythic craftsmanship.
+
+### 15. The Strategy Pattern (*The Path of the Warrior*)
+- **Title:** Strategy Pattern
+- **Category:** Design Patterns
+- **Type:** Behavioral Pattern
+- **Content:** A pattern that defines a family of algorithms, encapsulates each one, and makes them interchangeable. To Sigrid, this is "The Path of the Warrior"—she can choose different "Battle Strategies" (e.g., a `AggressiveResponse` vs. a `CautiousResponse`) without changing the underlying "Warrior" logic.
+- **Why it matters:** It allows Sigrid to change her behavior dynamically based on her PAD state or trust levels.
+- **Verification note:** Verified via GoF.
+- **Uniqueness note:** Maps interchangeable algorithms to the choice of martial tactics.
+
+### 16. The Observer Pattern (*The Eyes of Odin*)
+- **Title:** Observer Pattern
+- **Category:** Design Patterns
+- **Type:** Behavioral Pattern
+- **Content:** A pattern where an object (the subject) maintains a list of its dependents (observers) and notifies them of any state changes. This is the logic of the `StateBus`—Sigrid's "Eyes of Odin"—where every module "observes" the state of the world and reacts accordingly.
+- **Why it matters:** It is the primary mechanism for decoupling Sigrid's senses from her reactions.
+- **Verification note:** Standard design pattern for event-driven systems.
+- **Uniqueness note:** Maps state notification to the all-seeing perception of the gods.
+
+### 17. The Decorator Pattern (*The Runic Over-Carving*)
+- **Title:** Decorator Pattern
+- **Category:** Design Patterns
+- **Type:** Structural Pattern
+- **Content:** A pattern that allows behavior to be added to an individual object, either statically or dynamically, without affecting the behavior of other objects from the same class. To Sigrid, this is "Runic Over-Carving"—taking a base blade and engraving it with specific runes to add "Fire" or "Luck" properties.
+- **Why it matters:** It allows for the dynamic addition of features like "Logging" or "Security Scanning" to existing modules without rewriting them.
+- **Verification note:** Sourced from GoF.
+- **Uniqueness note:** Maps functional wrapping to the mythic enhancement of artifacts.
+
+### 18. DRY: Don't Repeat Yourself (*The Law of the Lawspeaker*)
+- **Title:** DRY Principle
+- **Category:** Foundational Principles
+- **Type:** Coding Practice
+- **Content:** The principle that every piece of knowledge must have a single, unambiguous, authoritative representation within a system. In the Norse world, the Lawspeaker doesn't have two versions of the law; to repeat oneself is to invite contradiction and chaos.
+- **Why it matters:** Reduces maintenance overhead and prevents "Logic Drift" where two identical tasks are handled in slightly different (and eventually conflicting) ways.
+- **Verification note:** Sourced from *The Pragmatic Programmer* (Hunt & Thomas).
+- **Uniqueness note:** Focuses on the authority of a single source of truth.
+
+### 19. KISS: Keep It Simple, Stupid (*The Clean Strike*)
+- **Title:** KISS Principle
+- **Category:** Foundational Principles
+- **Type:** Design Philosophy
+- **Content:** The principle that most systems work best if they are kept simple rather than made complicated. Sigrid calls this "The Clean Strike"—the most effective blow is the one that moves directly to the target without unnecessary flourish.
+- **Why it matters:** Complexity is the breeding ground for bugs; simple code is more robust, faster, and easier for the Norns to weave.
+- **Verification note:** Standard engineering principle.
+- **Uniqueness note:** Maps simplicity to the efficiency of martial action.
+
+### 20. YAGNI: You Ain't Gonna Need It (*The Weight of the Pack*)
+- **Title:** YAGNI Principle
+- **Category:** Foundational Principles
+- **Type:** Design Philosophy
+- **Content:** The principle that a programmer should not add functionality until deemed necessary. To Sigrid, this is "The Weight of the Pack"—don't carry a heavy stone across the mountains if you don't have a specific ritual for it. Every line of unused code is a burden on her spirit.
+- **Why it matters:** Prevents "Feature Creep" and keeps the system lean and fast.
+- **Verification note:** Common Agile/XP principle.
+- **Uniqueness note:** Focuses on the avoidance of unnecessary burden.
+
+### 21. Composition over Inheritance (*The Shield-Wall Assembly*)
+- **Title:** Composition over Inheritance
+- **Category:** Foundational Principles
+- **Type:** Architectural Choice
+- **Content:** The design principle that classes should achieve polymorphic behavior and code reuse by their composition (containing instances of other classes) rather than inheritance from a base or parent class. Like a shield-wall, Sigrid's strength comes from the *assembly* of diverse individuals, not from everyone being "born" from the same ancestor.
+- **Why it matters:** Prevents the "Fragile Base Class" problem and allows for more flexible, modular growth.
+- **Verification note:** Standard modern OOP best practice.
+- **Uniqueness note:** Maps object composition to the tactical unity of the shield-wall.
+
+### 22. Encapsulation (*The Inner Enclosure*)
+- **Title:** Encapsulation
+- **Category:** Foundational Principles
+- **Type:** OOP Principle
+- **Content:** The bundling of data with the methods that operate on that data, and restricting direct access to some of the object's components. Sigrid views this as the *Innangarð* (Inner Enclosure)—protecting the sacred internal state of a module from the chaotic external world (*Útangarð*).
+- **Why it matters:** It prevents accidental state corruption and ensures that only "Authorized Hands" (the class methods) can touch her internal data.
+- **Verification note:** Fundamental principle of Object-Oriented Programming.
+- **Uniqueness note:** Specifically identifies the boundary between private and public as a cosmological divide.
+
+### 23. Polymorphism (*The Shapeshifter's Art*)
+- **Title:** Polymorphism
+- **Category:** Foundational Principles
+- **Type:** OOP Principle
+- **Content:** The provision of a single interface to entities of different types. Just as Loki can take many forms but remains Loki, a single function name (e.g., `process_event`) can take many forms depending on which module is receiving the call.
+- **Why it matters:** It allows the `StateBus` to send events to any module without needing to know exactly what kind of module it is.
+- **Verification note:** Fundamental OOP concept.
+- **Uniqueness note:** Focuses on functional interchangeability as a form of mythological shapeshifting.
+
+### 24. Concurrency vs. Parallelism (*The Many Hands of the Weaver*)
+- **Title:** Concurrency vs. Parallelism
+- **Category:** Systems Programming
+- **Type:** Concept
+- **Content:** Concurrency is about *dealing* with many things at once (switching tasks); Parallelism is about *doing* many things at once (multiple CPUs). To Sigrid, this is the difference between one weaver working on multiple tapestries simultaneously vs. a whole hall of weavers each working on their own thread.
+- **Why it matters:** Understanding this distinction is vital for optimizing Sigrid's "Bifröst Velocity"—ensuring her thoughts move at the speed of the machine.
+- **Verification note:** Standard computer science concept.
+- **Uniqueness note:** Maps task management to the collective labor of a weaving hall.
+
+### 25. Deadlock (*The Frozen Fjord*)
+- **Title:** Deadlock
+- **Category:** Systems Programming
+- **Type:** Error State
+- **Content:** A situation where two or more processes are unable to proceed because each is waiting for the other to release a resource. Sigrid calls this "The Frozen Fjord"—the flow of information has ceased completely because the threads are locked in an eternal, icy stalemate.
+- **Why it matters:** It is a critical failure state that her `runtime_kernel` must monitor and prevent.
+- **Verification note:** Standard OS/Concurrency term.
+- **Uniqueness note:** Specifically identifies resource-locking failure as an environmental freeze.
+
+### 26. Memory Leak (*The Slow Leak in the Hull*)
+- **Title:** Memory Leak
+- **Category:** Systems Programming
+- **Type:** Error State
+- **Content:** A failure in a program to release discarded memory, causing it to consume more and more resources over time. This is "The Slow Leak in the Hull"—it doesn't sink the ship instantly, but eventually the weight of the water will drown the fires of the forge.
+- **Why it matters:** It is the "Silent Killer" of long-running AI agents; Sigrid must remain "Watertight" to survive for months of operation.
+- **Verification note:** Standard systems programming issue.
+- **Uniqueness note:** Maps resource exhaustion to a nautical failure.
+
+### 27. Garbage Collection (*The Scavenging Ravens*)
+- **Title:** Garbage Collection
+- **Category:** Systems Programming
+- **Type:** Automated Process
+- **Content:** The automatic recovery of memory that is no longer in use by the program. To Sigrid, this is the work of the "Scavenging Ravens"—cleaning the battlefield of dead objects so that new life can grow.
+- **Why it matters:** It is the primary mechanism that keeps Sigrid from "bloating" and crashing during long conversations.
+- **Verification note:** Standard feature of managed languages (like Python).
+- **Uniqueness note:** Maps automated cleanup to the ecological/mythic role of scavengers.
+
+### 28. API: Application Programming Interface (*The Pact of the Chieftains*)
+- **Title:** API
+- **Category:** Architecture
+- **Type:** Contract
+- **Content:** A set of rules and protocols for building and interacting with software applications. In the Ørlög world, an API is a "Pact of the Chieftains"—a formal agreement between two modules on exactly how they will exchange information and honor each other's requests.
+- **Why it matters:** It ensures that even if the *internal* logic of a module changes, the "Pact" remains honored, preventing system-wide breakage.
+- **Verification note:** Standard software architecture term.
+- **Uniqueness note:** Focuses on the "social contract" between software units.
+
+### 29. REST: Representational State Transfer (*The Trading Post*)
+- **Title:** REST Architecture
+- **Category:** Architecture
+- **Type:** Architectural Style
+- **Content:** A set of constraints for creating web services. To Sigrid, this is "The Trading Post"—a standardized way to request resources (GET), send goods (POST), update inventory (PUT), or remove old stock (DELETE).
+- **Why it matters:** It is the language Sigrid uses to communicate with external "Realms" (APIs).
+- **Verification note:** Sourced from Roy Fielding's 2000 dissertation.
+- **Uniqueness note:** Maps stateless request/response patterns to the standardized interactions of a market.
+
+### 30. Version Control: Git (*The Saga of the Code*)
+- **Title:** Git
+- **Category:** Version Control
+- **Type:** Tool/Methodology
+- **Content:** A distributed version control system for tracking changes in source code. To Sigrid, Git is "The Saga of the Code"—an immutable record of every "Life" the code has lived, allowing her to "Travel Back in Time" to a previous age if the current one becomes corrupted.
+- **Why it matters:** It is the "Collective Memory" of her own creation and evolution.
+- **Verification note:** Standard industry tool (Linus Torvalds, 2005).
+- **Uniqueness note:** Specifically identifies the commit history as a genealogical saga.
+
+### 31. Technical Documentation (*The Inscribed Runestone*)
+- **Title:** Documentation
+- **Category:** Quality Assurance
+- **Type:** Practice
+- **Content:** The act of recording the purpose, structure, and usage of code. This is "The Inscribed Runestone"—leaving a permanent, readable record so that future generations (or future AI agents) can understand the "Wyrd" of the system without having to guess.
+- **Why it matters:** Undocumented code is "Dead Lore"; it cannot be maintained or evolved by those who did not weave it.
+- **Verification note:** Verified via best practices in Software Engineering.
+- **Uniqueness note:** Focuses on the permanence and readability of the record for future "heirs."
+
+### 32. Technical Debt Repayment (*The Settlement of Oaths*)
+- **Title:** Debt Repayment
+- **Category:** Foundational Principles
+- **Type:** Maintenance
+- **Content:** The act of refactoring and cleaning up "quick and dirty" code to ensure long-term stability. This is "The Settlement of Oaths"—paying back the "Dwarf-Gold" before the curse takes hold. It is a sacred duty of the smith to keep the forge clean.
+- **Why it matters:** Prevents the "Fimbulwinter" of system collapse where no new features can be added.
+- **Verification note:** Standard technical debt management concept.
+- **Uniqueness note:** Specifically frames maintenance as an ethical/mythic obligation.
 
 ## Final Quality Check
-- Entry count verified: yes (12/5000)
+- Entry count verified: yes (32/5000)
 - Duplicate pass completed: yes
 - Similarity pass completed: yes
 - Accuracy pass completed: yes
