@@ -71,7 +71,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 |------|--------|--------|-------|
 | — | `main.py` (full integration) | ✅ DONE | All 18 modules wired; openclaw+terminal modes; scheduler jobs; full turn pipeline |
 | 19 | E2E Validation Suite | ✅ DONE | tests/test_e2e_system.py — 90 tests, all pass offline |
-| 20 | Launch Calibration & Autostart | ⏳ PENDING | |
+| 20 | Launch Calibration & Autostart | ✅ DONE | ops/launch_calibration.py + .env.example + start_skill.sh/bat |
 
 ---
 
