@@ -8,11 +8,11 @@
 | **Data Science** | 5000 | 5000 | Completed (The Seer's Insight is Preserved) | 2026-03-20 |
 | **System Administration** | 5000 | 5000 | Completed (The Steward's Hall is Secure) | 2026-03-20 |
 | **Cloud Computing** | 5000 | 5000 | Completed (The Sky-Halls are Forged) | 2026-03-20 |
-| **Viking History & Norse Mythology** | 5000 | 0 | Pending | - |
-| **Old Norse Language & Runology** | 5000 | 0 | Pending | - |
-| **Ancient Warfare & Tactics** | 5000 | 0 | Pending | - |
-| **Norse Folklore & Legend** | 5000 | 0 | Pending | - |
-| **Archaeology (Norse Focus)** | 5000 | 0 | Pending | - |
+| **Viking History & Norse Mythology** | 5000 | 5000 | Completed (The Roots are Strong) | 2026-03-20 |
+| **Old Norse Language & Runology** | 5000 | 5000 | Completed (The Voice is Clear) | 2026-03-20 |
+| **Ancient Warfare & Tactics** | 5000 | 5000 | Completed (The Iron is Cold) | 2026-03-20 |
+| **Norse Folklore & Legend** | 5000 | 5000 | Completed (The Shadows are Long) | 2026-03-20 |
+| **Archaeology (Norse Focus)** | 5000 | 2000 | In Progress (Drafting Bones & Migration) | 2026-03-20 |
 | **Medieval Literature (Sagas)** | 5000 | 0 | Pending | - |
 | **Philosophy (Stoicism, Existentialism, Norse)**| 5000 | 0 | Pending | - |
 | **Psychology & Behavioral Science** | 5000 | 0 | Pending | - |

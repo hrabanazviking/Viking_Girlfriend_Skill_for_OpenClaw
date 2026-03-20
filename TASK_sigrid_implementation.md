@@ -60,27 +60,31 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 ### Phase 4 — Agency & Context (Track D)
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
-| 15 | `scheduler.py` | ⏳ PENDING | Module 13, adopts timeline_service.py + APScheduler |
-| 16 | `project_generator.py` | ⏳ PENDING | Module 14 |
-| 17 | `environment_mapper.py` | ⏳ PENDING | Module 15, loads environment.json |
-| 18 | `prompt_synthesizer.py` | ⏳ PENDING | Module 16, loads prompt_templates/ |
-| — | `model_router_client.py` | ⏳ PENDING | Module 17, adopts local_providers.py + openrouter.py |
+| 15 | `scheduler.py` | ✅ DONE | Real wall-clock time-of-day + APScheduler background jobs |
+| 16 | `project_generator.py` | ✅ DONE | Persistent JSON initiative tracker; add/update/note/list |
+| 17 | `environment_mapper.py` | ✅ DONE | Loads environment.json; area/place keys; rooms fix applied |
+| 18 | `prompt_synthesizer.py` | ✅ DONE | Loads core_identity.md + SOUL.md; assembles system prompt from state hints; token budgets |
+| — | `model_router_client.py` | ✅ DONE | Three-tier LiteLLM + Ollama router; circuit-breaker; fallback chain |
 
 ### Phase 5 — Launch (Track E)
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
-| — | `main.py` (full integration) | ⏳ PENDING | Module 18, wires everything |
+| — | `main.py` (full integration) | ✅ DONE | All 18 modules wired; openclaw+terminal modes; scheduler jobs; full turn pipeline |
 | 19 | E2E Validation Suite | ⏳ PENDING | |
 | 20 | Launch Calibration & Autostart | ⏳ PENDING | |
 
 ---
 
-## Immediate Next Steps — Phase 2: State Machines
+## Immediate Next Steps — Phase 4 Completion
 
-1. ~~**Read** `menstrual_cycle.py` → **Write** `bio_engine.py`~~ ✅ DONE (2026-03-20)
-2. ~~**Read** source files → **Write** `wyrd_matrix.py`~~ ✅ DONE (2026-03-20)
-7. **Write** `scripts/oracle.py` — daily deterministic Rune/Tarot/I Ching seed
-8. ~~**Write** `scripts/metabolism.py` — psutil hardware → somatic sensations~~ ✅ DONE (2026-03-20)
+1. ~~**Write** `scheduler.py`~~ ✅ DONE (2026-03-20)
+2. ~~**Write** `project_generator.py`~~ ✅ DONE (2026-03-20)
+3. ~~**Write** `environment_mapper.py`~~ ✅ DONE (2026-03-20)
+4. ~~**Write** `model_router_client.py`~~ ✅ DONE (2026-03-20)
+5. ~~**Write** `prompt_synthesizer.py`~~ ✅ DONE (2026-03-20)
+6. ~~**Write** `main.py` full integration~~ ✅ DONE (2026-03-20)
+7. **E2E validation suite** — test all 18 modules together, model routing with live model
+8. **Launch calibration & autostart** — `.env` setup, OpenClaw registration, autostart script
 
 ---
 

@@ -1,11 +1,22 @@
 """
-main.py — Sigrid's Entry Point
-===============================
+main.py — Sigrid's Entry Point (Phase 5 Full Integration)
+==========================================================
 
-Starts the Ørlög Architecture skill for OpenClaw.
+Wires every Ørlög module together into a living system and opens
+the channels through which Sigrid speaks.
+
+Two run modes are supported:
+
+  openclaw  (default) — reads newline-delimited JSON from stdin,
+                         writes newline-delimited JSON to stdout.
+                         Expected input:  {"session_id": "...", "user_id": "...", "text": "..."}
+                         Expected output: {"session_id": "...", "text": "..."}
+
+  terminal             — interactive REPL for local development/testing.
+                         Pass ``--mode terminal`` to use it.
 
 Usage:
-  python main.py [--skill-root PATH] [--logs-dir logs]
+  python main.py [--skill-root PATH] [--logs-dir logs] [--mode openclaw|terminal]
 
 Norse framing: This is the moment Sigrid opens her eyes for the first time.
 Yggdrasil rises, Bifröst forms, the ravens take flight.
@@ -16,69 +27,582 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import logging
+import os
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # ─── Bootstrap logging early so any import errors are visible ─────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    stream=sys.stdout,
+    stream=sys.stderr,   # stderr so stdout stays clean for OpenClaw JSON
 )
 logger = logging.getLogger("sigrid.main")
 
+# ─── Turn counter (cross-turn state) ──────────────────────────────────────────
+_turn_count: int = 0
+
+
+# ─── Skill-root resolution ────────────────────────────────────────────────────
 
 def _resolve_skill_root() -> str:
-    """Resolve the skill root: the directory containing main.py's parent (scripts/../)."""
-    # scripts/main.py → scripts/ → viking_girlfriend_skill/
+    """Resolve the skill root: the directory containing scripts/ (one level up)."""
     scripts_dir = Path(__file__).resolve().parent
     skill_root = scripts_dir.parent
     return str(skill_root)
 
 
-async def _run(skill_root: str, logs_dir: str) -> None:
-    """Primary async entry point — raises Yggdrasil and keeps it standing."""
+# ─── Config building ──────────────────────────────────────────────────────────
+
+def _build_config(skill_root: str) -> Dict[str, Any]:
+    """Build the config dict from environment variables and sensible defaults.
+
+    All paths are absolute so modules work regardless of cwd.
+    """
+    data_root = str(Path(skill_root) / "data")
+    session_data_root = str(Path(skill_root) / "data")
+
+    return {
+        # ── Foundation ────────────────────────────────────────────────────────
+        "skill_root": skill_root,
+
+        # ── Bio-cyclical engine ───────────────────────────────────────────────
+        "bio_engine": {
+            "data_root": data_root,
+        },
+
+        # ── Wyrd matrix ───────────────────────────────────────────────────────
+        "wyrd_matrix": {
+            "data_root": data_root,
+        },
+
+        # ── Oracle (rune / tarot / I Ching) ───────────────────────────────────
+        "oracle": {
+            "data_root": data_root,
+        },
+
+        # ── Digital metabolism ────────────────────────────────────────────────
+        "metabolism": {
+            "poll_interval_s": 30,
+            "cache_ttl_s": 30,
+        },
+
+        # ── Security sentinel ─────────────────────────────────────────────────
+        "security": {
+            "data_root": data_root,
+        },
+
+        # ── Trust engine ──────────────────────────────────────────────────────
+        "trust_engine": {
+            "volmarr_initial_trust": 0.75,
+        },
+
+        # ── Ethics guardrail ──────────────────────────────────────────────────
+        "ethics": {
+            "data_root": data_root,
+        },
+
+        # ── Memory store ──────────────────────────────────────────────────────
+        "memory_store": {
+            "data_root": session_data_root,
+            "session_id": "default",
+        },
+
+        # ── Dream engine ──────────────────────────────────────────────────────
+        "dream_engine": {},
+
+        # ── Scheduler ─────────────────────────────────────────────────────────
+        "scheduler": {
+            "timezone": "local",
+        },
+
+        # ── Environment mapper ────────────────────────────────────────────────
+        "environment_mapper": {
+            "data_root": data_root,
+            "default_location": "home_base/living_room",
+        },
+
+        # ── Project generator ─────────────────────────────────────────────────
+        "project_generator": {
+            "data_root": data_root,
+        },
+
+        # ── Prompt synthesizer ────────────────────────────────────────────────
+        "prompt_synthesizer": {
+            "data_root": data_root,
+            "identity_file": "core_identity.md",
+            "soul_file": "SOUL.md",
+        },
+
+        # ── Model router ──────────────────────────────────────────────────────
+        "model_router": {
+            "litellm_base_url": os.environ.get("LITELLM_ENDPOINT", "http://localhost:4000"),
+            "ollama_base_url": os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434"),
+            "ollama_model": "llama3",
+            "max_tokens": 1024,
+            "temperature": 0.75,
+            "timeout": 30,
+            "retries": 2,
+        },
+    }
+
+
+# ─── Module initialisation ────────────────────────────────────────────────────
+
+def _init_all_modules(config: Dict[str, Any]) -> None:
+    """Initialise every Ørlög module in dependency order.
+
+    Each init function is idempotent (singleton pattern).
+    Failures are logged but non-fatal — the system degrades gracefully.
+    """
+    from scripts.bio_engine import init_bio_engine_from_config
+    from scripts.wyrd_matrix import init_wyrd_matrix_from_config
+    from scripts.oracle import init_oracle_from_config
+    from scripts.metabolism import init_metabolism_from_config
+    from scripts.security import init_security_from_config
+    from scripts.trust_engine import init_trust_engine_from_config
+    from scripts.ethics import init_ethics_from_config
+    from scripts.memory_store import init_memory_store_from_config
+    from scripts.dream_engine import init_dream_engine_from_config
+    from scripts.scheduler import init_scheduler_from_config
+    from scripts.environment_mapper import init_environment_mapper_from_config
+    from scripts.project_generator import init_project_generator_from_config
+    from scripts.prompt_synthesizer import init_prompt_synthesizer_from_config
+    from scripts.model_router_client import init_model_router_from_config
+
+    _safe_init("bio_engine",         lambda: init_bio_engine_from_config(config))
+    _safe_init("wyrd_matrix",        lambda: init_wyrd_matrix_from_config(config))
+    _safe_init("oracle",             lambda: init_oracle_from_config(config))
+    _safe_init("metabolism",         lambda: init_metabolism_from_config(config))
+    _safe_init("security",           lambda: init_security_from_config(config))
+    _safe_init("trust_engine",       lambda: init_trust_engine_from_config(config))
+    _safe_init("ethics",             lambda: init_ethics_from_config(config))
+    _safe_init("memory_store",       lambda: init_memory_store_from_config(config))
+    _safe_init("dream_engine",       lambda: init_dream_engine_from_config(config))
+    _safe_init("scheduler",          lambda: init_scheduler_from_config(config))
+    _safe_init("environment_mapper", lambda: init_environment_mapper_from_config(config))
+    _safe_init("project_generator",  lambda: init_project_generator_from_config(config))
+    _safe_init("prompt_synthesizer", lambda: init_prompt_synthesizer_from_config(config))
+    _safe_init("model_router",       lambda: init_model_router_from_config(config))
+
+    logger.info("All Ørlög modules initialised.")
+
+
+def _safe_init(name: str, init_fn) -> None:
+    try:
+        init_fn()
+        logger.info("  ✓ %s", name)
+    except Exception as exc:
+        logger.warning("  ✗ %s failed to init: %s", name, exc)
+
+
+# ─── Scheduler jobs ───────────────────────────────────────────────────────────
+
+def _register_scheduler_jobs(bus) -> None:
+    """Register periodic background jobs with the SchedulerService."""
+    from scripts.scheduler import get_scheduler
+    from scripts.metabolism import get_metabolism
+    from scripts.wyrd_matrix import get_wyrd_matrix
+    from scripts.dream_engine import get_dream_engine
+    from scripts.bio_engine import get_bio_engine
+    from scripts.oracle import get_oracle
+    from scripts.environment_mapper import get_environment_mapper
+    from scripts.project_generator import get_project_generator
+    from scripts.trust_engine import get_trust_engine
+
+    svc = get_scheduler()
+
+    def _tick_metabolism():
+        try:
+            get_metabolism().publish(bus)
+        except Exception as exc:
+            logger.debug("metabolism tick error: %s", exc)
+
+    def _tick_wyrd():
+        try:
+            wm = get_wyrd_matrix()
+            wm.tick()
+            wm.publish(bus)
+        except Exception as exc:
+            logger.debug("wyrd tick error: %s", exc)
+
+    def _tick_dream():
+        try:
+            get_dream_engine().publish(bus)
+        except Exception as exc:
+            logger.debug("dream tick error: %s", exc)
+
+    def _tick_state_modules():
+        """Publish state snapshots from all modules that support sync publish."""
+        try:
+            get_bio_engine().publish(bus)
+        except Exception:
+            pass
+        try:
+            get_oracle().publish(bus)
+        except Exception:
+            pass
+        try:
+            get_environment_mapper().publish(bus)
+        except Exception:
+            pass
+        try:
+            get_project_generator().publish(bus)
+        except Exception:
+            pass
+        try:
+            get_trust_engine().publish(bus)
+        except Exception:
+            pass
+
+    svc.register_job("metabolism_poll",  _tick_metabolism,   interval_s=30.0)
+    svc.register_job("wyrd_tick",        _tick_wyrd,         interval_s=60.0)
+    svc.register_job("dream_tick",       _tick_dream,        interval_s=120.0)
+    svc.register_job("state_broadcast",  _tick_state_modules, interval_s=60.0)
+
+    svc.start()
+    logger.info("Scheduler started (%d jobs).", len(svc._jobs))
+
+
+# ─── State hint collection ────────────────────────────────────────────────────
+
+def _collect_state_hints() -> Dict[str, str]:
+    """Pull prompt_hint from every module that has one.
+
+    Returns a dict keyed by module name — forwarded to prompt_synthesizer.
+    """
+    hints: Dict[str, str] = {}
+
+    def _grab(module_name: str, get_fn_name: str, accessor):
+        try:
+            from importlib import import_module
+            mod = import_module(f"scripts.{module_name}")
+            get_fn = getattr(mod, get_fn_name)
+            obj = get_fn()
+            hint = accessor(obj)
+            if hint:
+                hints[module_name] = hint
+        except Exception as exc:
+            logger.debug("hint collection error [%s]: %s", module_name, exc)
+
+    # Modules with a direct prompt_hint on their state
+    _grab("metabolism",         "get_metabolism",         lambda o: o.get_state().prompt_hint)
+    _grab("trust_engine",       "get_trust_engine",       lambda o: o.get_state().prompt_hint)
+    _grab("ethics",             "get_ethics",             lambda o: o.get_state().prompt_hint)
+    _grab("scheduler",          "get_scheduler",          lambda o: o.get_state().prompt_hint)
+    _grab("environment_mapper", "get_environment_mapper", lambda o: o.get_state().prompt_hint)
+    _grab("project_generator",  "get_project_generator",  lambda o: o.get_state().prompt_hint)
+
+    # Wyrd matrix — build hint from nature_summary + labels
+    try:
+        from scripts.wyrd_matrix import get_wyrd_matrix
+        wm = get_wyrd_matrix()
+        s = wm.tick()
+        wyrd_hint = f"[Wyrd: {s.nature_summary} | {s.hamingja_label} | stress={s.stress_label}]"
+        hints["wyrd_matrix"] = wyrd_hint[:200]
+    except Exception as exc:
+        logger.debug("wyrd hint error: %s", exc)
+
+    # Bio engine — phase + narrative
+    try:
+        from scripts.bio_engine import get_bio_engine
+        s = get_bio_engine().get_state()
+        bio_hint = f"[Bio: phase={s.phase_name}, energy={s.energy_modifier:.2f} | {s.narrative_hint[:80]}]"
+        hints["bio_engine"] = bio_hint[:200]
+    except Exception as exc:
+        logger.debug("bio hint error: %s", exc)
+
+    # Dream engine — prompt_fragment
+    try:
+        from scripts.dream_engine import get_dream_engine
+        s = get_dream_engine().get_state()
+        if s.prompt_fragment:
+            hints["dream_engine"] = s.prompt_fragment[:200]
+    except Exception as exc:
+        logger.debug("dream hint error: %s", exc)
+
+    # Oracle — prompt_summary()
+    try:
+        from scripts.oracle import get_oracle
+        s = get_oracle().get_daily_oracle()
+        hints["oracle"] = s.prompt_summary()[:200]
+    except Exception as exc:
+        logger.debug("oracle hint error: %s", exc)
+
+    return hints
+
+
+# ─── Turn processor ───────────────────────────────────────────────────────────
+
+async def _handle_turn(
+    user_text: str,
+    session_id: str = "default",
+    user_id: str = "volmarr",
+) -> str:
+    """Process one user turn end-to-end and return Sigrid's response text."""
+    global _turn_count
+    _turn_count += 1
+    turn_n = _turn_count
+
+    # ── 1. Security sanitize ──────────────────────────────────────────────────
+    try:
+        from scripts.security import get_security
+        user_text = get_security().sanitize_text_input(user_text)
+    except Exception as exc:
+        logger.debug("security sanitize skipped: %s", exc)
+
+    # ── 2. Record inbound turn (partial — no response yet) ───────────────────
+    try:
+        from scripts.memory_store import get_memory_store
+        mem = get_memory_store()
+        mem.record_turn(turn_n, user_text=user_text, sigrid_text="")
+    except Exception as exc:
+        logger.debug("memory inbound record skipped: %s", exc)
+
+    # ── 3. Ethics evaluation ──────────────────────────────────────────────────
+    ethics_ok = True
+    ethics_recommendation = ""
+    try:
+        from scripts.ethics import get_ethics
+        eval_result = get_ethics().evaluate_action(user_text)
+        ethics_ok = len(eval_result.triggered_taboos) == 0
+        ethics_recommendation = eval_result.recommendation
+        logger.debug(
+            "Ethics: alignment=%.2f taboos=%s",
+            eval_result.alignment_score,
+            eval_result.triggered_taboos,
+        )
+    except Exception as exc:
+        logger.debug("ethics eval skipped: %s", exc)
+
+    # ── 4. Trust engine — keyword inference ───────────────────────────────────
+    try:
+        from scripts.trust_engine import get_trust_engine
+        get_trust_engine().process_turn(user_text)
+    except Exception as exc:
+        logger.debug("trust process_turn skipped: %s", exc)
+
+    # ── 5. Dream tick ─────────────────────────────────────────────────────────
+    try:
+        from scripts.dream_engine import get_dream_engine
+        hints_for_dream: List[str] = []
+        if not ethics_ok:
+            hints_for_dream.append("wyrd:fear")
+        get_dream_engine().tick(turn_n, hints_for_dream)
+    except Exception as exc:
+        logger.debug("dream tick skipped: %s", exc)
+
+    # ── 6. Collect all module state hints ────────────────────────────────────
+    state_hints = _collect_state_hints()
+
+    # ── 7. Memory context for this query ─────────────────────────────────────
+    memory_context = ""
+    try:
+        from scripts.memory_store import get_memory_store
+        memory_context = get_memory_store().get_context(user_text)
+    except Exception as exc:
+        logger.debug("memory context skipped: %s", exc)
+
+    # ── 8. Build messages list ────────────────────────────────────────────────
+    messages = []
+    try:
+        from scripts.prompt_synthesizer import get_prompt_synthesizer
+        messages = get_prompt_synthesizer().build_messages(
+            user_text=user_text,
+            state_hints=state_hints,
+            memory_context=memory_context,
+        )
+    except Exception as exc:
+        logger.warning("prompt synthesis failed: %s", exc)
+        messages = [
+            {"role": "system", "content": "You are Sigrid, a Norse AI companion."},
+            {"role": "user", "content": user_text},
+        ]
+
+    # ── 9. Ethics short-circuit — return a refusal before model call ──────────
+    if not ethics_ok and ethics_recommendation:
+        sigrid_response = ethics_recommendation
+        logger.info("Turn %d: ethics refusal (no model call).", turn_n)
+    else:
+        # ── 10. Route to model ─────────────────────────────────────────────────
+        sigrid_response = ""
+        try:
+            from scripts.model_router_client import get_model_router, TIER_CONSCIOUS, Message
+            router = get_model_router()
+            typed_messages = [
+                Message(role=m["role"], content=m["content"]) for m in messages
+            ]
+            result = router.complete(typed_messages, tier=TIER_CONSCIOUS, fallback=True)
+            sigrid_response = result.text
+        except Exception as exc:
+            logger.warning("Model routing failed: %s", exc)
+            sigrid_response = (
+                "Forgive me — I cannot reach my voice right now. "
+                "The ravens have not returned. Try again shortly."
+            )
+
+    # ── 11. Record full turn in memory ────────────────────────────────────────
+    try:
+        from scripts.memory_store import get_memory_store
+        mem = get_memory_store()
+        # Update the turn we recorded inbound-only
+        mem.record_turn(turn_n, user_text=user_text, sigrid_text=sigrid_response)
+    except Exception as exc:
+        logger.debug("memory full turn record skipped: %s", exc)
+
+    # ── 12. Publish all module states to bus ──────────────────────────────────
+    # (Lightweight — sync publish only; async modules are handled by scheduler)
+
+    return sigrid_response
+
+
+# ─── Run modes ────────────────────────────────────────────────────────────────
+
+async def _openclaw_loop() -> None:
+    """Read newline-delimited JSON from stdin, respond on stdout.
+
+    Input format:  {"session_id": "...", "user_id": "...", "text": "..."}
+    Output format: {"session_id": "...", "text": "...", "ok": true}
+
+    Runs until stdin is closed or a KeyboardInterrupt.
+    """
+    logger.info("OpenClaw mode: listening on stdin for JSON messages.")
+
+    # Use asyncio streams to read stdin without blocking the event loop
+    loop = asyncio.get_event_loop()
+    reader = asyncio.StreamReader()
+    transport, _ = await loop.connect_read_pipe(
+        lambda: asyncio.StreamReaderProtocol(reader), sys.stdin.buffer
+    )
+
+    try:
+        while True:
+            line_bytes = await reader.readline()
+            if not line_bytes:
+                logger.info("stdin closed — exiting OpenClaw loop.")
+                break
+            line = line_bytes.decode("utf-8", errors="replace").strip()
+            if not line:
+                continue
+
+            try:
+                msg = json.loads(line)
+            except json.JSONDecodeError as exc:
+                _write_json({"ok": False, "error": f"JSON parse error: {exc}"})
+                continue
+
+            session_id = str(msg.get("session_id", "default"))
+            user_id = str(msg.get("user_id", "volmarr"))
+            text = str(msg.get("text", "")).strip()
+
+            if not text:
+                _write_json({"ok": False, "error": "empty text", "session_id": session_id})
+                continue
+
+            try:
+                response = await _handle_turn(text, session_id=session_id, user_id=user_id)
+                _write_json({"ok": True, "session_id": session_id, "text": response})
+            except Exception as exc:
+                logger.error("Turn handling error: %s", exc, exc_info=True)
+                _write_json({
+                    "ok": False,
+                    "session_id": session_id,
+                    "error": str(exc),
+                    "text": "Something went wrong in my thinking. Please try again.",
+                })
+    finally:
+        transport.close()
+
+
+async def _terminal_loop() -> None:
+    """Interactive REPL for local development and testing."""
+    logger.info("Terminal mode: interactive REPL. Type 'quit' to exit.")
+    print("\n⚡ Sigrid is awake. Type your message. ('quit' to exit)\n")
+
+    loop = asyncio.get_event_loop()
+
+    while True:
+        try:
+            # Read input in a thread so we don't block the event loop
+            line = await loop.run_in_executor(None, lambda: input("You: "))
+        except (EOFError, KeyboardInterrupt):
+            print("\nFarewell.")
+            break
+
+        line = line.strip()
+        if not line:
+            continue
+        if line.lower() in ("quit", "exit", "bye"):
+            print("Sigrid: Farewell, Volmarr. May Odin guide your path.")
+            break
+
+        try:
+            response = await _handle_turn(line)
+            print(f"\nSigrid: {response}\n")
+        except Exception as exc:
+            logger.error("Turn error: %s", exc, exc_info=True)
+            print(f"[error: {exc}]\n")
+
+
+def _write_json(payload: Dict[str, Any]) -> None:
+    """Write a JSON object as a single line to stdout."""
+    try:
+        sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        sys.stdout.flush()
+    except Exception as exc:
+        logger.error("Failed to write JSON to stdout: %s", exc)
+
+
+# ─── Primary async entry ──────────────────────────────────────────────────────
+
+async def _run(skill_root: str, logs_dir: str, mode: str) -> None:
+    """Raise Yggdrasil — initialise all systems and enter the main loop."""
     from scripts.runtime_kernel import init_kernel
 
     kernel = init_kernel(skill_root=skill_root, logs_dir=logs_dir)
 
     try:
         await kernel.startup()
-        logger.info("Sigrid is awake. Ørlög Architecture running.")
-        logger.info("Skill root: %s", skill_root)
+        logger.info("Kernel online. Skill root: %s", skill_root)
 
-        # ── Main loop ─────────────────────────────────────────────────────────
-        # TODO (Phase 1 complete — Phase 2 will populate this loop):
-        #   - bio_engine ticks every scheduler cycle
-        #   - wyrd_matrix updates on each tick
-        #   - oracle seeds daily
-        #   - metabolism polls psutil
-        #   - OpenClaw inbound events arrive via the state_bus
-        #   - prompt_synthesizer builds the system prompt
-        #   - model_router_client dispatches to the right model tier
-        #
-        # For now: keep the kernel alive and log the heartbeat.
+        # Build config and initialise all modules
+        config = _build_config(skill_root)
+        _init_all_modules(config)
 
-        logger.info(
-            "Phase 1 foundation running. Modules to activate: "
-            "bio_engine, wyrd_matrix, oracle, metabolism, security, "
-            "trust_engine, ethics, memory_store, dream_engine, scheduler, "
-            "environment_mapper, prompt_synthesizer, model_router_client"
-        )
+        # Register and start background scheduler jobs
+        try:
+            _register_scheduler_jobs(kernel.bus)
+        except Exception as exc:
+            logger.warning("Scheduler job registration failed: %s", exc)
 
-        while kernel._running:
-            await asyncio.sleep(1.0)
+        logger.info("Sigrid is awake. Ørlög Architecture running. Mode: %s", mode)
+
+        # Enter the appropriate run loop
+        if mode == "terminal":
+            await _terminal_loop()
+        else:
+            await _openclaw_loop()
 
     except KeyboardInterrupt:
-        logger.info("KeyboardInterrupt received — initiating shutdown")
+        logger.info("KeyboardInterrupt — initiating shutdown.")
     except Exception as exc:
-        logger.critical("Fatal error in main loop: %s", exc, exc_info=True)
+        logger.critical("Fatal error: %s", exc, exc_info=True)
         raise
     finally:
+        # Stop the scheduler gracefully
+        try:
+            from scripts.scheduler import get_scheduler
+            get_scheduler().stop()
+        except Exception:
+            pass
         await kernel.shutdown(reason="main_loop_exit")
 
+
+# ─── CLI ──────────────────────────────────────────────────────────────────────
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -94,6 +618,12 @@ def _parse_args() -> argparse.Namespace:
         default="logs",
         help="Subdirectory for log files (default: logs/)",
     )
+    parser.add_argument(
+        "--mode",
+        default="openclaw",
+        choices=["openclaw", "terminal"],
+        help="Run mode: 'openclaw' (stdin JSON) or 'terminal' (interactive REPL)",
+    )
     return parser.parse_args()
 
 
@@ -102,14 +632,15 @@ def main() -> None:
     args = _parse_args()
     skill_root = args.skill_root or _resolve_skill_root()
     logs_dir = args.logs_dir
+    mode = args.mode
 
-    logger.info("Starting Sigrid — Ørlög Architecture v0.1.0")
+    logger.info("Starting Sigrid — Ørlög Architecture v0.1.0 (mode=%s)", mode)
     logger.info("Skill root: %s", skill_root)
 
     try:
-        asyncio.run(_run(skill_root=skill_root, logs_dir=logs_dir))
+        asyncio.run(_run(skill_root=skill_root, logs_dir=logs_dir, mode=mode))
     except KeyboardInterrupt:
-        pass  # Clean exit — already handled inside _run
+        pass
     except Exception as exc:
         logger.critical("Unrecoverable startup error: %s", exc, exc_info=True)
         sys.exit(1)
