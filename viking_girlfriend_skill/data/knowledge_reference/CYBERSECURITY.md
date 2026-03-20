@@ -804,3 +804,124 @@ This database contains essential knowledge for securing the realms of Midgard an
 1168. **Total Security (The Legend of the Eternal Wall)**: An impossible dream, for as long as there is value, there will be raiders. The fight is eternal.
 1169. **Sigrid's Command: 'Shield the runes of the spirit as you shield the gold of the hall. A breach of data is a breach of honor.'**
 1170. **The final verse: The wall is never finished, the watch is never done, and the digital sun never sets on the warriors of Midgard.**
+
+## Entries 2001 - 3000
+
+2001. **Software Security (Guarding the Forge)**: The process of designing, building, and testing software to be resistant to attack.
+2002. **Secure Software Development Life Cycle (S-SDLC) (The Sacred Smithing Path)**: Integrating security into every step of creating software.
+2003. **Secure by Design (Built for Battle)**: Making security a core requirement from the very first idea, not something added at the end.
+2004. **Secure by Default (The Locked Gate)**: Ensuring that all security features are turned ON when a user first installs the software.
+2005. **Secure by Deployment (The Protected Hall)**: Ensuring the environment where software runs is as safe as the code itself.
+2006. **Threat Modeling (The War-Room Strategy)**: A process for identifying, quantifying, and addressing the security risks associated with an application.
+2007. **STRIDE (Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Elevation of Privilege).**
+2008. **DREAD (Damage, Reproducibility, Exploitability, Affected Users, Discoverability).**
+2009. **Data Flow Diagram (DFD) (The Map of the Runes)**: A visual representation of how data moves through a system, used for threat modeling.
+2010. **Trust Boundaries (The Lines in the Dirt)**: Points in a program where data moves from an untrusted source to a trusted one.
+2011. **Input Validation (The Sentry's Check)**: Ensuring that every piece of data entering a program is in the correct format and contains no poison.
+2012. **The Golden Rule of Input: NEVER trust user input.**
+2013. **Allow-listing (The List of Friends)**: Explicitly defining what IS allowed and blocking everything else (much safer than block-listing).
+2014. **Block-listing (The List of Foes)**: Defining what is NOT allowed (dangerous, as attackers always find new poisons).
+2015. **Output Encoding (The Shielding of the Eye)**: Translating data before showing it to a user so it can't be run as code (stops XSS).
+2016. **Parameterized Queries (Prepared Statements) (The Safe Ledger)**: Using a template for database commands so user input can never be mistaken for a command (stops SQLi).
+2017. **Error Handling (The Careful Scribe)**: Ensuring that when a program breaks, it doesn't reveal secret details about the server or database in the error message.
+2018. **Secure Session Management (The Sealed Scroll of the Guest)**: Protecting the 'Session ID' that proves a user is logged in.
+2019. **HttpOnly Cookie (The Hidden Key)**: A flag that prevents JavaScript from reading a cookie, making it much harder to steal a session.
+2020. **Secure Cookie (The Shielded Key)**: A flag that ensures a cookie is only sent over encrypted (HTTPS) connections.
+2021. **SameSite Cookie (The Home-Bound Key)**: A flag that prevents a cookie from being sent to other websites (stops CSRF).
+2022. **Content Security Policy (CSP) (The Law of the Browser)**: A security layer that helps detect and mitigate certain types of attacks, including Cross-Site Scripting (XSS) and data injection.
+2023. **Subresource Integrity (SRI) (The Seal of the Merchant)**: Ensuring that a library loaded from another site (like a CDN) hasn't been tampered with.
+2024. **Hardcoding Secrets (The Great Sin of the Smith)**: Putting passwords or API keys directly in the source code where any raider can see them.
+2025. **Environment Variables (The Hidden Runes of the Realm)**: Storing secrets in the server's memory rather than in the code files.
+2026. **Secrets Management (HashiCorp Vault, AWS Secrets Manager)**: Professional tools for storing and automatically 'rotating' passwords and keys.
+2027. **Code Signing (The King's Wax Seal)**: A digital signature that proves a piece of software really came from the creator and hasn't been changed.
+2028. **Static Analysis (SAST) (The Inspection of the Scroll)**: Analyzing code for bugs without running it.
+2029. **Dynamic Analysis (DAST) (The Trial by Combat)**: Testing a running program by throwing attacks at it.
+2030. **Interactive Analysis (IAST)**: A combination of SAST and DAST that watches the code from the inside as it is being attacked.
+2031. **Fuzzing (The Testing of the Infinite Monkey)**: Sending millions of random inputs to a program to see where it crashes.
+2032. **Vulnerability Research (The Search for the Hidden Chink)**: The high-level art of finding 'Zero-Day' bugs in famous software.
+2033. **Reverse Engineering (Dismantling the Enemy's Blade)**: Taking a program apart (turning 0s and 1s back into code) to see how it works or how to break it.
+2034. **Decompiler (The Un-Smithing Tool)**: A tool that tries to turn machine code back into high-level language like C++ or Java.
+2035. **Disassembler (The Rune-Unpacker)**: A tool that turns machine code into 'Assembly' (low-level human-readable instructions).
+2036. **Debugger (The Truth-Finder)**: A tool that lets a warrior pause a program and look at its memory and variables as it runs.
+2037. **Obfuscation (The Cloak of Shifting Mist)**: Intentionally making code hard for a human to read to slow down reverse engineering.
+2038. **Packing (The Sealed Crate)**: Compressing or encrypting a program so it only 'unpacks' itself in memory when it runs—often used by malware.
+2039. **Mobile Security (The Guarding of the Scout's Tool)**: Protecting smartphones and the data on them.
+2040. **Sandbox (The Caged Realm)**: A security feature that keeps each app in its own isolated 'cage' so it can't steal data from other apps.
+2041. **Jailbreaking (iOS) / Rooting (Android) (Breaking the King's Chains)**: Removing the security limits of a phone—useful for power users, but makes the phone much easier to hack.
+2042. **Sideloading (The Backdoor Trade)**: Installing apps from outside the official App Store or Play Store (very risky).
+2043. **Mobile Device Management (MDM) (The Master of the Fleet)**: Tools like Intune or Jamf that let a company control and wipe thousand of phones.
+2044. **Remote Wipe (The Desperate Purge)**: Deleting every bit of data on a phone from across the world if it is stolen.
+2045. **App Permissions (The Sentry's Check of the Guest)**: Deciding if an app is allowed to touch your camera, contacts, or location.
+2046. **Man-in-the-Middle (MITM) (The Eavesdropper in the Mist)**: Using a fake Wi-Fi to steal data as it travels from a phone to the internet.
+2047. **Certificate Pinning (The Trust of the Specific Key)**: Telling an app to ONLY trust one specific certificate, preventing attackers from using a fake one.
+2048. **Biometric Bypass (The Mask of the Face-Gate)**: Using photos or 3D masks to trick a phone's face ID.
+2049. **SIM Swapping (The Hijacked Messenger)**: Tricking a phone company into moving a victim's phone number to an attacker's SIM card—the #1 way to bypass SMS-based MFA.
+2050. **Stalkerware (The Hidden Eye of the Coward)**: Malicious apps used to secretly track and spy on a person's private life.
+2051. **IoT Security (The Whispering of the Common Objects)**: Protecting 'smart' devices like lightbulbs, cameras, and fridges.
+2052. **The 'S' in IoT stands for Security (A common joke, as most IoT has NO security).**
+2053. **Mirai Botnet (The Army of the Incompetent)**: A massive army of hacked cameras and routers that was used to take down much of the internet in 2016.
+2054. **Hardcoded Credentials in IoT (The Unchangeable Lock)**: Many smart devices have passwords like 'admin' that can NEVER be changed.
+2055. **Insecure Web Interface (The Open Backdoor)**: The simple websites used to control smart devices often have very old, easy-to-hack bugs.
+2056. **Lack of Update Mechanism (The Abandoned Fortress)**: Many IoT devices can NEVER be updated, meaning a bug found today will be there forever.
+2057. **Privacy Concerns in IoT (The Ears in the Walls)**: Smart speakers and cameras that might be sending your private conversations to a cloud in a foreign land.
+2058. **Zigbee / Z-Wave (The Languages of the House)**: The special, low-power radio languages used by smart home devices.
+2059. **Hardware Hacking (The Direct Siege of the Machine)**: Plugging directly into a circuit board to steal secrets or bypass software security.
+2060. **UART / JTAG (The Debugger's Shore-Paths)**: Physical connections on a circuit board that often give an attacker root access to the device.
+2061. **Side-Channel Attack (The Listening of the Forge's Heat)**: Stealing a secret key by measuring the power usage, heat, or sound a chip makes while it's working.
+2062. **Glitching (The Percussion Maintenance)**: Briefly shorting out a chip's power to make it skip a security check.
+2063. **Industrial Security (ICS/SCADA) (The Protection of the Great Gears)**: Protecting the systems that run power plants, water, and factories.
+2064. **SCADA (Supervisory Control and Data Acquisition) (The Overseer of the Machines).**
+2065. **PLC (Programmable Logic Controller) (The Small Brain of the Machine)**: The actual computers that move valves, motors, and robotic arms.
+2066. **HMI (Human-Machine Interface) (The Control Wheel)**: The screen a human uses to watch and control a factory.
+2067. **Stuxnet (The Digital Fire of the gods)**: The first true cyber-weapon, designed to physically destroy industrial equipment (centrifuges).
+2068. **The Purdue Model (The Layers of the Factory)**: A standard way of dividing a factory's network so the machines are separated from the office computers.
+2069. **Air-Gapping (The Utmost Isolation)**: Keeping the factory computers COMPLETELY disconnected from the internet (harder and harder to do in the modern world).
+2070. **Legacy Systems (The Ancient and Brittle Armor)**: Factories often run on 30-year-old software that was never meant to be connected to a network.
+2071. **Safety vs. Security (The Life and the Lock)**: In a factory, 'Safety' (stopping a machine from killing someone) is more important than 'Security' (stopping a hacker from seeing a file).
+2072. **Protocol Spoofing in ICS (The False Order)**: Sending a fake command to a PLC to make it overheat or explode (e.g., Modbus or DNP3).
+2073. **Advanced Offensive Tactics (The Raider's Master-Class)**: The high-level ways that the world's best hackers work.
+2074. **Living off the Land (LotL) (Using the Enemy's Own Tools)**: Using legitimate software already on a computer (like PowerShell) to hack it, making detection much harder.
+2075. **PowerShell Empire / Cobalt Strike**: Advanced 'War-Room' software used by both ethical hackers and the most dangerous raiders.
+2076. **Domain Admin (The Ruler of the Realm)**: The ultimate goal of an attacker in a Windows network—total control of everything.
+2077. **Kerberos Silver Ticket**: Forging a ticket to gain access to a specific service (like SQL or File Share) forever.
+2078. **Kerberos Golden Ticket**: Forging a master ticket that gives you 'Domain Admin' level access for 10 years.
+2079. **Skeleton Key Malware**: A very rare and powerful virus that lets an attacker use ANY password to log in to ANY account on a network.
+2080. **Dumping LSASS (Stealing the Memory-Keys)**: Ripping passwords and hashes directly out of the Windows process that handles security.
+2081. **AMSI Bypass (Blinding the Sentry)**: Disabling the 'Anti-Malware Scan Interface' in Windows so your scripts aren't caught.
+2082. **EDR Evasion (The Shadow-Walk)**: Techniques to 'blind' the advanced sensors of modern antivirus tools.
+2083. **Process Injection (The Parasite)**: Hiding malicious code inside a legitimate, trusted process like 'Chrome.exe'.
+2084. **DLL Side-Loading (The False Library)**: Tricking a trusted program into loading a malicious library instead of a real one.
+2085. **LSA Protection (RunAsPPL)**: A Windows defense that prevents ordinary users (even admins) from reading the security memory (LSASS).
+2086. **AppLocker / WDAC (The Selective Gate)**: Only allowing a small list of 'Allowed' programs to run on a computer.
+2087. **Privileged Access Workstations (PAW) (The Jarl's Personal Hall)**: A special, ultra-secure computer used ONLY for administrative tasks, never for web browsing or email.
+2088. **Jump Server (The Buffer Between Realms)**: A server that acts as a bridge; you must log into it before you can log into the truly important servers.
+2089. **Cloud Workload Protection (CWPP)**: Security specifically for the 'laborers' of the cloud—containers, serverless functions, and VMs.
+2090. **Infrastructure as Code (IaC) (The Map of the Sky-Fortress)**: Building a whole cloud network using code (like Terraform or CloudFormation).
+2091. **Drift (The Shifting of the Wall)**: When the actual cloud settings slowly change from what the security map says they should be.
+2092. **Secret Management (The Master of the Hidden Gold)**: Using tools like HashiCorp Vault to ensure NO passwords are ever in plain text.
+2093. **Identity is the New Perimeter (The Shield-Wall is People)**: In the cloud, the 'firewall' doesn't matter as much as who has the 'Key' (Identity).
+2094. **Entitlement Management (Managing the Rights of the Clans)**: Regularly checking to see if people still need the power they were given months ago.
+2095. **Cloud Misconfiguration (The Single Greatest Risk)**: 99% of cloud breaches happen because a human left a 'gate' (like an S3 bucket or Port 22) open by mistake.
+2096. **Security Operations Strategy (The Mind of the General)**: How to lead a whole army of defenders.
+2097. **Cyber Resilience (The Will to Stand)**: Accepting that you WILL be hacked, and planning how to keep fighting and recover as fast as possible.
+2098. **Mean Time to Detection (MTTD) (The Speed of the Sentry)**: How long it takes to find a raider after they move over the wall.
+2099. **Mean Time to Recovery (MTTR) (The Speed of the Mending)**: How long it takes to get back to normal after a breach.
+2100. **Continuous Monitoring (The Unblinking Eye)**: Watching every bit of data 24/7/365.
+2101. **False Positive Fatigue (The Tired Guard)**: When a system sends 10,000 fake alerts a day, the guards start to ignore them—until a REAL one comes.
+2102. **Baseline (The Normal Days of Peace)**: Understanding what 'normal' network traffic looks like so you can spot the 'weird' traffic of a hacker.
+2103. **Anomaly Detection (Spotting the Stranger)**: Using AI to find anything that doesn't fit the 'Baseline'.
+2104. **Behavioral Analytics (Watching the Warrior's Habits)**: Noticing if a 'Navigator' suddenly starts looking at 'Gold-Treasury' files at 3 AM from a different village.
+2105. **Data Orchestration (Merging the River of Logs)**: Using tools to combine data from a hundred different walls into one 'All-Seeing Eye' (SIEM).
+2106. **Automation (The Mechanical Guard)**: Using software to automatically block a suspicious IP the moment the SIEM sees it.
+2107. **Threat Intel Sharing (The Alliance of the Kingdoms)**: Sharing data about new raiders with other companies and governments so everyone can defend better.
+2108. **ISAC (Information Sharing and Analysis Center)**: Groups of companies in the same industry (e.g., Banks, Hospitals) that share threat data.
+2109. **The Ethics of Action (The Paladin's Choice)**: Deciding when a hack is 'justified' and when it is 'evil'.
+2110. **Vulnerability Research Ethics**: The debate over whether to tell a company about a bug 'for free' or sell it to the highest bidder.
+2111. **Dual-Use Technology (The Hammer and the Sword)**: Tools like encryption or port scanners that can be used for both peace and war.
+2112. **The Wassenaar Arrangement (The Arms Control of Code)**: An international treaty that treats powerful hacking tools like tanks and missiles.
+2113. **Digital Human Rights (The Sovereignty of the Spirit)**: The use of security tools (like VPNs and Tor) to protect free speech in lands ruled by tyrants.
+2114. **Privacy vs. Security (The Great Debate of the Thing)**: The constant struggle between a King's desire to see everything to find 'Traitors' and a person's right to have a private hall.
+2115. **Transparency (The Open Hall)**: The idea that security systems work best when everyone can see how they work, rather than 'Security through Obscurity'.
+2116. **Algorithmic Bias (The Unfair Judgment)**: Ensuring that the AI 'Guards' don't treat some people worse than others based on flawed data.
+2117. **The Great Digital Stand: 'A wall of silicon is as strong as the honor of the smith. Build once, build right, and watch forever.'**
+2118. **Final Verse of the Third Tome: The longship of our data sails on a sea of shadow, but the stars of our logic guide us to a safe harbor.**
