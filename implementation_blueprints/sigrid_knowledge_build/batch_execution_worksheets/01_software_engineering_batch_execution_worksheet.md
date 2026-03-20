@@ -15,7 +15,7 @@
 ## Batch Control Grid
 | Batch | Entry range | Draft status | Validation status | Audit status | Notes |
 |---|---|---|---|---|---|
-| 01 | 0001-0500 | not started | not started | not started | |
+| 01 | 0001-0500 | in progress | pending | pending | Entries 0001-0005 drafted manually; scope replaced with subject-specific boundary; opening batch not yet validated. |
 | 02 | 0501-1000 | not started | not started | not started | |
 | 03 | 1001-1500 | not started | not started | not started | |
 | 04 | 1501-2000 | not started | not started | not started | |

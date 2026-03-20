@@ -6,7 +6,7 @@
 ## Milestones
 | Batch | Research ready | Drafting started | Drafting finished | Validation finished | Audit passed |
 |---|---|---|---|---|---|
-| 01 | no | no | no | no | no |
+| 01 | yes | yes | no | no | no |
 | 02 | no | no | no | no | no |
 | 03 | no | no | no | no | no |
 | 04 | no | no | no | no | no |
