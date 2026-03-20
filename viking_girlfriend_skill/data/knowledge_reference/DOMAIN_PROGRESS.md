@@ -9,7 +9,7 @@
 | **System Administration** | 5000 | 5000 | Completed (The Steward's Hall is Secure) | 2026-03-20 |
 | **Cloud Computing** | 5000 | 5000 | Completed (The Sky-Halls are Forged) | 2026-03-20 |
 | **Viking History & Norse Mythology** | 5000 | 5000 | Completed (The Roots are Strong) | 2026-03-20 |
-| **Old Norse Language & Runology** | 5000 | 3000 | In Progress (Drafting Verbs & Divination) | 2026-03-20 |
+| **Old Norse Language & Runology** | 5000 | 4000 | In Progress (Drafting Qualities & Aettir) | 2026-03-20 |
 | **Ancient Warfare & Tactics** | 5000 | 0 | Pending | - |
 | **Norse Folklore & Legend** | 5000 | 0 | Pending | - |
 | **Archaeology (Norse Focus)** | 5000 | 0 | Pending | - |
