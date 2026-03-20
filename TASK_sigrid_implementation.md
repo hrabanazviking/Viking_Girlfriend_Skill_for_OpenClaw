@@ -51,7 +51,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 ### Phase 3 — Mind & Shield (Track C)
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
-| 10 | `security.py` | ⏳ PENDING | Module 08, adopts thor_guardian.py |
+| 10 | `security.py` | ✅ DONE | Circuit-breaker + sanitize + path guard + secret compare; adopts thor_guardian.py |
 | 11 | `trust_engine.py` | ⏳ PENDING | Module 09, adopts social_ledger.py |
 | 12 | `ethics.py` | ⏳ PENDING | Module 10, loads values.json + SOUL.md |
 | 13 | `memory_store.py` | ⏳ PENDING | Module 11, adopts memory_system + enhanced_memory + RAG |
