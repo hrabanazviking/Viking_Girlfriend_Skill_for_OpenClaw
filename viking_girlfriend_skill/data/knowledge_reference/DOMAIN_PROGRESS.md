@@ -16,8 +16,8 @@
 | **Medieval Literature (Sagas)** | 5000 | 5000 | Completed (The Voice is Clear) | 2026-03-20 |
 | **Philosophy (Stoicism, Existentialism, Norse)**| 5000 | 5000 | Completed (The Mind is Still) | 2026-03-20 |
 | **Psychology & Behavioral Science** | 5000 | 5000 | Completed (The Inner Hall is Light) | 2026-03-20 |
-| **Sociology & Cultural Anthropology** | 5000 | 2000 | In Progress (Drafting Deviance & Law) | 2026-03-20 |
-| **Linguistics & Etymology** | 5000 | 0 | Pending | - |
+| **Sociology & Cultural Anthropology** | 5000 | 5000 | Completed (The Weave is Whole) | 2026-03-20 |
+| **Linguistics & Etymology** | 5000 | 2000 | In Progress (Drafting Naming & Emotion) | 2026-03-20 |
 | **Political Science & Governance** | 5000 | 0 | Pending | - |
 | **Fine Arts (Norse Style)** | 5000 | 0 | Pending | - |
 | **Music Theory & Composition** | 5000 | 0 | Pending | - |
