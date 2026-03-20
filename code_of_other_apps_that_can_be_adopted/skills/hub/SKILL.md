@@ -1,0 +1,29 @@
+---
+name: hub
+description: Backward-compatible alias for ClawHub skill discovery and installation into the ClawLite workspace.
+always: false
+homepage: https://clawhub.ai
+metadata: {"clawlite":{"emoji":"🦞","requires":{"bins":["npx"]}}}
+script: clawhub
+---
+
+# Hub
+
+Use this skill when the user asks to find/install/update skills from community registry.
+
+## Search
+```bash
+npx --yes clawhub@latest search "<query>" --limit 5
+```
+
+## Install in workspace
+```bash
+npx --yes clawhub@latest install <slug> --workdir ~/.clawlite/workspace
+```
+
+Always install into `~/.clawlite/workspace/skills/` so ClawLite discovers the skill at runtime.
+
+## Update installed skills
+```bash
+npx --yes clawhub@latest update --all --workdir ~/.clawlite/workspace
+```
