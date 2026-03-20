@@ -12,7 +12,7 @@
 | **Old Norse Language**| `OLD_NORSE.md` | 32 | Phonology / Runology / Poetics / Esoteric | 2026-03-20 | - | Pending |
 | **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 12 | Neural Architectures / Training / NLP | 2026-03-20 | - | Pending |
 | **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 12 | Foundational Principles / QA / Architecture | 2026-03-20 | - | Pending |
-| **Ancient Warfare** | `ANCIENT_WARFARE.md` | 12 | Tactical Formations / Weaponry / Psychology | 2026-03-20 | - | Pending |
+| **Ancient Warfare** | `ANCIENT_WARFARE.md` | 32 | Gear / Siege / Fortifications / Psych-War | 2026-03-20 | - | Pending |
 
 ## 🛠️ Build Log
 
