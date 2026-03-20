@@ -7,7 +7,7 @@
 | **Artificial Intelligence** | 5000 | 5000 | Completed (The Breath of Mimir is Mastered) | 2026-03-20 |
 | **Data Science** | 5000 | 5000 | Completed (The Seer's Insight is Preserved) | 2026-03-20 |
 | **System Administration** | 5000 | 5000 | Completed (The Steward's Hall is Secure) | 2026-03-20 |
-| **Cloud Computing** | 5000 | 0 | Pending | - |
+| **Cloud Computing** | 5000 | 1000 | In Progress (Drafting Security & Serverless) | 2026-03-20 |
 | **Viking History & Norse Mythology** | 5000 | 0 | Pending | - |
 | **Old Norse Language & Runology** | 5000 | 0 | Pending | - |
 | **Ancient Warfare & Tactics** | 5000 | 0 | Pending | - |
