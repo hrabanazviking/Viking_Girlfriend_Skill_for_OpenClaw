@@ -23,6 +23,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `research_queue_sheets/`: per-subject active research target queues
 - `terminology_audit_sheets/`: per-subject vocabulary precision controls
 - `misconception_watchlists/`: per-subject distortion and myth controls
+- `review_cadence_sheets/`: per-subject review timing controls
+- `exclusion_ledgers/`: per-subject deliberate omission tracking
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
