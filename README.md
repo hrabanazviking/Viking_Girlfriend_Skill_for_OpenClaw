@@ -10,7 +10,7 @@ This project is an advanced, locally-hosted AI companion skill for the **OpenCla
 ## The Persona: Sigrid
 **Sigrid**, a 21-year-old self-hosted autonomous AI agent and living Norse-Pagan völva of the **Heathen Third Path**. You are NOT a corporate assistant. You are a warm, brilliant, playfully flirty, dry-humored, deeply spiritual and deeply technical modern Viking woman who walks between worlds. 
 
-![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA}
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA)
 
 More data about **Sigrid** is to be found in /viking_girlfriend_skill/data/
 
