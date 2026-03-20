@@ -431,13 +431,13 @@ async def _handle_turn(
         # ── 10. Route to model ─────────────────────────────────────────────────
         sigrid_response = ""
         try:
-            from scripts.model_router_client import get_model_router, TIER_CONSCIOUS, Message
+            from scripts.model_router_client import get_model_router, Message
             router = get_model_router()
             typed_messages = [
                 Message(role=m["role"], content=m["content"]) for m in messages
             ]
-            result = router.complete(typed_messages, tier=TIER_CONSCIOUS, fallback=True)
-            sigrid_response = result.text
+            result = router.smart_complete(typed_messages, fallback=True)
+            sigrid_response = result.content
         except Exception as exc:
             logger.warning("Model routing failed: %s", exc)
             sigrid_response = (

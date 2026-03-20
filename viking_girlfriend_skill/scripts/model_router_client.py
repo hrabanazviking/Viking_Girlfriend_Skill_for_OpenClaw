@@ -1,12 +1,19 @@
 """
-model_router_client.py — Sigrid's Three-Mind Model Router
-==========================================================
+model_router_client.py — Sigrid's Four-Mind Model Router
+=========================================================
 
-Adapted from local_providers.py and openrouter.py. Routes inference
-requests across three tiers defined in ``infrastructure/litellm_config.yaml``:
+Routes inference requests across four tiers defined in
+``infrastructure/litellm_config.yaml``:
 
   conscious-mind     Primary cloud model (Gemini / OpenRouter).
                      Used for: general conversation, reasoning, main responses.
+
+  code-mind          Coding-specialized cloud model (Deepseek-Coder /
+                     Codestral / Qwen2.5-Coder via OpenRouter).
+                     Used for: code generation, debugging, technical
+                     implementation requests. Auto-selected when
+                     CodingIntentDetector scores the request above the
+                     coding_intent_threshold.
 
   deep-mind          Secondary cloud model (OpenRouter / alternative).
                      Used for: complex tasks, deep emotional engagement,
@@ -19,16 +26,24 @@ requests across three tiers defined in ``infrastructure/litellm_config.yaml``:
 Routing flows through LiteLLM proxy (localhost:4000) for the cloud tiers.
 The subconscious tier talks to Ollama directly (localhost:11434).
 
-Graceful degradation chain: if conscious-mind fails → try deep-mind →
-try subconscious → return degraded CompletionResponse.
+``complete(tier, messages)`` routes to a specified tier.
+``smart_complete(messages)`` auto-detects coding vs. conversational intent
+and picks the best tier automatically. Use smart_complete() for the main
+conversational loop in main.py.
 
-Message and CompletionResponse are defined here cleanly (no cross-imports
-from other modules). All retry logic adapted from local_providers.py and
-openrouter.py (jittered backoff, circuit-breaker pattern).
+Fallback chains:
+  code-mind      → conscious-mind → deep-mind → subconscious
+  conscious-mind → deep-mind      → subconscious
+  deep-mind      → subconscious
+  subconscious   → (none)
 
-Norse framing: Huginn (thought) and Muninn (memory) fly to the three
-layers of Yggdrasil. The conscious mind speaks in the hall; the deep mind
-whispers in the mead; the subconscious dreams in the roots.
+All retry logic uses jittered exponential backoff. Circuit-breakers protect
+each LiteLLM tier independently.
+
+Norse framing: Huginn (thought) and Muninn (memory) fly to four branches
+of Yggdrasil. The conscious mind speaks in the hall; the code mind forges
+in Nidavellir — where the dwarves craft perfect things from raw ore; the
+deep mind whispers in the mead; the subconscious dreams in the roots.
 """
 
 from __future__ import annotations
@@ -36,6 +51,7 @@ from __future__ import annotations
 import json
 import logging
 import random
+import re
 import time
 import traceback
 from dataclasses import dataclass, field
@@ -49,9 +65,10 @@ logger = logging.getLogger(__name__)
 # ─── Tier names ───────────────────────────────────────────────────────────────
 
 TIER_CONSCIOUS: str = "conscious-mind"
+TIER_CODE: str = "code-mind"
 TIER_DEEP: str = "deep-mind"
 TIER_SUBCONSCIOUS: str = "subconscious"
-ALL_TIERS = (TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS)
+ALL_TIERS = (TIER_CONSCIOUS, TIER_CODE, TIER_DEEP, TIER_SUBCONSCIOUS)
 
 _DEFAULT_LITELLM_BASE: str = "http://localhost:4000"
 _DEFAULT_OLLAMA_BASE: str = "http://localhost:11434"
@@ -60,6 +77,7 @@ _DEFAULT_MAX_TOKENS: int = 2048
 _DEFAULT_TEMPERATURE: float = 0.8
 _DEFAULT_TIMEOUT: int = 120
 _DEFAULT_RETRIES: int = 3
+_DEFAULT_CODING_THRESHOLD: float = 0.30
 _CIRCUIT_FAILURE_THRESHOLD: int = 5
 _CIRCUIT_COOLDOWN_S: int = 60
 
@@ -85,10 +103,160 @@ class CompletionResponse:
     degraded: bool = False
     raw_response: Dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def text(self) -> str:
+        """Alias for content — convenience accessor."""
+        return self.content
+
 
 class ModelRouterError(Exception):
     """Raised when all tiers are exhausted or a hard error occurs."""
     pass
+
+
+# ─── Coding intent detector ───────────────────────────────────────────────────
+
+
+class _CodingIntentDetector:
+    """Scores a user message for coding intent on a 0.0–1.0 scale.
+
+    Signals and their weights:
+
+      Code fences    (```) in any message        0.55   — very strong
+      File extension (.py .js .ts .rs etc.)      0.30   — strong
+      Language names (python, javascript, …)     0.20   — strong
+      Error/debug    (error, traceback, bug, …)  0.30   — strong
+      Code keywords  (def, class, import, …)     0.15   — moderate
+      Action verbs   (implement, debug, fix, …)  0.15   — moderate
+      Tech nouns     (function, api, query, …)   0.08   — light
+
+    Scores from multiple signals accumulate and are clamped to 1.0.
+    All matching is case-insensitive against the combined text of user turns.
+    """
+
+    _CODE_FENCE = re.compile(r"```")
+
+    _FILE_EXTENSIONS = re.compile(
+        r"\b\w+\.(py|js|ts|tsx|jsx|rs|go|java|cpp|cc|cxx|cs|rb|php|sh|bash|"
+        r"sql|html|css|scss|yaml|yml|json|toml|lua|swift|kt|dart|r|m|f90)\b",
+        re.IGNORECASE,
+    )
+
+    _LANGUAGE_NAMES = re.compile(
+        r"\b(python|javascript|typescript|js|ts|rust|golang|golang\b|java|"
+        r"c\+\+|c#|csharp|ruby|php|bash|shell|powershell|sql|html|css|"
+        r"react|vue|angular|svelte|node|nodejs|django|flask|fastapi|"
+        r"postgres|postgresql|mysql|sqlite|mongodb|redis)\b",
+        re.IGNORECASE,
+    )
+
+    _ERROR_TERMS = re.compile(
+        # Standalone error words AND camelCase exception types (TypeError, AttributeError, etc.)
+        r"(\b\w*Error\b|\b\w*Exception\b|"
+        r"\b(traceback|stacktrace|stack\s*trace|"
+        r"bug|bugs|broken|crash|crashes|segfault|null\s*pointer|"
+        r"undefined|not\s+defined|syntax\s+error|type\s+error|"
+        r"attribute\s+error|import\s+error|module\s+not\s+found|"
+        r"unexpected\s+token|cannot\s+read\s+property|"
+        r"fails|failing|broken\s+code|not\s+working)\b)",
+        re.IGNORECASE,
+    )
+
+    _CODE_CONSTRUCTS = re.compile(
+        r"\b(def\s+\w|class\s+\w|function\s+\w|lambda|import\s+\w|"
+        r"from\s+\w+\s+import|require\(|export\s+(default\s+)?|"
+        r"const\s+\w|let\s+\w|var\s+\w|async\s+def|async\s+function|"
+        r"async/await|await\s+\w|return\s+\w|try:|except\s+\w|catch\s*\(|finally:|"
+        r"#include|namespace\s+\w|struct\s+\w|fn\s+\w|pub\s+fn|"
+        r"impl\s+\w|use\s+\w+::|mod\s+\w)\b",
+        re.IGNORECASE,
+    )
+
+    _ACTION_VERBS = re.compile(
+        r"\b(implement|implementing|implementation|"
+        r"debug|debugging|debugs|"
+        r"refactor|refactoring|"
+        r"optimize|optimise|optimizing|"
+        r"write\s+(me\s+a?|a|the|some|this|code|function|class|script)|"
+        r"create\s+(a\s+)?(function|class|script|module|api|endpoint|route)|"
+        r"build\s+(a\s+)?(function|class|script|tool|module|api)|"
+        r"fix\s+(this|the|my|a|the\s+bug|code|error|issue|problem)|"
+        r"code\s+(this|it|the|for)|"
+        r"generate\s+(code|a\s+function|a\s+class|a\s+script)|"
+        r"add\s+(a\s+)?(function|method|feature|class|test)|"
+        r"test\s+(this|the|my|a)|"
+        r"unit\s+test|integration\s+test)\b",
+        re.IGNORECASE,
+    )
+
+    _TECH_NOUNS = re.compile(
+        r"\b(function|method|class|module|package|library|framework|"
+        r"api|endpoint|route|controller|service|repository|"
+        r"database|query|schema|migration|index|table|"
+        r"algorithm|data\s*structure|loop|iterator|generator|"
+        r"variable|array|list|dict|dictionary|object|struct|"
+        r"decorator|middleware|plugin|hook|callback|"
+        r"dockerfile|container|pipeline|ci\/cd|deploy|"
+        r"regex|pattern|parse|serialize|deserialize)\b",
+        re.IGNORECASE,
+    )
+
+    def score(self, messages: List[Message]) -> float:
+        """Return a 0.0–1.0 coding intent score for the given messages."""
+        # Consider all user turns for context; weight the last one more heavily
+        user_texts = [m.content for m in messages if m.role == "user"]
+        if not user_texts:
+            return 0.0
+
+        last_text = user_texts[-1]
+        full_context = " ".join(user_texts)
+
+        score = 0.0
+
+        # Code fences — check full context (user may paste code across turns)
+        if self._CODE_FENCE.search(full_context):
+            score += 0.55
+
+        # File extension in the last user message — strong coding signal
+        if self._FILE_EXTENSIONS.search(last_text):
+            score += 0.30
+
+        # Language names — check last text primarily, context for extra boost
+        lang_in_last = bool(self._LANGUAGE_NAMES.search(last_text))
+        lang_in_ctx = bool(self._LANGUAGE_NAMES.search(full_context))
+        if lang_in_last:
+            score += 0.20
+        elif lang_in_ctx:
+            score += 0.08
+
+        # Error/debug terms in last text
+        if self._ERROR_TERMS.search(last_text):
+            score += 0.30
+
+        # Code constructs in last text (def, class, import, etc.)
+        if self._CODE_CONSTRUCTS.search(last_text):
+            score += 0.15
+
+        # Action verbs in last text
+        if self._ACTION_VERBS.search(last_text):
+            score += 0.15
+
+        # Tech nouns in last text
+        noun_matches = len(self._TECH_NOUNS.findall(last_text))
+        if noun_matches >= 2:
+            score += 0.08
+        elif noun_matches == 1:
+            score += 0.04
+
+        clamped = min(score, 1.0)
+        logger.debug(
+            "_CodingIntentDetector: raw=%.2f clamped=%.2f last=%r",
+            score, clamped, last_text[:60],
+        )
+        return clamped
+
+    def is_coding(self, messages: List[Message], threshold: float) -> bool:
+        return self.score(messages) >= threshold
 
 
 # ─── Retry helper ─────────────────────────────────────────────────────────────
@@ -351,10 +519,12 @@ class _OllamaTierClient:
 class RouterState:
     """Typed snapshot of model router health."""
 
-    tier_health: Dict[str, bool]    # tier → reachable?
+    tier_health: Dict[str, bool]     # tier → reachable?
     last_tier_used: str
     total_completions: int
     total_fallbacks: int
+    total_coding_completions: int    # completions routed through code-mind
+    last_intent_score: float         # most recent coding intent score (0–1)
     prompt_hint: str
     timestamp: str
     degraded: bool = False
@@ -365,6 +535,8 @@ class RouterState:
             "last_tier_used": self.last_tier_used,
             "total_completions": self.total_completions,
             "total_fallbacks": self.total_fallbacks,
+            "total_coding_completions": self.total_coding_completions,
+            "last_intent_score": round(self.last_intent_score, 3),
             "prompt_hint": self.prompt_hint,
             "timestamp": self.timestamp,
             "degraded": self.degraded,
@@ -375,10 +547,16 @@ class RouterState:
 
 
 class ModelRouterClient:
-    """Three-mind model router — routes inference across conscious, deep, and subconscious tiers.
+    """Four-mind model router — routes inference across conscious, code, deep, and subconscious tiers.
 
-    Call ``complete(tier, messages)`` to send a request. If the requested
-    tier fails the router attempts fallback tiers in degradation order.
+    Use ``complete(tier, messages)`` to route to a specific tier.
+    Use ``smart_complete(messages)`` to auto-detect coding vs. conversational
+    intent and route to the best tier automatically.
+
+    Fallback chains:
+      code-mind      → conscious-mind → deep-mind → subconscious
+      conscious-mind → deep-mind      → subconscious
+      deep-mind      → subconscious
     """
 
     def __init__(
@@ -390,9 +568,13 @@ class ModelRouterClient:
         temperature: float = _DEFAULT_TEMPERATURE,
         timeout: int = _DEFAULT_TIMEOUT,
         retries: int = _DEFAULT_RETRIES,
+        coding_intent_threshold: float = _DEFAULT_CODING_THRESHOLD,
     ) -> None:
         self._conscious = _LiteLLMTierClient(
             TIER_CONSCIOUS, litellm_base_url, max_tokens, temperature, timeout, retries,
+        )
+        self._code = _LiteLLMTierClient(
+            TIER_CODE, litellm_base_url, max_tokens, temperature, timeout, retries,
         )
         self._deep = _LiteLLMTierClient(
             TIER_DEEP, litellm_base_url, max_tokens, temperature, timeout, retries,
@@ -401,15 +583,45 @@ class ModelRouterClient:
             ollama_base_url, ollama_model, max_tokens, temperature, timeout, retries,
         )
         self._tier_clients: Dict[str, Any] = {
-            TIER_CONSCIOUS: self._conscious,
-            TIER_DEEP: self._deep,
+            TIER_CONSCIOUS:    self._conscious,
+            TIER_CODE:         self._code,
+            TIER_DEEP:         self._deep,
             TIER_SUBCONSCIOUS: self._subconscious,
         }
+        self._detector = _CodingIntentDetector()
+        self._coding_intent_threshold = coding_intent_threshold
+
         self._last_tier: str = ""
+        self._last_intent_score: float = 0.0
         self._total_completions: int = 0
         self._total_fallbacks: int = 0
+        self._total_coding_completions: int = 0
 
     # ── Public API ────────────────────────────────────────────────────────────
+
+    def smart_complete(
+        self,
+        messages: List[Message],
+        fallback: bool = True,
+        **kwargs: Any,
+    ) -> CompletionResponse:
+        """Auto-detect intent and route to the best tier.
+
+        Scores the user messages with ``_CodingIntentDetector``:
+          score ≥ coding_intent_threshold → route to code-mind
+          score  < coding_intent_threshold → route to conscious-mind
+
+        Logs the detected intent and chosen tier. Falls back through
+        the degradation chain if the primary tier fails.
+        """
+        score = self._detector.score(messages)
+        self._last_intent_score = score
+        chosen_tier = TIER_CODE if score >= self._coding_intent_threshold else TIER_CONSCIOUS
+        logger.info(
+            "smart_complete: intent_score=%.2f threshold=%.2f → tier=%s",
+            score, self._coding_intent_threshold, chosen_tier,
+        )
+        return self.complete(messages, tier=chosen_tier, fallback=fallback, **kwargs)
 
     def complete(
         self,
@@ -421,14 +633,13 @@ class ModelRouterClient:
         """Route a completion request to the specified tier.
 
         If ``fallback=True`` and the requested tier fails, attempts the
-        degradation chain: conscious → deep → subconscious.
-        Returns a degraded CompletionResponse if all tiers fail.
+        degradation chain for that tier. Returns a degraded CompletionResponse
+        if all tiers in the chain are exhausted.
         """
         if tier not in ALL_TIERS:
             logger.warning("ModelRouterClient: unknown tier '%s' — defaulting to conscious-mind.", tier)
             tier = TIER_CONSCIOUS
 
-        # Build fallback sequence starting from requested tier
         tier_order = self._fallback_chain(tier) if fallback else [tier]
 
         for attempt_tier in tier_order:
@@ -437,6 +648,8 @@ class ModelRouterClient:
                 response = client.complete(messages, **kwargs)
                 self._last_tier = attempt_tier
                 self._total_completions += 1
+                if attempt_tier == TIER_CODE or tier == TIER_CODE:
+                    self._total_coding_completions += 1
                 if attempt_tier != tier:
                     self._total_fallbacks += 1
                     logger.info(
@@ -461,6 +674,15 @@ class ModelRouterClient:
             degraded=True,
         )
 
+    def detect_coding_intent(self, messages: List[Message]) -> tuple[float, bool]:
+        """Return ``(score, is_coding)`` for the given messages.
+
+        Useful for diagnostics and for callers that want to inspect the
+        intent decision before committing to a completion call.
+        """
+        score = self._detector.score(messages)
+        return score, score >= self._coding_intent_threshold
+
     def health_check(self) -> Dict[str, bool]:
         """Check reachability of all tiers. Returns {tier: bool}."""
         return {tier: self._tier_clients[tier].check_health() for tier in ALL_TIERS}
@@ -468,23 +690,30 @@ class ModelRouterClient:
     # ── State bus integration ─────────────────────────────────────────────────
 
     def get_state(self) -> RouterState:
-        """Build a typed RouterState snapshot (no health pings — uses cached failure state)."""
+        """Build a typed RouterState snapshot (no live health pings — uses cached failure state)."""
         tier_health = {
             TIER_CONSCIOUS:    self._conscious._failures < _CIRCUIT_FAILURE_THRESHOLD,
+            TIER_CODE:         self._code._failures < _CIRCUIT_FAILURE_THRESHOLD,
             TIER_DEEP:         self._deep._failures < _CIRCUIT_FAILURE_THRESHOLD,
             TIER_SUBCONSCIOUS: self._subconscious._failures < 5,
         }
         any_degraded = not any(tier_health.values())
+        intent_label = (
+            f"code({self._last_intent_score:.2f})"
+            if self._last_intent_score >= self._coding_intent_threshold
+            else f"convo({self._last_intent_score:.2f})"
+        )
         prompt_hint = (
-            f"[Router: {self._last_tier or 'idle'}, "
-            f"completions={self._total_completions}, "
-            f"fallbacks={self._total_fallbacks}]"
+            f"[Router: last={self._last_tier or 'idle'}, intent={intent_label}, "
+            f"completions={self._total_completions}, fallbacks={self._total_fallbacks}]"
         )
         return RouterState(
             tier_health=tier_health,
             last_tier_used=self._last_tier,
             total_completions=self._total_completions,
             total_fallbacks=self._total_fallbacks,
+            total_coding_completions=self._total_coding_completions,
+            last_intent_score=self._last_intent_score,
             prompt_hint=prompt_hint,
             timestamp=datetime.now(timezone.utc).isoformat(),
             degraded=any_degraded,
@@ -506,13 +735,20 @@ class ModelRouterClient:
     # ── Internals ─────────────────────────────────────────────────────────────
 
     def _fallback_chain(self, starting_tier: str) -> List[str]:
-        """Return the degradation chain starting from the requested tier."""
-        full_chain = [TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS]
-        try:
-            start_idx = full_chain.index(starting_tier)
-        except ValueError:
-            start_idx = 0
-        return full_chain[start_idx:]
+        """Return the degradation chain starting from the requested tier.
+
+        code-mind      → conscious-mind → deep-mind → subconscious
+        conscious-mind → deep-mind      → subconscious
+        deep-mind      → subconscious
+        subconscious   → (only itself)
+        """
+        chains: Dict[str, List[str]] = {
+            TIER_CODE:         [TIER_CODE, TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS],
+            TIER_CONSCIOUS:    [TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS],
+            TIER_DEEP:         [TIER_DEEP, TIER_SUBCONSCIOUS],
+            TIER_SUBCONSCIOUS: [TIER_SUBCONSCIOUS],
+        }
+        return chains.get(starting_tier, [TIER_CONSCIOUS, TIER_DEEP, TIER_SUBCONSCIOUS])
 
     # ── Factory ───────────────────────────────────────────────────────────────
 
@@ -520,14 +756,16 @@ class ModelRouterClient:
     def from_config(cls, config: Dict[str, Any]) -> "ModelRouterClient":
         """Construct from a config dict.
 
-        Reads keys under ``model_router``:
-          litellm_base_url  (str,   default "http://localhost:4000")
-          ollama_base_url   (str,   default "http://localhost:11434")
-          ollama_model      (str,   default "llama3")
-          max_tokens        (int,   default 2048)
-          temperature       (float, default 0.8)
-          timeout           (int,   default 120)
-          retries           (int,   default 3)
+        Reads keys under ``model_router``::
+
+          litellm_base_url          (str,   default "http://localhost:4000")
+          ollama_base_url           (str,   default "http://localhost:11434")
+          ollama_model              (str,   default "llama3")
+          max_tokens                (int,   default 2048)
+          temperature               (float, default 0.8)
+          timeout                   (int,   default 120)
+          retries                   (int,   default 3)
+          coding_intent_threshold   (float, default 0.4)
         """
         cfg: Dict[str, Any] = config.get("model_router", {})
         return cls(
@@ -538,6 +776,9 @@ class ModelRouterClient:
             temperature=float(cfg.get("temperature", _DEFAULT_TEMPERATURE)),
             timeout=int(cfg.get("timeout", _DEFAULT_TIMEOUT)),
             retries=int(cfg.get("retries", _DEFAULT_RETRIES)),
+            coding_intent_threshold=float(
+                cfg.get("coding_intent_threshold", _DEFAULT_CODING_THRESHOLD)
+            ),
         )
 
 
@@ -551,7 +792,10 @@ def init_model_router_from_config(config: Dict[str, Any]) -> ModelRouterClient:
     global _MODEL_ROUTER
     if _MODEL_ROUTER is None:
         _MODEL_ROUTER = ModelRouterClient.from_config(config)
-        logger.info("ModelRouterClient initialised.")
+        logger.info(
+            "ModelRouterClient initialised (coding_threshold=%.2f).",
+            _MODEL_ROUTER._coding_intent_threshold,
+        )
     return _MODEL_ROUTER
 
 
