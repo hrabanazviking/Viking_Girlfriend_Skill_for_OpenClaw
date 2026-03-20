@@ -63,7 +63,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 | 15 | `scheduler.py` | ✅ DONE | Real wall-clock time-of-day + APScheduler background jobs |
 | 16 | `project_generator.py` | ✅ DONE | Persistent JSON initiative tracker; add/update/note/list |
 | 17 | `environment_mapper.py` | ✅ DONE | Loads environment.json; area/place keys; rooms fix applied |
-| 18 | `prompt_synthesizer.py` | ⏳ PENDING | Module 16, loads prompt_templates/ |
+| 18 | `prompt_synthesizer.py` | ✅ DONE | Loads core_identity.md + SOUL.md; assembles system prompt from state hints; token budgets |
 | — | `model_router_client.py` | ✅ DONE | Three-tier LiteLLM + Ollama router; circuit-breaker; fallback chain |
 
 ### Phase 5 — Launch (Track E)
@@ -81,7 +81,7 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 2. ~~**Write** `project_generator.py`~~ ✅ DONE (2026-03-20)
 3. ~~**Write** `environment_mapper.py`~~ ✅ DONE (2026-03-20)
 4. ~~**Write** `model_router_client.py`~~ ✅ DONE (2026-03-20)
-5. **Write** `prompt_synthesizer.py` — reads all module states → assembles system prompt → returns `List[Message]`
+5. ~~**Write** `prompt_synthesizer.py`~~ ✅ DONE (2026-03-20)
 6. **Phase 5**: integrate all modules in `main.py`, E2E validation, launch calibration
 
 ---
