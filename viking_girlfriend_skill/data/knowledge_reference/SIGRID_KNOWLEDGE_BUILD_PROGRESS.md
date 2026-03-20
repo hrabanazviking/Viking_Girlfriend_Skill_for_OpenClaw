@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: batch-execution and claim-validation planning expansion
+- Current phase: citation-tracking and coverage-review planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -34,6 +34,8 @@
 - Uniqueness maps now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/uniqueness_maps/`.
 - Batch execution worksheets now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_execution_worksheets/`.
 - Claim validation logs now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/claim_validation_logs/`.
+- Citation tracking sheets now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/citation_tracking_sheets/`.
+- Coverage review dashboards now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/coverage_review_dashboards/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -118,4 +120,5 @@
 - Use source class matrices and batch audit templates during every validated batch before entries are accepted.
 - Use deduplication ledgers and uniqueness maps during every batch to block same-information-different-wording repetition.
 - Use batch execution worksheets and claim validation logs to control live manual drafting and verification during each 500-entry batch.
+- Use citation tracking sheets and coverage review dashboards to keep sourcing defensible and coverage balanced across all 5000 entries.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.

@@ -13,6 +13,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `uniqueness_maps/`: per-subject distinction maps for adjacent concepts
 - `batch_execution_worksheets/`: per-subject batch execution control sheets
 - `claim_validation_logs/`: per-subject hard-claim validation tracking
+- `citation_tracking_sheets/`: per-subject source citation tracking
+- `coverage_review_dashboards/`: per-subject coverage balance review
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
