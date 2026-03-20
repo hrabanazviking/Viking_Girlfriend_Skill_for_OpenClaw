@@ -19,6 +19,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `entry_status_boards/`: per-subject live entry progress boards
 - `source_gap_trackers/`: per-subject weak-source gap tracking
 - `adjacency_overlap_maps/`: per-subject neighboring-domain overlap maps
+- `batch_sequencing_plans/`: per-subject ten-batch ordering plans
+- `research_queue_sheets/`: per-subject active research target queues
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note

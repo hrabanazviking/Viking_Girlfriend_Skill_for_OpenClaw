@@ -6,7 +6,7 @@
 - Total subjects in scope: 72
 - Subject files initialized: 72
 - Subject files complete: 0
-- Current phase: source-gap and adjacency-overlap planning expansion
+- Current phase: batch-sequencing and research-queue planning expansion
 - Latest quality pass status: not started
 - Latest git commit hash: pending
 - Latest push confirmation: pending
@@ -40,6 +40,8 @@
 - Entry status boards now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/entry_status_boards/`.
 - Source gap trackers now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/source_gap_trackers/`.
 - Adjacency overlap maps now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/adjacency_overlap_maps/`.
+- Batch sequencing plans now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/batch_sequencing_plans/`.
+- Research queue sheets now exist for all 72 subjects under `implementation_blueprints/sigrid_knowledge_build/research_queue_sheets/`.
 
 ## Subject Intake Ledger
 | # | Subject | Filename | Current entry count | Current subdomain | Verified | Remaining | Quality pass |
@@ -127,4 +129,5 @@
 - Use citation tracking sheets and coverage review dashboards to keep sourcing defensible and coverage balanced across all 5000 entries.
 - Use dispute registers and entry status boards to track contested material honestly and maintain visible batch progress truthfully.
 - Use source gap trackers and adjacency overlap maps to prevent weak sourcing and subject-boundary collapse during manual drafting.
+- Use batch sequencing plans and research queue sheets to order manual work and keep unresolved research needs explicit before drafting proceeds.
 - Track every meaningful milestone here with exact counts, quality status, commit hash, and push confirmation.
