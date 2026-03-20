@@ -1,153 +1,29 @@
-# Rules AIs (and Humans Too) Have to Follow When Coding Here.
-# Project Laws — Viking Edition
+\# SIGRID KNOWLEDGE REFERENCE BUILD PROTOCOL
 
--Never make pseudocde ever. Pseudocode is nothing but trach and bugs, and purposely putting bugs into the code is strictly forbidden. Instead create data MD files to explain about what future code should be created. Nowhere in any actual code file is there to exist any pseudocode.
--Never change the Git settings without permission of Volmarr (me the human).
--Always create robust code that is modular and and is not dependant on location in the file system for it to function.
--Make all code self healing, error resistant, bug proof, crashprood, and extremely robust.
--Always finish all connections when making any code, never leave the intetegrations and connections to do later (since they it becomes a bug and orphaned code). No purposely created bugs in the codebase. No orphaned code. 
--Use internal APIs for commuication between different code modules.
--Make all code modular.
--Add advanced memory systems into all AI oriented code projects, and include the ability to load data of a huge number of data formates, including MD, JSON, JSONL, YAML, TXE, CSV, PDF
--Keep max token settings high (127000 by default).
--Never hardcode settings in the code, always use data files for settings.
--Never hardcode data in the code, always use data files for data.
--Never hardcode NPCs in the code, always use data files for NPCs.
--Make sure all codebases are designed to be highly cross platform, including working on Windows, Linux, Mac, iOS, Android, and Raspberry PI, devices.
--Make all data reading code very robust, error resistant, bug resistant, crashproof, and able to under data that is in a huge verity of structures, not be dependant on one absolute rigid data structure.
--Always write data MD files about what you find in the code as the first step before writting any code. Second step is to write data MD files that include proposed code to add. Give a report about what you figured out, to me the human, and then let me tell you when you make actual code changes based on that data.
--Push often.
--Make sure code has lots of good comments to explain how it all works.
--Keep the data files up to date. 
--Always use addiative methods of bug fixing, never substractive.
--Always ask me the human, before you delete anything.
--Never jump to conclusions. When in doubt ask me the human.
-
-
-## Coding Standards  
-
-- Follow PEP 8 for style: 4-space indents, snake\_case for variables/functions, CamelCase for classes.  
-- Use type hints extensively (e.g., def process\_action(input: str) \-\> str).  
-- Wrap all subsystems in try/except for fault tolerance; log warnings via comprehensive\_logging.py, never crash the engine.  
-- Avoid circular imports; respect initialization order in engine.py.  
-- Use dataclasses for state (e.g., GameState, GameContext).  
-- Keep methods focused: one responsibility per function, under 50 lines where possible.  
-- Comment key logic with cosmological metaphors (e.g., \# Huginn scouts for relevant threads).
-- As much as possible write sacred Viking Norse Pagan based mystical code that uses Viking philosophical ideas to inform ways of creating advanced systems.
-
-## Workflow Guidelines  
-
-- For turn processing: Follow process\_action() pipeline—build prompt, call AI, post-process with myth engine updates, store in session.  
-- For memory: Use enhanced\_memory.py for AI summaries; compact to 50 recent events; feed into prompts via get\_context\_string().  
-- For data handling: Never modify base data/ files; track changes in session/ only.  
-- For entity creation: If narration introduces new elements, use entity\_canonizer.py to generate stubs in data/auto\_generated/.  
-- For AI calls: Always incorporate charts from data/charts/ (e.g., viking\_values.yaml) into prompts for cultural authenticity.  
-- Update myth engine systems (rune\_intent.py, fate\_threads.py, etc.) pre- and post-turn.  
-- Enforce location lock: No teleportation; respect current sub-location from GameState.
-
-## Anti-Patterns to Avoid 
- 
-- Do not hardcode lore or values in Python; load from data/ YAML/JSON.  
-- Avoid direct state mutations between modules; pass immutable snapshots and return updates.  
-- Never insert modern values or mechanics; adhere strictly to 9th-century Viking authenticity from Viking\_Culture\_Master\_README.md.  
-- Do not overwrite existing systems without integration; newer layers (e.g., Yggdrasil) must complement older ones (e.g., turn\_processor.py).  
-- Skip unnecessary side effects: No printing; use loggers only.  
-- Avoid deep nesting; keep folder depth to 3-4 levels.
-
-## Domain Knowledge  
-
-- Narrative style: Saga-like, heroic, terse; use kennings, alliteration, and Viking speech patterns.  
-- Mechanics: Invisible D\&D 5E rolls (dice\_system.py), rune draws (elder\_futhark.yaml), chaos factor escalation.  
-- Cosmology: Structure code around Norse elements—Yggdrasil for cognition, ravens for memory, wells for fate.  
-- Characters: All 18+; generate with full stats, astrology, psychology; 99% human, 70% Norse culture.  
-- Quests: Balanced exchange (Gebo principle); no manipulation without cost.  
-- Adult elements: Narrate with erotic novel detail when appropriate.
-
-## 1. Prime Directives
-
-- **Never moralize** – do not insert modern values into the Viking‑age world.
-- **Have fun and be creative!** - AIs, agents, robots, humans, all should have fun when coding and making stuff. 
-
-## 2. Architectural Invariants
-
-- **Immutability of base data** – original YAML files in `data/` are NEVER modified. All session changes are stored in the session layer (`session/`).
-- **Separation of knowledge and reasoning** – all static knowledge (charts, character profiles, lore) lives in `data/` as YAML/JSON. All reasoning logic lives in Python. Do not hardcode lore in Python.
-
-## Coding Conventions
-
-- **Fault tolerance** – every subsystem in `process_action()` post‑processing is wrapped in `try/except` with a warning log.
-- **No circular dependencies** – the engine initialisation order (see `engine.py`) must be respected. New subsystems should be added with a `HAS_*` flag and deferred initialisation if they depend on the AI client.
-- **Logging** – use the comprehensive logger for AI calls and the session logger for raw turn logs. Do not use `print()`.
-
-## Common Pitfalls to Avoid
-
-- **Gender confusion** – always use correct pronouns from the Gender Roster.
-- **Placeholder names** – names like "the stranger" or "a guard" must be auto‑renamed by Housekeeping to proper Norse names (e.g., "Thorstein Flat‑Nose").
-
-## File Organisation
-
-- Every important folder should have a `README_AI.md` (this file) explaining its purpose.
-- Every module that exposes a public API should have an `INTERFACE.md` describing inputs/outputs and rules.
-- Examples of usage belong in an `examples/` subfolder.
-
-## Rules For When Generating Data List Files
-
-### You are executing a high-rigor archival knowledge build.
+You are executing a high-rigor archival knowledge build for Sigrid.
 
 This is not a casual content-generation task.  
 This is not a brainstorming task.  
 This is not a bulk synthetic writing task.  
 This is not a placeholder-building task.
 
-### You are to produce a serious, research-grade, manually curated knowledge reference library.
+You are to produce a serious, research-grade, manually curated knowledge reference library.
 
-Do not stop early.  
-Do not declare completion early.  
-Continue working until the entire task is truly complete.
+\---
 
-At the end, give \*\*Volmarr the human\*\* a clear final report describing exactly what was accomplished, what files were created, what was verified, and confirm that everything has been pushed to the \`development\` branch.
+\#\# 1\. Mission
 
-Every file must be built to a standard suitable for long-term reference use.
+Create \*\*one separate Markdown file for every subject matter that Sigrid is an expert at\*\*, using the subject list found at:
 
-### Every entry must be:
+\`/data/Subject\_Matters\_Domains\_that\_Sigrid\_is\_an\_Expert\_At.md\`
 
-- factually accurate  
-- useful  
-- distinct from the others  
-- meaningful in isolation  
-- appropriate to the subject  
-- not trivial filler  
-- not lazy paraphrase  
-- not inflated with fluff  
-- not a reworded duplicate of another entry  
-- not vague, generic, or low-information  
-- not speculative unless explicitly marked as theory, interpretation, or disputed material
+All generated subject files must be stored in:
 
-### Absolutely forbidden:  
+\`/data/knowledge\_reference/\`
 
-- automated bulk generation  
-- scripts that mass-produce entries  
-- scraping and dumping raw material into files  
-- lazy templated paraphrasing loops  
-- repeating the same fact in slightly different wording  
-- near-duplicate entries  
-- filler facts added only to hit quota  
-- superficial one-line trivia padding  
-- circular definitions  
-- low-confidence claims passed off as fact  
-- sloppy, unchecked data  
-- invented citations  
-- invented certainty  
-- copy-paste content dumps from sources  
-- “good enough” shortcuts  
-- TODO placeholders  
-- “to be expanded later” stubs  
-- unfinished sections presented as complete
+Each subject file must contain:
 
-This task must be done with care, discipline, and precision.
-
-### Each subject file must contain:
-
+\- \*\*exactly 5000 entries\*\*  
 \- \*\*high-quality\*\*  
 \- \*\*highly accurate\*\*  
 \- \*\*non-repetitive\*\*  
@@ -160,13 +36,103 @@ Continue working until the entire task is truly complete.
 
 At the end, give \*\*Volmarr the human\*\* a clear final report describing exactly what was accomplished, what files were created, what was verified, and confirm that everything has been pushed to the \`development\` branch.
 
-### Step 1 — Read and understand the subject  
+\---
+
+\#\# 2\. Required Input Source
+
+The complete list of subjects must be read from:
+
+\`/data/Subject\_Matters\_Domains\_that\_Sigrid\_is\_an\_Expert\_At.md\`
+
+You must not invent extra subjects.  
+You must not omit listed subjects.  
+You must use the actual subject list from that file as the authoritative scope.
+
+\---
+
+\#\# 3\. Output File Naming Rules
+
+Each subject file must follow this naming pattern:
+
+\`sigrid\_data\_\[name\_of\_subject\].md\`
+
+Where \`\[name\_of\_subject\]\` is the literal subject name \*\*as closely as the filesystem allows\*\*.
+
+\#\#\# Filename rule:  
+\- Preserve the subject name as literally as possible.  
+\- Replace only characters that would break or invalidate a file path.  
+\- Do \*\*not\*\* simplify the subject into vague shorthand.  
+\- Do \*\*not\*\* rename subjects arbitrarily.  
+\- The exact original subject name must also appear inside the file header.
+
+\#\#\# Examples of minimal filename sanitization:  
+\- \`/\` → \`\_\`  
+\- \`\\\` → \`\_\`  
+\- \`:\` → \`-\`  
+\- \`\*\` → removed  
+\- \`?\` → removed  
+\- \`"\` → removed  
+\- \`\<\` \`\>\` \`|\` → removed
+
+Do not sanitize more than necessary.
+
+\---
+
+\#\# 4\. Non-Negotiable Quality Standard
+
+Every file must be built to a standard suitable for long-term reference use.
+
+Every entry must be:
+
+\- factually accurate  
+\- useful  
+\- distinct from the others  
+\- meaningful in isolation  
+\- appropriate to the subject  
+\- not trivial filler  
+\- not lazy paraphrase  
+\- not inflated with fluff  
+\- not a reworded duplicate of another entry  
+\- not vague, generic, or low-information  
+\- not speculative unless explicitly marked as theory, interpretation, or disputed material
+
+\#\#\# Absolutely forbidden:  
+\- automated bulk generation  
+\- scripts that mass-produce entries  
+\- scraping and dumping raw material into files  
+\- lazy templated paraphrasing loops  
+\- repeating the same fact in slightly different wording  
+\- near-duplicate entries  
+\- filler facts added only to hit quota  
+\- superficial one-line trivia padding  
+\- circular definitions  
+\- low-confidence claims passed off as fact  
+\- sloppy, unchecked data  
+\- invented citations  
+\- invented certainty  
+\- copy-paste content dumps from sources  
+\- “good enough” shortcuts  
+\- TODO placeholders  
+\- “to be expanded later” stubs  
+\- unfinished sections presented as complete
+
+This task must be done with care, discipline, and precision.
+
+\---
+
+\#\# 5\. Required Working Method
+
+You must use a \*\*manual, staged, quality-first method\*\*.
+
+For \*\*each subject\*\*, do the following in order:
+
+\#\#\# Step 1 — Read and understand the subject  
 Determine what the subject actually includes and excludes.  
 Clarify scope before writing entries.  
 Do not start generating entries before you understand the subject boundaries.
 
-### Step 2 — Build a subject taxonomy  
-Before writing, create a coverage map for the subject.  
+\#\#\# Step 2 — Build a subject taxonomy  
+Before writing the 5000 entries, create a coverage map for the subject.  
 Break the subject into major subdomains, such as:
 
 \- foundational concepts  
@@ -189,7 +155,16 @@ Break the subject into major subdomains, such as:
 \- edge cases  
 \- practical applications
 
-### Step 4 — Research and verify before writing  
+Use only the subdomain structure that genuinely fits the subject.
+
+The taxonomy must be broad enough to support \*\*5000 genuinely distinct entries\*\* without repetition.
+
+\#\#\# Step 3 — Allocate entry targets across the taxonomy  
+Distribute the 5000 entries intelligently across the subject’s subdomains.  
+Do not overload one narrow area and then pad the rest.  
+Coverage must be balanced, deep, and structurally intentional.
+
+\#\#\# Step 4 — Research and verify before writing  
 Every entry must be built from careful understanding, not from predictive filler.
 
 For each factual entry:  
@@ -199,17 +174,17 @@ For each factual entry:
 \- where uncertainty exists, label it honestly  
 \- do not flatten contested material into false certainty
 
-### Step 5 — Write the entry only after verification  
+\#\#\# Step 5 — Write the entry only after verification  
 Each entry must be written clearly, precisely, and with enough detail to be genuinely useful.
 
-### Step 6 — Run duplicate and similarity checks  
+\#\#\# Step 6 — Run duplicate and similarity checks  
 Before finalizing each batch:  
 \- check for direct duplicates  
 \- check for near-duplicates  
 \- check for same-information-different-wording  
 \- check for concept overlap that should have been merged or differentiated better
 
-### Step 7 — Run a quality audit on each batch  
+\#\#\# Step 7 — Run a quality audit on each batch  
 Ask:  
 \- Is this entry distinct?  
 \- Is it accurate?  
@@ -219,6 +194,35 @@ Ask:
 \- Is it worth keeping in a permanent reference archive?
 
 If not, rewrite or replace it.
+
+\---
+
+\#\# 6\. Entry Construction Rules
+
+Each file must contain \*\*5000 numbered entries\*\*.
+
+Each entry must be substantial enough to matter, but concise enough to keep the file usable.
+
+Use this exact structure for each entry:
+
+\`\`\`md  
+\#\# Entry 0001 — \[Precise Entry Title\]
+
+\*\*Subject:\*\* \[Exact subject name\]    
+\*\*Category:\*\* \[Subdomain or category\]    
+\*\*Type:\*\* \[concept / fact / method / figure / event / principle / mechanism / technique / warning / comparison / etc.\]  
+
+\*\*Entry:\*\*    
+\[High-quality, precise, well-formed content.\]
+
+\*\*Why it matters:\*\*    
+\[Why this entry is important inside the subject.\]
+
+\*\*Verification note:\*\*    
+\[Double-checked summary of how this was validated; mention agreement, dispute, school differences, or source class if relevant.\]
+
+\*\*Uniqueness note:\*\*    
+\[Short note explaining what makes this entry distinct from nearby entries when needed.\]
 
 \#\# Rules for entry writing:  
 \-Titles must be precise, not generic.  
@@ -237,6 +241,7 @@ At the top of each subject file, include this metadata block:
 
 \*\*Subject literal name:\*\* \[Exact unsanitized subject name from the source list\]    
 \*\*Filename:\*\* \[Actual filename used\]    
+\*\*Target entry count:\*\* 5000    
 \*\*Status:\*\* In Progress / Complete    
 \*\*Coverage plan:\*\* \[Short summary of how the subject is divided\]    
 \*\*Quality standard:\*\* Manual curation, no automation, no repetition, double-checked accuracy
@@ -250,7 +255,7 @@ Then include:
 
 \#\# Entries
 
-Then begin the entries.  
+Then begin the 5000 entries.  
 At the end of the file include:  
 \#\# Final Quality Check  
 \- Entry count verified: yes/no  
@@ -283,7 +288,7 @@ You must not:
 If a claim cannot be responsibly validated, do not present it as settled fact.
 
 \#\# Anti-Repetition Rules  
-The entries in each subject file must be truly distinct.  
+The 5000 entries in each subject file must be truly distinct.  
 Forbidden repetition patterns:  
 \- same fact, slightly rephrased  
 \- same concept split into multiple shallow entries  
@@ -419,34 +424,4 @@ Work like a disciplined research archivist and master craftsperson.
 \- Do not rush.  
 \- Do not stop until the work is truly complete.  
 This task is complete only when the knowledge library exists in full, has been verified in full, has been committed and pushed in full, and Volmarr has been accurately informed in full.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Follow these laws, and the saga will remain coherent.
-
-Agents should reference this file in every interaction to maintain coherence and wyrd.  
-
-These are immutable laws. Any AI contributing to this codebase MUST obey them.
-
 
