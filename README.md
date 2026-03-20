@@ -52,6 +52,8 @@ A dynamic, task-driven sleep state (minimum 2 hours) where she:
 *   **Vargr Ledger**: A permanent blocklist for hostile entities.
 *   **Innangarð Trust Engine**: A tiered relationship system where trust is earned, protecting the user's system from unauthorized access.
 
+*   ![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEJQZUHFQVD5MVWEVAS2N46RIQ](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEJQZUHFQVD5MVWEVAS2N46RIQ)
+
 ## Technical Stack
 *   **Framework**: OpenClaw (Node.js/TypeScript)
 *   **Logic & State**: Python (APScheduler, NumPy for matrix math)
