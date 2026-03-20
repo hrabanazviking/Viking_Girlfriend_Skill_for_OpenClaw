@@ -25,18 +25,20 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 
 ## Implementation Progress Tracker
 
-### Phase 1 — Foundation (Tracks A)
+### Phase 1 — Foundation (Tracks A) — ✅ COMPLETE (2026-03-20)
 | Step | Module | Status | Notes |
 |------|--------|--------|-------|
 | 01 | System Prep / Dependencies | ✅ DONE | Windows 11 env fully set up |
-| 02 | Container Deploy | ⏳ PENDING | Need Docker Desktop or direct run (no Podman on Win) |
-| 03 | Local Model Provision | ⏳ PENDING | Ollama installed; need to pull llama3 8B |
-| 04 | Skill Manifest (SKILL.md) | ⏳ PENDING | OpenClaw skill registration |
-| 05 | Core Python Scaffolding | ⏳ PENDING | `scripts/` dir, `main.py`, `requirements.txt` |
-| — | `runtime_kernel.py` | ⏳ PENDING | Module 01 |
-| — | `state_bus.py` | ⏳ PENDING | Module 02, adopts bus/ |
-| — | `config_loader.py` | ⏳ PENDING | Module 03 |
-| — | `comprehensive_logging.py` | ⏳ PENDING | Module 04, direct adopt |
+| 02 | Container Deploy | ⏸ DEFERRED | No Podman on Win; deploy on Linux laptop later |
+| 03 | Local Model Provision | ⏸ DEFERRED | Ollama app installed; pull llama3 when on Linux |
+| 04 | Skill Manifest (SKILL.md) | ✅ DONE | viking_girlfriend_skill/SKILL.md created |
+| 05 | Core Python Scaffolding | ✅ DONE | scripts/ dir, main.py, requirements.txt all created |
+| — | `crash_reporting.py` | ✅ DONE | Adopted + adapted from borrowed code |
+| — | `comprehensive_logging.py` | ✅ DONE | Adopted + adapted (InteractionLog replaces TurnLog) |
+| — | `config_loader.py` | ✅ DONE | New — JSON/JSONL/YAML/MD/TXT/CSV/PDF loader |
+| — | `state_bus.py` | ✅ DONE | Adopted from bus/ — InboundEvent, OutboundEvent, StateEvent |
+| — | `runtime_kernel.py` | ✅ DONE | New — lifecycle, heartbeat, module registry |
+| — | `main.py` | ✅ DONE | Entry point, async runtime loop |
 
 ### Phase 2 — State Machines (Track B)
 | Step | Module | Status | Notes |
@@ -73,16 +75,17 @@ Full Python implementation of the Ørlög Architecture skill for OpenClaw.
 
 ---
 
-## Immediate Next Steps
+## Immediate Next Steps — Phase 2: State Machines
 
-1. **Read** `implementation_blueprints/module_specs/module_01_runtime_kernel.md`
-2. **Read** `implementation_blueprints/module_specs/module_02_state_bus.md`
-3. **Read** `implementation_blueprints/module_specs/module_03_config_loader.md`
-4. **Read** `code_of_other_apps_that_can_be_adopted/comprehensive_logging.py` (full)
-5. **Write** planning report for Phase 1 scaffolding
-6. **Create** `viking_girlfriend_skill/scripts/` directory structure
-7. **Create** `viking_girlfriend_skill/SKILL.md` for OpenClaw registration
-8. **Write** `requirements.txt`
+1. **Read** `code_of_other_apps_that_can_be_adopted/menstrual_cycle.py` (full — adopt → bio_engine.py)
+2. **Read** `code_of_other_apps_that_can_be_adopted/wyrd_system.py` (full — adopt → wyrd_matrix.py)
+3. **Read** `code_of_other_apps_that_can_be_adopted/emotional_engine.py` (full — adopt → wyrd_matrix.py)
+4. **Read** `code_of_other_apps_that_can_be_adopted/soul_mechanics.py` (adopt → wyrd_matrix.py)
+5. **Read** `code_of_other_apps_that_can_be_adopted/stress_system.py` (adopt → wyrd_matrix.py)
+6. **Write** `scripts/bio_engine.py` — 28-day cycle + biorhythm sine waves
+7. **Write** `scripts/wyrd_matrix.py` — PAD model 3D emotional vector
+8. **Write** `scripts/oracle.py` — daily deterministic Rune/Tarot/I Ching seed
+9. **Write** `scripts/metabolism.py` — psutil hardware → somatic sensations
 
 ---
 
