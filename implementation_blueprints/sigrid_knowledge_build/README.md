@@ -15,6 +15,8 @@ This directory tracks the manual archival build required by `SIGRID_KNOWLEDGE_RE
 - `claim_validation_logs/`: per-subject hard-claim validation tracking
 - `citation_tracking_sheets/`: per-subject source citation tracking
 - `coverage_review_dashboards/`: per-subject coverage balance review
+- `dispute_registers/`: per-subject contested-claim tracking
+- `entry_status_boards/`: per-subject live entry progress boards
 - `batch_ledgers/`: verified entry-batch tracking
 
 ## Note
