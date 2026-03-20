@@ -110,8 +110,189 @@ Excludes: Generic pop-culture fiction, horn-helmeted myths, and unverified moder
 - **Verification note:** Extensively documented in English charters and the *Anglo-Saxon Chronicle*.
 - **Uniqueness note:** Distinct from permanent land-seizure (the Danelaw).
 
+### 11. Holmgang (*Hólmganga*)
+- **Title:** Holmgang
+- **Category:** Traditions
+- **Type:** Legal Duel
+- **Content:** The legally recognized method of settling disputes through a duel. It was typically fought on a small island (*hólmr*) or a marked-out square of hide. Refusing a challenge for holmgang branded one as *níðingr* (a social outcast). Rules were strict: if blood touched the hide, the duel ended, and the "loser" often had to pay a fine or forfeit property.
+- **Why it matters:** It provided a violent but structured release valve for social tension and was a core mechanism for defending one's honor (*drengskapr*).
+- **Verification note:** Detailed in the *Kormáks saga* and the *Hednalagen* (Heathen Law).
+- **Uniqueness note:** Focuses on the legal ritual of dueling, distinct from general warfare.
+
+### 12. Níð (Social Stigma)
+- **Title:** Níð
+- **Category:** Terminology
+- **Type:** Social/Legal Status
+- **Content:** *Níð* was the ultimate social stigma—a loss of honor so profound it resulted in the loss of legal protections. To be accused of *níð* was to be called a coward, a traitor, or "unmanly." It was often manifested through *níðstöng* (scorn-poles), carved with runes and animal skulls to curse an enemy.
+- **Why it matters:** In a society without a police force, the fear of social exclusion and the loss of honor was the primary deterrent against anti-social behavior.
+- **Verification note:** Sourced from the *Grágás* (Icelandic law book) and *Egils Saga*.
+- **Uniqueness note:** Focuses on the abstract social concept of shame, distinct from physical outlawry.
+
+### 13. Skóggangr (Full Outlawry)
+- **Title:** Skóggangr
+- **Category:** Terminology
+- **Type:** Legal Punishment
+- **Content:** Literally "forest-going." This was the most severe punishment in Norse law. A full outlaw (*skógarmaðr*) lost all property, all legal rights, and could be killed by anyone without penalty. Their family was forbidden from helping them. They were effectively dead to society.
+- **Why it matters:** It shows the Norse belief that life outside the community enclosure (*innangarð*) was no life at all.
+- **Verification note:** Verified via the *Grágás* and the life of Grettir the Strong.
+- **Uniqueness note:** Distinct from "Lesser Outlawry," as this was permanent and absolute.
+
+### 14. Lögberg (The Law Rock)
+- **Title:** Lögberg
+- **Category:** Traditions
+- **Type:** Governance
+- **Content:** The physical heart of the Althing at Þingvellir. It was a natural rock platform where the Lawspeaker (*Lögsögumaður*) would stand to recite the legal code. Because laws were not written down for centuries, the Lawspeaker had to memorize one-third of the law each year, reciting the entire code over a three-year term.
+- **Why it matters:** It represents the transition from oral tradition to institutional governance and the sanctity of the "spoken word" as law.
+- **Verification note:** Archaeological site at Þingvellir National Park, Iceland.
+- **Uniqueness note:** Focuses on the physical and oral location of law, distinct from the *Althing* as a body.
+
+### 15. Weregild (*Vergildi*)
+- **Title:** Weregild
+- **Category:** Terminology
+- **Type:** Legal/Economic
+- **Content:** Literally "man-price." Every individual in Norse society had a specific monetary value based on their social rank. If a person was killed, the killer could avoid a blood feud by paying the weregild to the victim's family. A Jarl's price was significantly higher than a Karl's.
+- **Why it matters:** It was a practical economic system designed to prevent endless cycles of revenge killings that could destabilize entire regions.
+- **Verification note:** Found in early Germanic and Scandinavian law codes (e.g., *Lex Salica* and *Gulathing Law*).
+- **Uniqueness note:** Focuses on the economic compensation for life, distinct from fines for theft.
+
+### 16. The Great Heathen Army (865 AD)
+- **Title:** The Great Heathen Army (*Mikla Herrinn*)
+- **Category:** Historical Developments
+- **Type:** Military Campaign
+- **Content:** Unlike previous small-scale raids, this was a massive coalition of Norse warriors (mostly Danes) who landed in East Anglia with the intent of conquest and settlement. Led by the sons of Ragnar Lodbrok (Ivar the Boneless, Halfdan, and Ubba), they systematically overran the kingdoms of Northumbria, East Anglia, and Mercia.
+- **Why it matters:** It changed the Viking presence in England from seasonal piracy to permanent political and cultural dominance.
+- **Verification note:** Documented in the *Anglo-Saxon Chronicle* and the *Saga of Ragnar's Sons*.
+- **Uniqueness note:** Focuses on the specific 865 AD invasion, distinct from later raids.
+
+### 17. The Danelaw
+- **Title:** The Danelaw
+- **Category:** Historical Developments
+- **Type:** Geopolitical Region
+- **Content:** The name given to the part of England (North and East) where the laws of the Danes held sway over those of the Anglo-Saxons. It was formally established following the Treaty of Wedmore between Alfred the Great and the Viking leader Guthrum.
+- **Why it matters:** It resulted in a massive linguistic and cultural infusion into England; many English words (e.g., sky, egg, law) are Norse imports from this period.
+- **Verification note:** Verified via historical maps of 9th-century England and the Treaty of Alfred and Guthrum.
+- **Uniqueness note:** Focuses on the territory and legal jurisdiction, distinct from the army that conquered it.
+
+### 18. Rollo of Normandy (*Hrólfr*)
+- **Title:** Rollo of Normandy
+- **Category:** Major Figures
+- **Type:** Political Leader
+- **Content:** A Viking chieftain (likely Norwegian) who was granted land in Northern France (the future Normandy) by King Charles the Simple in 911 AD in exchange for protecting Paris from other Viking raiders and converting to Christianity.
+- **Why it matters:** He was the founder of the House of Normandy; his descendants (the Normans) would eventually conquer England in 1066 under William the Conqueror.
+- **Verification note:** Sourced from the Treaty of Saint-Clair-sur-Epte.
+- **Uniqueness note:** Focuses on the specific historical figure and the origin of the Normans.
+
+### 19. The Varangian Guard (*Væringjar*)
+- **Title:** The Varangian Guard
+- **Category:** Major Figures
+- **Type:** Military Unit
+- **Content:** The elite personal bodyguard of the Byzantine Emperors in Constantinople. Composed primarily of Norsemen (and later Anglo-Saxons), they were famous for their fanatical loyalty, their massive Dane axes, and their heavy drinking. They were paid in staggering amounts of gold.
+- **Why it matters:** It represents the extreme reach of the Norse world, where warriors from the fjords became the most trusted protectors of the Roman Emperor.
+- **Verification note:** Byzantine chronicles (e.g., Anna Komnene's *Alexiad*) and runestones in Sweden.
+- **Uniqueness note:** Focuses on the unit and its role in the East, distinct from the Rus'.
+
+### 20. Miklagarðr (The Great City)
+- **Title:** Miklagarðr
+- **Category:** Terminology
+- **Type:** Geography
+- **Content:** The Old Norse name for Constantinople (modern Istanbul). To the Vikings, who lived in small timber halls, the massive stone walls, domed churches, and paved streets of the Byzantine capital were so awe-inspiring they simply called it "The Great City."
+- **Why it matters:** It was the ultimate destination of the Volga trade route and the source of the silk and silver that fueled the Norse economy.
+- **Verification note:** Standard geographic term in the Icelandic Sagas and Varangian runestones.
+- **Uniqueness note:** Focuses on the Norse perception and naming of the city.
+
+### 21. Kievan Rus' (Norse Origins)
+- **Title:** The Rus'
+- **Category:** Historical Developments
+- **Type:** State Formation
+- **Content:** A federation of East Slavic and Finno-Ugric peoples under the rule of the Varangian (Norse) Rurik dynasty. Centered in Kiev, they controlled the river trade routes between the Baltic and the Black Sea.
+- **Why it matters:** It is the foundational state for modern Russia, Belarus, and Ukraine, showing the profound impact of Norse administration on Eastern Europe.
+- **Verification note:** Sourced from the *Primary Chronicle* (Nestor's Chronicle).
+- **Uniqueness note:** Focuses on the ethnic/political group, distinct from the specific Rurik figure.
+
+### 22. The Volga Trade Route
+- **Title:** The Volga Trade Route
+- **Category:** Methods
+- **Type:** Economics/Logistics
+- **Content:** The eastern counterpart to the Atlantic routes. Vikings traveled down the Volga River through the lands of the Volga Bulgars and the Khazars to reach the Caspian Sea and the Abbasid Caliphate in Baghdad.
+- **Why it matters:** This route was the primary source of Arabic silver (dirhams) for the Viking world, which has been found in massive hoards across Scandinavia.
+- **Verification note:** Archaeological evidence of Islamic coin hoards (e.g., the Spillings Hoard).
+- **Uniqueness note:** Focuses on the specific river route, distinct from the Dnieper route.
+
+### 23. Abbasid Dirhams
+- **Title:** Abbasid Dirhams
+- **Category:** Terminology
+- **Type:** Currency
+- **Content:** High-purity silver coins minted by the Abbasid Caliphate. Millions of these coins flowed into Scandinavia via the Eastern trade routes. Vikings often didn't use them as currency by face value, but rather as "hack-silver"—weighed by mass and cut into pieces for trade.
+- **Why it matters:** It proves the Vikings were integrated into a global trade network that stretched from Iceland to the Middle East.
+- **Verification note:** Numismatic records from the Gotland hoards.
+- **Uniqueness note:** Focuses on the specific physical currency and its usage.
+
+### 24. Hedeby (*Heiðabýr*)
+- **Title:** Hedeby
+- **Category:** Traditions
+- **Type:** Trade Hub
+- **Content:** Located at the base of the Jutland peninsula, Hedeby was the most important Viking Age trading settlement in Northern Europe. It sat at the narrowest point between the North Sea and the Baltic, allowing merchants to haul ships over a short strip of land to avoid the dangerous sail around Denmark.
+- **Why it matters:** It was a multicultural melting pot where Norse, Saxons, Slavs, and Franks traded goods, ideas, and religions.
+- **Verification note:** UNESCO World Heritage archaeological site.
+- **Uniqueness note:** Focuses on the specific port city, distinct from Birka or Kaupang.
+
+### 25. The Thing (*Þing*)
+- **Title:** The Thing
+- **Category:** Traditions
+- **Type:** Social/Legal Institution
+- **Content:** The local and regional assembly of free men. The Thing was responsible for settling property disputes, adjudicating crimes, and electing leaders. It was held in a designated "Thing-field" and presided over by a Lawspeaker.
+- **Why it matters:** It was the bedrock of Norse democracy; the power of a chieftain was not absolute but depended on the support of the free farmers at the Thing.
+- **Verification note:** Sourced from the *Gulathing* and *Frostathing* laws.
+- **Uniqueness note:** Focuses on the local/regional level, distinct from the *Althing*.
+
+### 26. Blood Feud (*Hefnd*)
+- **Title:** Blood Feud
+- **Category:** Traditions
+- **Type:** Conflict Resolution
+- **Content:** The unofficial but culturally mandatory system of private justice. If a family member was killed and compensation (weregild) was not accepted, the family was honor-bound to kill the perpetrator or one of their kin. Feuds could last for generations.
+- **Why it matters:** It was the primary driver of saga narratives and the reason for the complexity of Norse legal systems, which were designed specifically to stop these feuds.
+- **Verification note:** Central theme in the *Njáls saga*.
+- **Uniqueness note:** Focuses on the extra-legal social obligation, distinct from *Holmgang*.
+
+### 27. The Gothi (*Goði*)
+- **Title:** The Gothi
+- **Category:** Major Figures
+- **Type:** Social/Religious Role
+- **Content:** In Iceland, a *gothi* was a local chieftain who held both secular political power and religious authority. He maintained the local temple and led the blóts, while also representing his followers at the Thing.
+- **Why it matters:** It shows the non-separation of church and state in the Norse world; the "priest" was also the "politician."
+- **Verification note:** Documented in the *Landnámabók* (Book of Settlements).
+- **Uniqueness note:** Specifically Icelandic role, distinct from Continental kings.
+
+### 28. Fjörbaugslíð (Lesser Outlawry)
+- **Title:** Fjörbaugslíð
+- **Category:** Terminology
+- **Type:** Legal Punishment
+- **Content:** A mid-level punishment in Icelandic law. The person was banished from Iceland for exactly three years. During this time, they were safe while abroad, but if they failed to leave or returned early, they became full outlaws. Their property was not confiscated.
+- **Why it matters:** It allowed the legal system to remove a troublemaker from the community temporarily, giving feuds time to cool down without destroying the person's life entirely.
+- **Verification note:** Verified via the *Grágás*.
+- **Uniqueness note:** Distinct from *Skóggangr* (Full Outlawry).
+
+### 29. Ergi (The Unspeakable Taboo)
+- **Title:** Ergi
+- **Category:** Terminology
+- **Type:** Moral Concept
+- **Content:** *Ergi* (or *argr*) was the ultimate insult in the Norse world, implying effeminacy, passivity, or sexual deviance. To be called *argr* was so serious that Norse law allowed the accused to kill the accuser on the spot without penalty. It was the inverse of *drengskapr*.
+- **Why it matters:** It defined the rigid boundaries of the Norse masculine ideal and was the most potent weapon in verbal combat (*níð*).
+- **Verification note:** Found in the *Gulaþing* law and various poetry.
+- **Uniqueness note:** Focuses on the specific sexual/moral taboo, distinct from general cowardice.
+
+### 30. The Rurik Dynasty
+- **Title:** The Rurik Dynasty
+- **Category:** Major Figures
+- **Type:** Ruling Line
+- **Content:** Founded by the Varangian prince Rurik (Hrærekr) in 862 AD, who was invited by the Slavs to bring order to their lands. His descendants ruled the Kievan Rus' and eventually the Tsardom of Russia until the 17th century.
+- **Why it matters:** It is one of the longest-lived and most successful dynasties in history, proving the Vikings were world-class state-builders, not just destroyers.
+- **Verification note:** Sourced from the *Russian Primary Chronicle*.
+- **Uniqueness note:** Focuses on the dynasty as a whole, distinct from the general Rus' people.
+
+
 ## Final Quality Check
-- Entry count verified: yes (10/5000)
+- Entry count verified: yes (30/5000)
 - Duplicate pass completed: yes
 - Similarity pass completed: yes
 - Accuracy pass completed: yes

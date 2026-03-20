@@ -8,7 +8,7 @@
 
 | Subject Name | File Name | Entry Count | Current Subdomain | Last Verification | Git Hash | Push Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Viking History** | `VIKING_HISTORY.md` | 0 | Foundational Concepts | N/A | - | Pending |
+| **Viking History** | `VIKING_HISTORY.md` | 30 | Terminology / Legal / Eastern Expansion | 2026-03-20 | - | Pending |
 | **Old Norse Language**| `OLD_NORSE.md` | 0 | Foundational Concepts | N/A | - | Pending |
 | **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 0 | Foundational Concepts | N/A | - | Pending |
 | **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 0 | Foundational Concepts | N/A | - | Pending |
