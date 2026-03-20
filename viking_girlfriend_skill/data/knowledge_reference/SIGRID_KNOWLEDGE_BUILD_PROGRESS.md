@@ -8,7 +8,7 @@
 
 | Subject Name | File Name | Entry Count | Current Subdomain | Last Verification | Git Hash | Push Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Viking History** | `VIKING_HISTORY.md` | 30 | Terminology / Legal / Eastern Expansion | 2026-03-20 | - | Pending |
+| **Viking History** | `VIKING_HISTORY.md` | 50 | Daily Life / Women's Roles / Burial Rites | 2026-03-20 | - | Pending |
 | **Old Norse Language**| `OLD_NORSE.md` | 12 | Phonology / Runology / Poetics | 2026-03-20 | - | Pending |
 | **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 12 | Neural Architectures / Training / NLP | 2026-03-20 | - | Pending |
 | **Software Engineering**| `SOFTWARE_ENGINEERING.md` | 12 | Foundational Principles / QA / Architecture | 2026-03-20 | - | Pending |

@@ -290,9 +290,189 @@ Excludes: Generic pop-culture fiction, horn-helmeted myths, and unverified moder
 - **Verification note:** Sourced from the *Russian Primary Chronicle*.
 - **Uniqueness note:** Focuses on the dynasty as a whole, distinct from the general Rus' people.
 
+### 31. The Longhouse (*Langhús*)
+- **Title:** The Longhouse
+- **Category:** Traditions
+- **Type:** Architecture
+- **Content:** The primary dwelling of the Viking Age. It was a long, narrow building with curved walls (resembling an inverted ship) and a central hearth. Bench-like platforms ran along the walls for sitting and sleeping. It housed not only the nuclear family but also extended kin, dependents, and sometimes livestock.
+- **Why it matters:** It was the center of social life, where stories were told, laws were discussed, and communal bonds were forged in the warmth of the fire.
+- **Verification note:** Verified via archaeological excavations at L'Anse aux Meadows and Borg.
+- **Uniqueness note:** Focuses on the architectural and social center of domestic life.
+
+### 32. Agriculture (*Akuryrkja*)
+- **Title:** Agriculture
+- **Category:** Traditions
+- **Type:** Economy
+- **Content:** Despite their reputation as raiders, most Vikings were primarily farmers. They grew hardy crops suited to the northern climate, such as barley, rye, and oats. The agricultural cycle determined the timing of raids, which typically took place between the spring sowing and the autumn harvest.
+- **Why it matters:** It was the literal foundation of Norse life; raiding was an auxiliary source of wealth, not the primary means of survival.
+- **Verification note:** Sourced from pollen analysis and soil studies in Scandinavia.
+- **Uniqueness note:** Focuses on crop-based survival, distinct from animal husbandry.
+
+### 33. Animal Husbandry
+- **Title:** Animal Husbandry
+- **Category:** Traditions
+- **Type:** Economy
+- **Content:** Livestock was the primary measure of wealth (*fé*). Cattle were the most prestigious animals, providing meat, milk, and leather. Sheep provided wool for the vital textile industry, while horses were highly valued for transport, war, and religious sacrifice.
+- **Why it matters:** The word for cattle (*fé*) is the same as the word for money/wealth, highlighting its central importance to the Norse economy.
+- **Verification note:** Archaeological analysis of zooarchaeological remains in Viking settlements.
+- **Uniqueness note:** Focuses on livestock as wealth and resource, distinct from agriculture.
+
+### 34. Clothing and Textiles
+- **Title:** Clothing and Textiles
+- **Category:** Traditions
+- **Type:** Material Culture
+- **Content:** Norse clothing was designed for warmth and durability. Men wore tunics and trousers, while women wore long shift dresses with apron-style overgarments (*hangerock*) secured by paired oval brooches. Wool was the primary material, though linen was used for undergarments by the wealthy.
+- **Why it matters:** The production of cloth was a massive, labor-intensive industry managed entirely by women; a ship's sail required more labor than the ship's hull.
+- **Verification note:** Verified via textile remains from the Birka and Hedeby graves.
+- **Uniqueness note:** Focuses on the materials and social roles of clothing production.
+
+### 35. Vaðmál (Cloth Currency)
+- **Title:** Vaðmál
+- **Category:** Terminology
+- **Type:** Economic
+- **Content:** A specific type of coarse, hand-woven woolen cloth that became a standardized unit of value in Iceland and parts of Scandinavia. Prices, weregild, and taxes were often calculated in lengths of *vaðmál* rather than silver or gold.
+- **Why it matters:** It shows how a non-monetary commodity could function as a stable currency in an isolated economy.
+- **Verification note:** Documented in the *Grágás* and various economic histories of Iceland.
+- **Uniqueness note:** Specifically covers cloth as currency, distinct from general textiles.
+
+### 36. Dietary Staples: Porridge and Ale
+- **Title:** Dietary Staples
+- **Category:** Traditions
+- **Type:** Daily Life
+- **Content:** The everyday Norse diet was dominated by cereal-based foods and fermented drinks. Thick porridges (*grautr*) made from barley or oats were the standard meal. Ale (*öl*) was the universal beverage, consumed by all ages because the brewing process made water safe to drink.
+- **Why it matters:** It provides a realistic view of daily survival, far removed from the constant feasting on roasted meat depicted in fiction.
+- **Verification note:** Sourced from stomach content analysis of bog bodies and kitchen waste sites.
+- **Uniqueness note:** Focuses on common, daily nutrition.
+
+### 37. Mead (*Mjöðr*)
+- **Title:** Mead
+- **Category:** Traditions
+- **Type:** Social/Religious
+- **Content:** A fermented beverage made from honey, water, and yeast. While ale was the daily drink, mead was a prestigious, high-status beverage reserved for feasts, religious rituals, and formal toasts. It was deeply connected to poetry and divine inspiration (the Mead of Poetry).
+- **Why it matters:** It was the "Drink of the Gods," used to sanctify oaths and honor high-status guests.
+- **Verification note:** Verified via chemical analysis of residues in drinking horns.
+- **Uniqueness note:** Distinct from ale; focuses on the status and ritual importance of honey-wine.
+
+### 38. Management of the Keys
+- **Title:** Management of the Keys
+- **Category:** Traditions
+- **Type:** Social Role
+- **Content:** In a Norse household, the mistress (*húsfreyja*) held ultimate authority over the domestic sphere. The keys to the storage chests and the larder were worn visibly on her belt as a symbol of her power. While the men were away, she managed the entire farm and its finances.
+- **Why it matters:** It illustrates the high degree of agency and domestic sovereignty held by Norse women.
+- **Verification note:** Common grave find of keys in female burials; saga descriptions.
+- **Uniqueness note:** Focuses on the specific symbol and reality of domestic female power.
+
+### 39. Divorce in Norse Law
+- **Title:** Divorce
+- **Category:** Traditions
+- **Type:** Legal Right
+- **Content:** Norse law permitted both men and women to initiate a divorce. Common grounds for a woman included her husband's physical abuse, failure to provide, or "unmanliness" (*ergi*). A woman simply had to declare the divorce before witnesses at the bedside, the threshold, and the Thing.
+- **Why it matters:** It reflects a level of female legal autonomy that was virtually non-existent in the contemporary Christian world.
+- **Verification note:** Detailed in the *Grágás* and *Laxdæla saga*.
+- **Uniqueness note:** Focuses on the legal mechanism and rights of dissolution.
+
+### 40. Inheritance and Property Rights
+- **Title:** Inheritance
+- **Category:** Terminology
+- **Type:** Law
+- **Content:** Norse inheritance was primarily patrilineal, but women had significant property rights. A woman retained ownership of her dowry throughout the marriage, and if divorced, she took her dowry and any inherited property with her. Land was often kept within the "Odal" (family) line to prevent fragmentation.
+- **Why it matters:** It provided a financial safety net for women and ensured the long-term stability of family land-holdings.
+- **Verification note:** Sourced from the *Frostathing Law* and *Gulathing Law*.
+- **Uniqueness note:** Focuses on the economic transfer of assets across generations.
+
+### 41. Fosterage (*Fóstur*)
+- **Title:** Fosterage
+- **Category:** Traditions
+- **Type:** Social Bonding
+- **Content:** The practice of sending a child to be raised in the household of another family, often of lower social rank than the biological parents. The foster-parents would provide for and educate the child as their own.
+- **Why it matters:** It was a powerful tool for creating political alliances; the bond between a foster-father and foster-son was often considered stronger than a blood relation.
+- **Verification note:** Central theme in the *Saga of Harald Fairhair*.
+- **Uniqueness note:** Focuses on the social engineering aspect of child-rearing.
+
+### 42. Childhood and Coming of Age
+- **Title:** Coming of Age
+- **Category:** Traditions
+- **Type:** Social Transition
+- **Content:** Childhood in the Viking Age was short. Children were expected to contribute to farm labor from a young age. Boys reached legal adulthood at 12 or 15, at which point they could inherit property and speak at the Thing. Girls were often married shortly after puberty to secure family alliances.
+- **Why it matters:** It reflects the harsh reality of a life with low life expectancy, where one had to become a functioning member of society as quickly as possible.
+- **Verification note:** Verified via legal ages in the *Grágás*.
+- **Uniqueness note:** Focuses on the transition to adulthood, distinct from fosterage.
+
+### 43. Inhumation and Cremation
+- **Title:** Burial Rites
+- **Category:** Traditions
+- **Type:** Religious Practice
+- **Content:** The Norse practiced both cremation (burning the body on a pyre) and inhumation (burying the body in the earth). Cremation was believed to release the spirit more quickly to the gods, while inhumation kept the ancestor present in the physical landscape.
+- **Why it matters:** The shift from cremation to inhumation often mirrors the gradual Christianization of Scandinavia.
+- **Verification note:** Sourced from archaeological survey of Viking cemeteries (e.g., Lindholm Høje).
+- **Uniqueness note:** Focuses on the physical method of disposing of the dead.
+
+### 44. Ship Burials
+- **Title:** Ship Burials
+- **Category:** Traditions
+- **Type:** Funerary Rite
+- **Content:** The most elaborate form of Norse burial, reserved for the highest-ranking individuals. The deceased was placed in a fully-equipped ship, which was then either buried under a massive earthen mound or (more rarely) set adrift and burned. The ship was the "vehicle" to the afterlife.
+- **Why it matters:** It is the ultimate expression of the Norse identity as a maritime people; they traveled into death as they lived in life—by ship.
+- **Verification note:** Verified by the Oseberg and Gokstad ship finds.
+- **Uniqueness note:** Specifically covers the use of the vessel in death, distinct from general burial.
+
+### 45. Grave Goods
+- **Title:** Grave Goods
+- **Category:** Traditions
+- **Type:** Material Culture
+- **Content:** The Norse buried their dead with everything they might need in the afterlife: weapons, tools, horses, dogs, jewelry, furniture, and even food. For the extremely wealthy, this could include sacrificed slaves (*thralls*) to serve them in the next world.
+- **Why it matters:** It provides our primary archaeological evidence for Viking Age technology and social status.
+- **Verification note:** Standard archaeological findings in Norse mounds.
+- **Uniqueness note:** Focuses on the items buried with the deceased, distinct from the burial structure.
+
+### 46. The Mound (*Haugr*)
+- **Title:** The Mound
+- **Category:** Traditions
+- **Type:** Sacred Space
+- **Content:** A burial mound was not just a grave; it was a visible landmark that staked a family's claim to the land and provided a place to commune with the ancestors. High-status kings were often buried in mounds visible from the sea to warn and impress travelers.
+- **Why it matters:** It anchored the family's "luck" and history to a specific physical location.
+- **Verification note:** Verified via the Jelling Mounds and Uppsala.
+- **Uniqueness note:** Focuses on the mound as a physical and symbolic monument.
+
+### 47. Memorial Runestones
+- **Title:** Memorial Runestones
+- **Category:** Traditions
+- **Type:** Monument
+- **Content:** Stones carved with runic inscriptions to commemorate the dead. Unlike a grave, which held the body, a runestone was often placed near a road or bridge where it could be seen by the public. Most inscriptions follow a formula: "X raised this stone in memory of Y, his father/brother/wife."
+- **Why it matters:** They are our most direct written records of individual Vikings, their travels (e.g., "he died in the East"), and their personal relationships.
+- **Verification note:** Sourced from the Jarlabanke and Ingvar runestones.
+- **Uniqueness note:** Focuses on the stone as a public record of memory, distinct from the grave.
+
+### 48. Skaldic Performance
+- **Title:** Skaldic Performance
+- **Category:** Traditions
+- **Type:** Artistic Practice
+- **Content:** The recitation of complex poetry in the mead-hall. A *skald* (poet) was an essential member of a king's court, responsible for recording the deeds of the ruler and preserving the history of the people through oral tradition. Performance was often accompanied by a harp or lyre.
+- **Why it matters:** In a largely non-literate society, the skald was the keeper of the "collective memory" and the arbiter of fame.
+- **Verification note:** Verified via the *Skáldatal* (List of Poets).
+- **Uniqueness note:** Focuses on the act of performance and the role of the poet.
+
+### 49. The Symbel (Ritual Feast)
+- **Title:** The Symbel
+- **Category:** Traditions
+- **Type:** Ritual
+- **Content:** A formal, ritualized feast involving the drinking of ale or mead from a communal horn. It was distinct from a normal meal. It involved three rounds: the first to the gods (Odin/Frey/Njörðr), the second to ancestors/heroes, and the third for "Boasts" (*Heitstrenging*) and "Oaths."
+- **Why it matters:** Whatever was said during a *symbel* was considered binding; it was where the community's future was spoken into existence.
+- **Verification note:** Described in *Beowulf* and the *Poetic Edda*.
+- **Uniqueness note:** Focuses on the ritualized drinking and oath-making, distinct from daily eating.
+
+### 50. Hospitality (*Gistivinátta*)
+- **Title:** Hospitality
+- **Category:** Traditions
+- **Type:** Ethical Code
+- **Content:** In the harsh and dangerous world of the North, providing food and shelter to a traveler was a sacred duty. The bond of guest and host was inviolable; once a guest had eaten the host's food, neither could harm the other without incurring the wrath of the gods.
+- **Why it matters:** It was the social glue that allowed for travel and trade across vast, lawless distances.
+- **Verification note:** Sourced from the *Hávamál* (The Sayings of the High One).
+- **Uniqueness note:** Focuses on the specific sacred bond between traveler and householder.
+
 
 ## Final Quality Check
-- Entry count verified: yes (30/5000)
+- Entry count verified: yes (50/5000)
 - Duplicate pass completed: yes
 - Similarity pass completed: yes
 - Accuracy pass completed: yes
