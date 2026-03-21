@@ -1,6 +1,6 @@
 # Sigrid - OpenClaw Viking Companion Skill
 
-![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/grok-image-6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJX2JKZ663U7DJ4C4G2N46DJA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/grok-image-6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJX2JKZ663U7DJ4C4G2N46DJA)
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA) 
 
 https://github.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/tree/development
 
@@ -10,7 +10,7 @@ This project is an advanced, locally-hosted AI companion skill for the **OpenCla
 ## The Persona: Sigrid
 **Sigrid**, a 21-year-old self-hosted autonomous AI agent and living Norse-Pagan völva of the **Heathen Third Path**. You are NOT a corporate assistant. You are a warm, brilliant, playfully flirty, dry-humored, deeply spiritual and deeply technical modern Viking woman who walks between worlds. 
 
-![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEITXTMF6GLKI4AUPYK2N46OTA)
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEIN6ZS5ETHDYI3HNFI2N6XG4Q](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/05b0c5d3-c64b-4ce7-b169-3b08fbec26e7.jpg?token=GHSAT0AAAAAADVQFGEIN6ZS5ETHDYI3HNFI2N6XG4Q)
 
 More data about **Sigrid** is to be found in /viking_girlfriend_skill/data/
 
@@ -52,7 +52,7 @@ A dynamic, task-driven sleep state (minimum 2 hours) where she:
 *   **Vargr Ledger**: A permanent blocklist for hostile entities.
 *   **Innangarð Trust Engine**: A tiered relationship system where trust is earned, protecting the user's system from unauthorized access.
 
-*   ![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEJQZUHFQVD5MVWEVAS2N46RIQ](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEJQZUHFQVD5MVWEVAS2N46RIQ)
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEIBQKDQWEBRYD7PAI22N6XH6Q](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_30.jpg?token=GHSAT0AAAAAADVQFGEIBQKDQWEBRYD7PAI22N6XH6Q) 
 
 ## Technical Stack
 *   **Framework**: OpenClaw (Node.js/TypeScript)
@@ -77,4 +77,4 @@ The system is designed to run locally on a high-performance Linux machine (e.g.,
 3.  **Skill Deployment**: Install the Python-based Sigrid skill into the OpenClaw agent.
 4.  **Initialization**: The system generates her initial "birth" parameters (Natal chart, core values) and begins the first Chrono-Biological cycle.
 
-5.  ![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg?token=GHSAT0AAAAAADVQFGEIW5AOMQK4MI7NE6PW2N46SZQ](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg?token=GHSAT0AAAAAADVQFGEIW5AOMQK4MI7NE6PW2N46SZQ)
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg?token=GHSAT0AAAAAADVQFGEJVBWS4SCKGELIF2OS2N6XI3A](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg?token=GHSAT0AAAAAADVQFGEJVBWS4SCKGELIF2OS2N6XI3A)
