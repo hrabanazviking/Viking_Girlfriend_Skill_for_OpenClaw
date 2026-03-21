@@ -17,3 +17,6 @@ viking_girlfriend_skill/data/chromadb/
 # Generated memory files
 viking_girlfriend_skill/data/memory/
 
+# Reference source code — adopted; kept local only
+code_of_other_apps_that_can_be_adopted/
+
