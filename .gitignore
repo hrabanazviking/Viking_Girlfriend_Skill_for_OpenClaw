@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+logs/
+session/
+*.chromadb
+# ChromaDB binary/sqlite data — generated at runtime, can be very large
+data/chromadb*/
+data/chromadb/
+viking_girlfriend_skill/data/chromadb*/
+viking_girlfriend_skill/data/chromadb/
+**/chroma.sqlite3
+**/*.bin
+**/*.pickle
+# Generated memory files
+viking_girlfriend_skill/data/memory/
+
+# Reference source code — adopted; kept local only
+code_of_other_apps_that_can_be_adopted/
+

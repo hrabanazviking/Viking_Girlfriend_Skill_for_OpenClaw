@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # --- The Local Brain (Ollama) ---
+  # Runs quantized local models for subconscious processing and memory maintenance.
+  # Isolated from the external internet for maximum privacy.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: astrid_subconscious
+    restart: unless-stopped
+    volumes:
+      - ./ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          # devices:
+          #   - driver: nvidia
+          #     count: 1
+          #     capabilities: [gpu]
+          # Uncomment above lines if using NVIDIA GPU
+          devices: []
+    networks:
+      - astrid_net
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --- The Master Router (LiteLLM) ---
+  # Acts as the gateway, routing prompts between SFW (Gemini), NSFW (OpenRouter),
+  # and Local (Ollama) based on the specific model name requested by the skill.
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: astrid_router
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    command: [ "--config", "/app/config.yaml", "--port", "4000" ]
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    networks:
+      - astrid_net
+    depends_on:
+      - ollama
+
+  # --- The Agent Framework (OpenClaw) ---
+  # The core execution engine. Runs the Astrid skill, manages tools, and handles
+  # the interface with the user (e.g., via Discord, Telegram, or Terminal).
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: astrid_core
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_BASE=http://litellm:4000/v1
+      - OPENAI_API_KEY=sk-placeholder  # LiteLLM handles the real auth
+      - NODE_ENV=production
+      - AGENT_NAME=Astrid
+    volumes:
+      - ../astrid_skill:/app/skills/astrid  # Mounts our custom Python skill
+      - ./openclaw_data:/app/data           # Persist agent memory/state
+    networks:
+      - astrid_net
+    depends_on:
+      - litellm
+
+networks:
+  astrid_net:
+    driver: bridge

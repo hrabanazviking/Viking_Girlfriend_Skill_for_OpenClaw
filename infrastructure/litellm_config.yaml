@@ -1,0 +1,37 @@
+model_list:
+  # --- The Conscious Mind (Standard Reasoning) ---
+  # Used for: General conversation, coding assistance, complex reasoning.
+  # Provider: Primary API (e.g., Gemini, OpenAI)
+  - model_name: conscious-mind
+    litellm_params:
+      model: ${PRIMARY_MODEL_NAME} # e.g. gemini/gemini-2.0-pro
+      api_key: "os.environ/PRIMARY_API_KEY"
+      rpm: 60  # Rate limit protection
+
+  # --- The Code Mind (Coding Specialist) ---
+  # Used for: Code generation, debugging, refactoring, technical implementation.
+  # Auto-selected when CodingIntentDetector scores request >= coding_intent_threshold (0.4).
+  # Falls back to conscious-mind if unavailable.
+  # Provider: Coding-specialized model via OpenRouter (deepseek-coder / codestral / qwen2.5-coder)
+  - model_name: code-mind
+    litellm_params:
+      model: ${CODE_MODEL_NAME} # e.g. openrouter/deepseek/deepseek-coder or openrouter/mistralai/codestral
+      api_key: "os.environ/CODE_API_KEY"  # can reuse SECONDARY_API_KEY if on same provider
+
+  # --- The Deep Mind (Complex/Unfiltered) ---
+  # Used for: Highly complex tasks, creative writing, emotional depth.
+  # Triggered when Engagement Gauge > Threshold.
+  # Provider: Secondary API (e.g. OpenRouter)
+  - model_name: deep-mind
+    litellm_params:
+      model: ${SECONDARY_MODEL_NAME} # e.g. openrouter/llama-3.1-405b
+      api_key: "os.environ/SECONDARY_API_KEY"
+
+  # --- The Subconscious Worker (Local / Private) ---
+  # Used for: Memory summarization, vector embedding, dream generation.
+  # Runs LOCALLY. Zero cost, absolute privacy.
+  # Provider: Ollama (Llama 3 8B Quantized)
+  - model_name: subconscious-worker
+    litellm_params:
+      model: ollama/llama3
+      api_base: "http://ollama:11434"

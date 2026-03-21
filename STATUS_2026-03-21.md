@@ -1,0 +1,323 @@
+# Ørlög Architecture — Session Status
+**Date:** 2026-03-21
+**Branch:** development
+**Operator:** Runa Gridweaver Freyjasdottir
+
+---
+
+## Overall Progress
+
+All 18 core modules are coded and functional.
+Enhancement waves are iterative improvements on top of the complete baseline.
+
+| Wave | Enhancements | Status |
+|------|--------------|--------|
+| 1 (E-01–E-06) | Bug Fixes & Safety | ✅ DONE |
+| 2 (E-07–E-10) | Cross-Module Depth | ✅ DONE |
+| 3 (E-11–E-15) | Biological Aliveness | ✅ DONE |
+| 4 (E-16–E-19) | Memory Depth | ✅ DONE (today) |
+| 5 (E-20–E-22) | Environment & Situational Presence | ✅ DONE (today) |
+| 6 (E-23–E-25) | Relational Intelligence | ✅ DONE (today) |
+| 7 (E-26–E-31) | Knowledge & Synthesis Quality | ✅ DONE (today) |
+| 8 (E-32–E-35) | Mímir-Vörðr v2 Phase A | ✅ DONE (today) |
+| 9 (E-36–E-38) | Mímir-Vörðr v2 Phase B — FINAL | ✅ DONE (today) |
+
+---
+
+## Wave 4 — What Was Built Today (E-16–E-19)
+
+### E-16 — Associative Memory Hooks (`memory_store.py`)
+- `MemoryLink` dataclass: `source_id`, `target_id`, `similarity`, `created_at`
+- Links stored append-only in `data/session/memory_links.json`
+- `MemoryStore._find_related()` runs after every `add_memory()` — finds 3 related entries
+  via ChromaDB cosine similarity or keyword overlap ratio as fallback
+- `_retrieve_episodic()` now expands results with linked entries (deduplicated, max +3)
+
+### E-17 — Emotional Significance Weighting (`memory_store.py`)
+- `MemoryEntry` gains `pad_arousal: float`, `pad_pleasure: float`, `emotional_weight_applied: bool`
+- `add_memory()` reads `WyrdState.pad_arousal` live at store time; fallback 0.5 if WyrdMatrix not init'd
+- `relevance_score()` multiplied by `(1.0 + pad_arousal * 0.3)` — up to +30% for high-arousal moments
+- All existing JSON entries load safely (new fields default to 0.0/False)
+
+### E-18 — Synonym Expansion (`memory_store.py`, `data/synonym_map.json`)
+- `data/synonym_map.json` — initial Norse deity synonyms, concept aliases, name variants
+  (Allfather↔Odin, Wyrd↔fate, völva↔seeress, mjöðr↔mead, etc.)
+- `EpisodicStore._expand_query()` expands query words via OR logic before keyword scoring
+- `EpisodicStore.reload_synonyms()` — hot-reload without restart
+- Keyword matching now transparent to "Allfather" vs "Odin" etc.
+
+### E-19 — Nightly Memory Consolidation (`memory_store.py`, `scheduler.py`)
+- `MemoryConsolidator` class: batches medium-term buffer entries → subconscious Ollama model
+  → single `EpisodicEntry` tagged `["consolidation"]`, importance=2
+- Graceful fallback: if model unavailable, archives raw entries tagged `["consolidation", "raw"]`
+- Always clears `_medium_term` buffer after running
+- Publishes `memory.consolidation_complete` to StateBus on finish
+- `SchedulerService.register_cron_job(name, func, hour, minute)` — APScheduler CronTrigger support
+- `SchedulerService.register_consolidation_job(consolidator, bus)` — wires up 03:30 daily job
+
+---
+
+## Test Suite
+
+| Scope | Count | Time |
+|-------|-------|------|
+| Wave 4 new tests (4 files) | 52 (E-16–E-19) | ~0.3s |
+| Wave 5 new tests (3 files) | 30 (E-20–E-22) | ~0.2s |
+| Wave 6 new tests (3 files) | 38 (E-23–E-25) | ~0.2s |
+| Wave 7 new tests (6 files) | 57 (E-26–E-31) | ~5s |
+| Wave 8 new tests (4 files) | 81 (E-32–E-35) | ~0.3s |
+| Wave 9 new tests (3 files) | 63 (E-36–E-38) | ~0.2s |
+| Security S-01–S-06 (4 files) | 48 new tests | ~4s |
+| Full `tests/` directory | **491 passing** | ~26s |
+| Full suite incl. Whisper/Yggdrasil | 491 + pre-existing failures (CUDA/backpressure) | ~7 min |
+
+New test files (Wave 4):
+- `tests/test_memory_associative.py` — 15 tests (E-16)
+- `tests/test_memory_emotional.py` — 10 tests (E-17)
+- `tests/test_memory_synonyms.py` — 12 tests (E-18)
+- `tests/test_memory_consolidation.py` — 15 tests (E-19)
+
+New test files (Wave 5):
+- `tests/test_environment_tod.py` — 10 tests (E-20)
+- `tests/test_environment_sensory.py` — 8 tests (E-21)
+- `tests/test_environment_objects.py` — 12 tests (E-22)
+
+New test files (Wave 6):
+- `tests/test_trust_facets.py` — 15 tests (E-23)
+- `tests/test_trust_milestones.py` — 15 tests (E-24)
+- `tests/test_trust_diminishing.py` — 8 tests (E-25)
+
+New test files (Wave 7):
+- `tests/test_mimir_bm25_prefilter.py` — 10 tests (E-26)
+- `tests/test_mimir_axiom_integrity.py` — 8 tests (E-27)
+- `tests/test_synthesizer_reorder.py` — 11 tests (E-28)
+- `tests/test_synthesizer_skaldic.py` — 10 tests (E-29)
+- `tests/test_synthesizer_tokens.py` — 8 tests (E-30)
+- `tests/test_synthesizer_hotreload.py` — 10 tests (E-31)
+
+New test files (Wave 8):
+- `tests/test_vordur_async_cache.py` — 15 tests (E-32)
+- `tests/test_vordur_claims.py` — 20 tests (E-33)
+- `tests/test_vordur_evidence.py` — 20 tests (E-34)
+- `tests/test_vordur_repair.py` — 26 tests (E-35)
+
+New test files (Wave 9):
+- `tests/test_vordur_contradiction.py` — 15 tests (E-36)
+- `tests/test_vordur_trigger.py` — 20 tests (E-37)
+- `tests/test_vordur_domain_validators.py` — 28 tests (E-38)
+
+Run command for fast check: `python -m pytest tests/ --ignore=tests/test_e2e_system.py`
+Run command for full suite (slow — ~7 min, CPU-intensive): `python -m pytest --ignore=tests/test_e2e_system.py`
+
+---
+
+## Wave 6 — What Was Built (E-23–E-25)
+
+### E-23 — TrustFacets (`trust_engine.py`)
+- `TrustFacets` dataclass: `competence`, `benevolence`, `integrity` (each 0–1)
+- `TrustLedger.trust_score` is now a computed `@property`: `comp*0.3 + bene*0.4 + integ*0.3`
+- `_EVENT_IMPACTS` updated to 6-tuples distributing deltas across three facets
+- New `competence_shown` event type + keywords
+- `TrustFacets.dominant()` returns the highest-scoring facet name
+- `TrustState` gains `facets: TrustFacets`; `to_dict()` includes facets dict
+- `_build_prompt_hint()` extended with `dominant=<facet>` field
+- `_ensure_ledger()` sets all three facets to `initial_trust` at creation
+
+### E-24 — Relational Milestones (`trust_engine.py`)
+- `Milestone` dataclass: `milestone_id`, `name`, `description`, `occurred_at`, `trust_anchor`, `contact_id`
+- `_MILESTONE_DEFS`: 8 milestone types mapped to triggering events + anchor values
+  (first_gift, first_conflict, first_explicit_trust, first_apology, first_oath_kept,
+  first_boundary_respected, first_support, first_competence)
+- `TrustLedger.anchor_floor: float` — permanent trust floor; applied in `trust_score` property
+- `TrustEngine` gains `session_dir` param; milestones saved to `session/milestones.json`
+- `_detect_milestones(cid, inferred_events, bus)` — checks firsts, saves, publishes
+- Publishes `trust.milestone_reached` StateEvent to StateBus
+- `from_config()` reads `session_dir` from config
+
+### E-25 — Diminishing Returns (`trust_engine.py`)
+- `_signal_counts: Dict[str, int]` on TrustEngine — session-only, not persisted
+- Formula: `effective_mag = max(0.1, 1.0 / (1.0 + log(1.0 + count)))`
+- Applied in `process_turn()` before each `apply_event()` call
+- `reset_signal_counts()` public method (call at session end)
+- DEBUG log when count > 3 for any signal type
+- Explicit `record_event()` calls bypass diminishing returns
+
+---
+
+## Wave 7 — What Was Built (E-26–E-31)
+
+### E-26 — BM25 Pre-Filter (`mimir_well.py`)
+- `_FlatIndex.search_with_top_score()` returns `(List[KnowledgeChunk], float)` — top BM25 score
+- `search()` refactored to delegate to `search_with_top_score()`
+- `MimirWell._bm25_shortcircuit_threshold: float = 0.75` — skip ChromaDB if top score exceeds threshold
+- Counters: `_bm25_shortcircuit_hits`, `_bm25_total_queries` → `bm25_shortcircuit_rate` in `MimirState`
+- `_tag_retrieval_path()` uses `dataclasses.replace()` to copy chunks with `retrieval_path` metadata
+- Retrieval paths: `"bm25_fast"` (shortcircuit) | `"chromadb"` | `"bm25_fallback"`
+
+### E-27 — Axiom Integrity Sentinel (`mimir_well.py`)
+- `MimirWell.session_dir` param → `_axiom_hashes_file = session/axiom_hashes.json`
+- `_compute_axiom_hashes()` — sha256 of all DEEP_ROOT+ASGARD chunks
+- `_save_axiom_hashes()` / `_load_axiom_hashes()` — JSON persistence, mkdir on save
+- `check_axiom_integrity() -> bool` — re-hashes and compares; logs CRITICAL on mismatch
+- `MimirHealthState.axiom_integrity: bool = True` field
+- `MimirHealthMonitor._health_check()` calls integrity check; triggers reindex on failure
+
+### E-28 — Dynamic Section Reordering (`prompt_synthesizer.py`)
+- `SectionPriority` dataclass: `name`, `base_order`, `current_order`
+- `build_messages()` gains `emotional_state: Optional[Dict[str, float]]` param
+- `_reorder_sections()`: `pad_arousal > 0.7` → wyrd_matrix to position 0;
+  `pad_pleasure < -0.5` → ethics to position 0; otherwise default `_HINT_SECTION_ORDER`
+- Section priorities logged at DEBUG each turn
+
+### E-29 — Skaldic Vocabulary Injection (`prompt_synthesizer.py`)
+- `data/skaldic_vocabulary.json` — 210 entries: `word`, `meaning`, `context_tags`, `usage_example`
+- `skaldic_injection: bool = True` flag on `PromptSynthesizer`
+- `_inject_skaldic_flavor(turn_id, hints)` — seeded from `(turn_id*7)%n` / `(turn_id*13+5)%n`;
+  context-tag matched via active hint keys; "[Skaldic Voice] Weave these into your voice today: ..."
+- `_turn_counter` increments each `build_messages()` call
+
+### E-30 — Actual Token Counting (`prompt_synthesizer.py`)
+- `_count_tokens(text)` — `litellm.token_counter()` with `len(text)//4` fallback
+- Fallback toggled via `_token_count_fallback` flag (DEBUG logged on first fallback, cleared on recovery)
+- Token estimate logged alongside char count at DEBUG on every `build_messages()`
+
+### E-31 — Hot-Reload Identity (`prompt_synthesizer.py`)
+- `_reload_lock: threading.Lock` — guards `_identity_text` / `_soul_text` reads+writes
+- `reload_identity()` — thread-safe reload; never raises; logs warning on failure
+- `_IdentityFileWatcher` — polling daemon (5s default, Windows-compatible via mtime comparison)
+- `start_watcher(bus=None)` / `stop_watcher()` on PromptSynthesizer
+- On change: calls `reload_identity()` + publishes `persona.identity_reloaded` StateEvent
+
+## Wave 8 — What Was Built (E-32–E-35)
+
+### E-32 — Async Parallel Verification + LRU Verdict Cache (`vordur.py`)
+- `verify_claims(claims, source_chunks) -> List[ClaimVerification]` — public sync API
+- `async _verify_all_claims()` — `asyncio.gather` over `asyncio.to_thread(verify_claim)` per claim
+- `_LRUVerdictCache` (OrderedDict, bounded): `get()`, `put()`, `clear()`, `hits`, `misses`, `size`
+- Cache key: `(md5(claim.text), md5(best_chunk.text))`; `verdict_cache_enabled`/`verdict_cache_size` on `__init__`
+- `VordurState.cache_hits`, `cache_misses` fields; `get_state()` updated
+
+### E-33 — Claim Extraction + Typing (`vordur.py`)
+- `ClaimType` enum: 12 values (DEFINITIONAL, FACTUAL, HISTORICAL, RELATIONAL, CAUSAL, PROCEDURAL,
+  INTERPRETIVE, SYMBOLIC, CODE_BEHAVIOR, MATHEMATICAL, SPECULATIVE, SOURCE_ATTRIBUTION)
+- `Claim` extended (backward-compatible): `id` (uuid4), `claim_type`, `sentence_index`, `certainty_level`, `source_draft_section`
+- `ClaimExtractor` class: `extract()` (model→fallback), `classify()` (keyword-based, 10 patterns)
+- `FaithfulnessScore.claims`, `claim_types_found` fields; score() populates both
+
+### E-34 — Evidence Bundling + Support Analysis (`vordur.py`)
+- `SupportVerdict` enum: 7 values (SUPPORTED, PARTIALLY_SUPPORTED, UNSUPPORTED,
+  CONTRADICTED, INFERRED_PLAUSIBLE, SPECULATIVE, AMBIGUOUS)
+- `EvidenceBundle` dataclass: `claim_id`, `primary_chunk`, `neighbor_chunks`, `source_tier`, `provenance`
+- `VerificationRecord` dataclass: `claim_id`, `evidence_ids`, `verdict`, `entailment_score`, `contradiction_score`, `citation_coverage`, `ambiguity_score`
+- `EvidenceBundler`: `bundle()` picks primary by keyword overlap; `analyze()` maps NLI verdict → SupportVerdict
+- `FaithfulnessScore.verification_records` field; score() builds one record per claim
+
+### E-35 — Repair Engine + Truth Profile (`vordur.py`, `model_router_client.py`)
+- `RepairAction` enum: 5 values (REMOVE_CLAIM, DOWNGRADE_CERTAINTY, ADD_UNCERTAINTY_MARKER, REPLACE_WITH_EVIDENCE, SPLIT_INTO_TRADITIONS)
+- `RepairRecord` dataclass: `claim_id`, `action`, `original_text`, `revised_text`, `reason`
+- `TruthProfile` dataclass: `faithfulness`, `citation_coverage`, `contradiction_risk`, `inference_density`, `source_quality`, `answer_relevance`, `ambiguity_level`, `repair_count`
+- `RepairEngine`: `repair()` → model path (subconscious) or regex certainty-downgrade fallback
+- `VordurChecker.score_and_repair()` → `(FaithfulnessScore, TruthProfile, str)`; `_build_truth_profile()`
+- `CompletionResponse.truth_profile: Optional[Any] = None` field added
+
+## Wave 9 — What Was Built (E-36–E-38) — FINAL WAVE
+
+### E-36 — Contradiction Analyzer (`vordur.py`)
+- `ContradictionType` enum: 5 values (CLAIM_VS_SOURCE, INTER_SOURCE, INTRA_RESPONSE,
+  TRADITION_DIVERGENCE, NONE)
+- `ContradictionRecord` dataclass: `claim_ids`, `chunk_ids`, `contradiction_type`, `severity`, `description`
+- `ContradictionAnalyzer.analyze(claims, records, chunks) -> List[ContradictionRecord]`:
+  - `CLAIM_VS_SOURCE`: VerificationRecord verdict = CONTRADICTED (factual claims)
+  - `TRADITION_DIVERGENCE`: CONTRADICTED verdict on SYMBOLIC/INTERPRETIVE/HISTORICAL claims
+    → treated as PARTIALLY_SUPPORTED, not hallucination
+  - `INTER_SOURCE`: two chunks with topic overlap + negation asymmetry
+  - `INTRA_RESPONSE`: two claims of same type with overlap + negation asymmetry
+- `TruthProfile.contradictions: List[ContradictionRecord]` field added
+- `_build_truth_profile()` and `score_and_repair()` populate contradictions field
+
+### E-37 — Verification Modes + Trigger Engine (`vordur.py`, `model_router_client.py`)
+- `VerificationMode` extended: added NONE (skip Vörðr), STRICT (full pipeline),
+  INTERPRETIVE (symbolic truth OK), SPECULATIVE (hedged → NEUTRAL)
+- `get_mode_thresholds()` updated for all 8 modes
+- `TriggerEngine` class: `detect_mode(query, draft, context) -> VerificationMode`
+  - STRICT: certainty language ("always/never/proved/fact"), dates/numbers, named entities
+  - INTERPRETIVE: symbolic/mythic/spiritual content (seiðr, völva, galdr, rune…)
+  - SPECULATIVE: ≥2 hedged language hits
+  - NONE: very short responses (<50 chars, no certainty markers)
+  - Default: IRONSWORN
+- `smart_complete_with_cove()` gains `trigger_engine` param; NONE mode skips Stage 4 entirely
+
+### E-38 — Domain-Specific Validators (`vordur.py`)
+- `DomainValidator` base class: `domain` attribute, `validate() -> (VerdictLabel, float, str)`
+- `CodeValidator`: AST syntax check → CONTRADICTED on SyntaxError, ENTAILED on valid parse
+- `HistoricalValidator`: universal quantifier penalty → NEUTRAL; primary source → ENTAILED
+- `SymbolicValidator`: always returns NEUTRAL (tradition divergence is OK)
+- `ProceduralValidator`: step-order keyword matching between claim and source chunks
+- `_DOMAIN_VALIDATORS` registry + `get_domain_validator()` public accessor
+- `VordurChecker.verify_claim()` checks domain validator before judge call;
+  non-UNCERTAIN verdict short-circuits judge tier (judge_tier_used = "domain:X")
+
+## ALL 9 WAVES COMPLETE — E-01 through E-38 ✅
+
+The Ørlög Enhancement Plan is fully implemented. 18 core modules + 38 enhancements.
+
+**Resume procedure:** No pending waves. See ENHANCEMENT_PLAN.md for future planning.
+
+---
+
+## Security Context Resilience (S-01–S-06) ✅ DONE 2026-03-21
+
+Post-wave security hardening from context-resilience research (see `data/SECURITY_RESEARCH_context_resilience.md`).
+
+| # | Enhancement | Module | Status |
+|---|-------------|--------|--------|
+| S-01 | RAG chunk injection scan | `mimir_well.py` | ✅ |
+| S-02 | Per-tier response size caps | `model_router_client.py` | ✅ |
+| S-03 | Precise token budget (litellm counter) | `memory_store.py` | ✅ |
+| S-04 | Hard token cap + binary-search truncation | `prompt_synthesizer.py` | ✅ |
+| S-05 | ContextGuard + soul anchor re-injection | `prompt_synthesizer.py` | ✅ |
+| S-06 | Session file integrity (SessionFileGuard) | `security.py` + `runtime_kernel.py` | ✅ |
+
+- 48 new tests: `test_security_rag_scan.py`, `test_response_caps.py`, `test_context_guard.py`, `test_session_integrity.py`
+- Config: `data/security_config.json` — new `context_resilience` block
+- Research: `data/SECURITY_RESEARCH_context_resilience.md`, `data/SECURITY_CODE_IDEAS_context_resilience.md`
+
+---
+
+## Files Modified / Created Per Wave
+
+### Wave 4
+- `viking_girlfriend_skill/scripts/memory_store.py`
+- `viking_girlfriend_skill/scripts/scheduler.py`
+- `viking_girlfriend_skill/data/synonym_map.json` *(new)*
+- `tests/test_memory_associative.py` *(new)*
+- `tests/test_memory_emotional.py` *(new)*
+- `tests/test_memory_synonyms.py` *(new)*
+- `tests/test_memory_consolidation.py` *(new)*
+- `TASK_wave4_memory.md` *(new)*
+
+### Wave 5
+- `viking_girlfriend_skill/scripts/environment_mapper.py`
+- `viking_girlfriend_skill/scripts/prompt_synthesizer.py`
+- `viking_girlfriend_skill/data/environment.json`
+- `tests/test_environment_tod.py` *(new)*
+- `tests/test_environment_sensory.py` *(new)*
+- `tests/test_environment_objects.py` *(new)*
+- `TASK_wave5_environment.md` *(new)*
+
+### Wave 6
+- `viking_girlfriend_skill/scripts/trust_engine.py`
+- `tests/test_trust_facets.py` *(new)*
+- `tests/test_trust_milestones.py` *(new)*
+- `tests/test_trust_diminishing.py` *(new)*
+- `TASK_wave6_trust.md` *(new)*
+
+---
+
+## Warnings / Notes
+
+- `tests/test_e2e_system.py` permanently excluded — pre-existing event loop pollution
+- Whisper CUDA tests fail (missing `triton`) — pre-existing, not our code
+- `test_cove_pipeline.py`, `test_huginn.py`, `test_mimirvordur.py`, `test_federated_memory.py`,
+  `test_smart_complete_with_cove.py` — require live LiteLLM/Ollama, excluded from standard runs
+- Full Whisper model suite is CPU-heavy (~7 min) — give Volmarr a heads-up before running
