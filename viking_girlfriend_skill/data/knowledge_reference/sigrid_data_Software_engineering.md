@@ -211,6 +211,278 @@ Verified against SWEBOK's software configuration management knowledge area and l
 **Uniqueness note:**  
 This entry defines the engineering purpose of SCM broadly rather than focusing only on Git workflows or branching strategies.
 
+
+## Entry 0011 - Requirements Validation Checks the Requirement Set Itself
+
+**Subject:** Software engineering  
+**Category:** Methods and workflows  
+**Type:** method  
+
+**Entry:**  
+Requirements validation evaluates whether the requirement set is correct, complete enough for its purpose, internally consistent, feasible, testable, and aligned with stakeholder intent. This differs from validating the finished software in operation. Before implementation begins, engineers can validate requirements through reviews, scenarios, prototypes, acceptance-criteria analysis, and ambiguity checks so that obvious defects are removed from the specification baseline instead of being encoded into design and code.
+
+**Why it matters:**  
+An invalid requirement can propagate error into architecture, implementation, testing, scheduling, and budgeting. Catching those defects early is usually far cheaper than discovering them after release.
+
+**Verification note:**  
+Cross-checked against SWEBOK's software requirements guidance and standard requirements-engineering references that distinguish validation of requirements artifacts from later product validation in use.
+
+**Uniqueness note:**  
+Distinct from Entry 0004 because this focuses on the quality of the requirement set itself, not the broader verification-versus-validation distinction for software work products and systems.
+
+## Entry 0012 - Traceability Connects Decisions Across the Lifecycle
+
+**Subject:** Software engineering  
+**Category:** Operational practice  
+**Type:** mechanism  
+
+**Entry:**  
+Traceability is the disciplined ability to follow relationships among requirements, design elements, source changes, tests, defects, and releases. Good traceability does not mean linking everything to everything. It means maintaining the links that allow teams to answer practical engineering questions, such as which tests support a safety requirement, which change introduced a regression, or which requirements are affected by a proposed redesign.
+
+**Why it matters:**  
+Without traceability, impact analysis becomes guesswork and regulated, safety-critical, or highly complex projects lose auditability and change confidence.
+
+**Verification note:**  
+Validated against lifecycle standards and SWEBOK discussions of requirements, testing, and configuration management, which consistently frame traceability as an aid to impact analysis, verification planning, and controlled change.
+
+**Uniqueness note:**  
+This entry is about lifecycle linkage and impact reasoning, not version control alone.
+
+## Entry 0013 - Information Hiding Protects Design Stability
+
+**Subject:** Software engineering  
+**Category:** Architectures and patterns  
+**Type:** principle  
+
+**Entry:**  
+Information hiding means structuring a module so that design decisions likely to change are concealed behind a stable interface. The point is not secrecy for its own sake; it is to reduce the number of places that must change when an implementation detail changes. Hiding volatile details behind a well-chosen interface makes the rest of the system less brittle and more comprehensible.
+
+**Why it matters:**  
+Many systems become expensive to maintain because implementation choices leak across module boundaries. Information hiding is a foundational countermeasure against unnecessary ripple effects.
+
+**Verification note:**  
+Checked against Parnas's classic modularization argument and software-design knowledge-area references that treat information hiding as central to maintainable modular design.
+
+**Uniqueness note:**  
+Distinct from Entry 0008 because modularity concerns decomposition broadly, while this entry focuses specifically on concealing volatile implementation decisions.
+
+## Entry 0014 - Interface Contracts Define Obligations at System Boundaries
+
+**Subject:** Software engineering  
+**Category:** Architectures and patterns  
+**Type:** mechanism  
+
+**Entry:**  
+An interface contract specifies what a component promises and what it requires at a boundary. Depending on context, that can include inputs, outputs, preconditions, postconditions, error behavior, timing expectations, invariants, and versioning guarantees. An interface without a usable contract leaves callers to infer behavior from accidents of implementation, which weakens testing and makes integration fragile.
+
+**Why it matters:**  
+Contracts let teams reason about compatibility, composability, and correctness without inspecting every implementation detail. They are especially important when multiple teams or services evolve independently.
+
+**Verification note:**  
+Cross-checked against design-by-contract literature, API design guidance, and software architecture references emphasizing explicit boundary behavior as a prerequisite for reliable integration.
+
+**Uniqueness note:**  
+This entry focuses on boundary obligations rather than on abstraction as a general complexity-management principle.
+
+## Entry 0015 - Code Review Is a Socio-Technical Quality Control Mechanism
+
+**Subject:** Software engineering  
+**Category:** Testing and verification  
+**Type:** method  
+
+**Entry:**  
+Code review is the structured examination of a change by someone other than its primary author before or around integration. Effective review checks more than syntax or style. It can surface logic defects, security concerns, maintainability risks, missing tests, requirement misunderstandings, and architectural drift. Review quality depends on scope control, reviewer competence, and a team culture that values evidence and clarity over ego.
+
+**Why it matters:**  
+Many defects are cheaper to catch in review than after deployment. Review also spreads system knowledge and reinforces engineering standards across a team.
+
+**Verification note:**  
+Validated against software quality literature, modern engineering practice guides, and empirical findings that peer review can improve defect detection and maintainability when conducted with focused scope.
+
+**Uniqueness note:**  
+Distinct from static analysis because review applies human judgment to intent, context, and design tradeoffs, not just machine-checkable patterns.
+
+## Entry 0016 - Static Analysis Finds Certain Problems Without Executing the Program
+
+**Subject:** Software engineering  
+**Category:** Testing and verification  
+**Type:** technique  
+
+**Entry:**  
+Static analysis examines source code, intermediate representations, or binaries without running the target program in its production mode. Depending on the tool and analysis depth, it can identify type inconsistencies, unreachable code, tainted data flows, API misuse, concurrency hazards, security weaknesses, and deviations from coding rules. Its limits matter: static analysis can miss runtime context and can produce false positives, so it supplements rather than replaces other verification methods.
+
+**Why it matters:**  
+When used well, static analysis moves defect discovery earlier in the lifecycle and scales checks across large codebases more consistently than manual review alone.
+
+**Verification note:**  
+Cross-checked against software verification references and secure-development guidance that position static analysis as an early defect-detection technique with known strengths and false-positive tradeoffs.
+
+**Uniqueness note:**  
+This entry focuses on non-executing analysis; dynamic testing and runtime monitoring belong elsewhere.
+
+## Entry 0017 - Test Oracles Determine Whether Test Results Mean Success or Failure
+
+**Subject:** Software engineering  
+**Category:** Testing and verification  
+**Type:** concept  
+
+**Entry:**  
+A test oracle is the mechanism used to decide whether observed software behavior is correct for a given test. The oracle may be an exact expected value, a specification rule, a property, a model, a metamorphic relation, a reference implementation, or a human judgment procedure. The presence of test inputs alone is not enough; without an oracle, a test can execute code without reliably telling engineers whether the outcome is acceptable.
+
+**Why it matters:**  
+Weak or implicit oracles create false confidence. Much of test design quality depends on choosing an oracle appropriate to the risk and behavior being evaluated.
+
+**Verification note:**  
+Validated against software testing literature and SWEBOK-aligned testing concepts that treat oracle selection as fundamental to meaningful test evaluation.
+
+**Uniqueness note:**  
+Different from entries on validation or review because this one centers on how test outcomes are interpreted.
+
+## Entry 0018 - Continuous Integration Reduces Integration Risk by Shortening Feedback Loops
+
+**Subject:** Software engineering  
+**Category:** Methods and workflows  
+**Type:** practice  
+
+**Entry:**  
+Continuous integration is the practice of merging small changes into a shared code line frequently and validating them with automated build and verification steps. The main engineering benefit is not automation theater; it is the reduction of hidden integration divergence. By integrating early and often, teams surface compatibility errors, broken assumptions, flaky environments, and test regressions while the change set is still small enough to diagnose efficiently.
+
+**Why it matters:**  
+Late integration is one of the classic causes of schedule instability and defect spikes. Continuous integration lowers that risk by making integration an everyday activity instead of a crisis phase.
+
+**Verification note:**  
+Checked against established CI practice literature and DevOps/software-delivery guidance that consistently frame CI as a feedback-loop and integration-risk reduction discipline.
+
+**Uniqueness note:**  
+This entry is about integration cadence and verification flow, not the broader release automation stack of continuous delivery or deployment.
+
+## Entry 0019 - Observability Supports Diagnosis Through Externalized Evidence
+
+**Subject:** Software engineering  
+**Category:** Operational practice  
+**Type:** principle  
+
+**Entry:**  
+Observability in software engineering is the degree to which engineers can infer a system's internal state from its externally available signals, such as logs, metrics, traces, events, and diagnostic context. Useful observability is not just collecting large amounts of telemetry. It requires instrumentation designed around the questions operators and developers need to answer during failure analysis, performance investigation, and behavior verification in production-like conditions.
+
+**Why it matters:**  
+A system that cannot explain itself in operation becomes hard to debug, hard to trust, and expensive to maintain. Observability is therefore a design concern, not just an operations add-on.
+
+**Verification note:**  
+Validated against site reliability and distributed-systems operational guidance that treats logs, metrics, and traces as complementary evidence channels for diagnosing system behavior.
+
+**Uniqueness note:**  
+Distinct from monitoring because this entry emphasizes inferential power for diagnosis, not only threshold-based alerting.
+
+## Entry 0020 - Fault Tolerance Is About Sustaining Service Under Certain Fault Conditions
+
+**Subject:** Software engineering  
+**Category:** Reliability and security  
+**Type:** principle  
+
+**Entry:**  
+Fault tolerance is the capacity of a system to continue delivering at least an acceptable level of service in the presence of specified faults. The phrase must be scoped carefully: no system is tolerant of every fault. Engineering fault tolerance means identifying plausible failure modes, defining degradation boundaries, and using techniques such as redundancy, isolation, retries with restraint, failover, checkpointing, and graceful degradation where they are justified by risk and cost.
+
+**Why it matters:**  
+Teams sometimes claim resilience in vague terms. A precise fault-tolerance perspective forces them to define what faults are in scope and what service level is expected when those faults occur.
+
+**Verification note:**  
+Cross-checked with dependable-systems literature and software architecture reliability references that define fault tolerance in relation to specified fault assumptions and service continuity.
+
+**Uniqueness note:**  
+This entry establishes the scoped concept, not the details of any single redundancy pattern.
+
+## Entry 0021 - Technical Debt Is Deferred Cost, Not a Synonym for Any Imperfection
+
+**Subject:** Software engineering  
+**Category:** Failure modes and tradeoffs  
+**Type:** concept  
+
+**Entry:**  
+Technical debt refers to the future cost and reduced optionality created when a team chooses or inherits a suboptimal technical solution relative to a more sustainable alternative. The metaphor is useful only when it preserves the idea of tradeoff over time. Not every bug, missing feature, or ugly code fragment is technical debt. The concept is strongest when teams can identify the shortcut, the reason it was taken, and the likely interest payments in maintenance, risk, or delivery speed.
+
+**Why it matters:**  
+When used precisely, the debt metaphor helps teams reason about sustainability and sequencing. When used carelessly, it becomes a vague complaint that obscures the real engineering issue.
+
+**Verification note:**  
+Validated against Ward Cunningham's original framing and later engineering literature that distinguishes deliberate or inherited design compromise from generic software defects.
+
+**Uniqueness note:**  
+Different from defect-management entries because this one centers on time-shifted cost and architectural optionality.
+
+## Entry 0022 - Backward Compatibility Protects Existing Dependents During Evolution
+
+**Subject:** Software engineering  
+**Category:** Architectures and patterns  
+**Type:** principle  
+
+**Entry:**  
+Backward compatibility is the property that allows newer versions of a software component, interface, or data format to keep working for dependents built against an earlier supported contract. Compatibility is not all-or-nothing; it depends on what aspects of behavior were promised, what clients actually rely on, and what migration mechanisms exist. Good evolutionary design treats compatibility as a managed contract question rather than an afterthought.
+
+**Why it matters:**  
+Breaking changes can impose widespread downstream cost even when the local code change seems simple. Compatibility discipline is therefore a major part of responsible system evolution.
+
+**Verification note:**  
+Cross-checked against API and distributed-system design guidance, along with configuration and release-management practice, all of which emphasize contract stability and explicit migration policy.
+
+**Uniqueness note:**  
+This entry concerns evolution of supported behavior over versions, not just interface documentation quality.
+
+## Entry 0023 - Threat Modeling Helps Engineers Anticipate Security-Relevant Design Weaknesses
+
+**Subject:** Software engineering  
+**Category:** Reliability and security  
+**Type:** method  
+
+**Entry:**  
+Threat modeling is the structured analysis of how a system might be attacked, misused, or fail under adversarial pressure so that designers can prioritize mitigations before implementation or before major architectural changes harden. The method can involve asset identification, trust-boundary analysis, attacker goals, abuse cases, and threat categorizations. Its value lies in making security reasoning explicit early enough to influence design choices.
+
+**Why it matters:**  
+Security defects are often architectural before they are coding mistakes. Threat modeling helps prevent avoidable exposure by forcing teams to examine assumptions at the boundary and data-flow level.
+
+**Verification note:**  
+Validated against secure-development frameworks and threat-modeling guidance that position early adversarial design review as a core preventive engineering activity.
+
+**Uniqueness note:**  
+Distinct from Entry 0003 because this entry focuses on one security-analysis method, whereas Entry 0003 establishes the broader principle of integrating security into the lifecycle.
+
+## Entry 0024 - Incident Postmortems Should Improve the System, Not Merely Assign Blame
+
+**Subject:** Software engineering  
+**Category:** Operational practice  
+**Type:** practice  
+
+**Entry:**  
+An incident postmortem is a structured retrospective on a service failure, security event, or serious operational disruption intended to reconstruct what happened, why defenses failed, and how recurrence risk can be reduced. Strong postmortems examine contributing conditions across code, configuration, tooling, process, communication, and organizational assumptions. A blame-centered approach usually destroys the learning value by encouraging defensive simplification instead of honest causal analysis.
+
+**Why it matters:**  
+Operational incidents are expensive learning opportunities. If teams fail to capture and act on that learning, the same class of failure often returns in a new form.
+
+**Verification note:**  
+Cross-checked against site reliability engineering practice and modern incident-analysis guidance that emphasize systemic learning, timeline reconstruction, and actionability over scapegoating.
+
+**Uniqueness note:**  
+This entry centers on learning after incidents, not on real-time incident response coordination.
+
+## Entry 0025 - Cohesion Measures How Strongly a Module's Responsibilities Belong Together
+
+**Subject:** Software engineering  
+**Category:** Architectures and patterns  
+**Type:** principle  
+
+**Entry:**  
+Cohesion describes the degree to which the responsibilities inside a module, class, service, or component form a meaningful and focused whole. High cohesion generally means the element has a clear purpose and its internal parts contribute directly to that purpose. Low cohesion often signals a boundary that mixes unrelated reasons to change, making the design harder to understand, test, and evolve.
+
+**Why it matters:**  
+Cohesion helps engineers judge whether a design boundary is conceptually sound rather than merely convenient. It is one of the most practical indicators of whether decomposition will support maintainability.
+
+**Verification note:**  
+Validated against software-design literature and SWEBOK-aligned design principles that pair cohesion with coupling as a key criterion for evaluating modular structures.
+
+**Uniqueness note:**  
+Distinct from modularity in general and from information hiding specifically because this entry evaluates the internal focus of a single design unit.
+
+
 ## Final Quality Check
 - Entry count verified: no
 - Duplicate pass completed: no

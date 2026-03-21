@@ -11,14 +11,14 @@
 - Subject files currently present with compliant names: 72.
 - Subject files currently missing: 0.
 - Subject files complete to exactly 5000 verified entries: 0.
-- Best-developed compliant file at this checkpoint: `sigrid_data_Software_engineering.md` with 10 manual entries.
+- Best-developed compliant file at this checkpoint: `sigrid_data_Software_engineering.md` with 25 manual entries.
 - Blocking truth: completion has not been reached; duplicate, similarity, and full-accuracy passes remain outstanding for every subject file.
 
 ## Domain Progress Overview
 
 | # | Subject Name | File Name | Entry Count | Current Subdomain | Verified This Session | Remaining Work | Latest Quality Pass | Git Hash | Push Status |
 | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |
-| 1 | Software engineering | `sigrid_data_Software_engineering.md` | 10 | Foundations / manual baseline | Scope audited; entry count checked; entries 0006-0010 added manually | Build full taxonomy, research, write to 5000, deduplicate, audit | Opening batch drafted only | pending | not pushed |
+| 1 | Software engineering | `sigrid_data_Software_engineering.md` | 25 | Foundations / architecture / workflow / operational practice | Scope audited; entry count checked; entries 0006-0025 added manually | Build remaining 4975 entries, then run duplicate, similarity, and accuracy audits | Opening batches drafted only | pending | not pushed |
 | 2 | AI/ML systems | `sigrid_data_AI_ML_systems.md` | 0 | Initial file present; audit needed | Scope audited; entry count checked | Build full taxonomy, research, write to 5000, deduplicate, audit | Needs protocol compliance audit | pending | not pushed |
 | 3 | Data science | `sigrid_data_Data_science.md` | 0 | Initial file present; audit needed | Scope audited; entry count checked | Build full taxonomy, research, write to 5000, deduplicate, audit | Needs protocol compliance audit | pending | not pushed |
 | 4 | Cybersecurity | `sigrid_data_Cybersecurity.md` | 0 | Initial file present; audit needed | Scope audited; entry count checked | Build full taxonomy, research, write to 5000, deduplicate, audit | Needs protocol compliance audit | pending | not pushed |
@@ -103,6 +103,11 @@
 - Added entries `0006-0010` to `sigrid_data_Software_engineering.md` covering requirements elicitation, abstraction, modularity, nonfunctional requirements, and configuration management.
 - Preserved the file's incomplete quality status because full duplicate, similarity, and accuracy review for the subject is still pending.
 - Updated progress tracking to reflect the true state rather than implied completion.
+
+### 2026-03-21: Software engineering manual archival batch 03
+- Added entries `0011-0025` to `sigrid_data_Software_engineering.md` covering requirements validation, traceability, information hiding, interface contracts, code review, static analysis, test oracles, continuous integration, observability, fault tolerance, technical debt, backward compatibility, threat modeling, incident postmortems, and cohesion.
+- Kept the file marked incomplete because the protocol still requires 5000 total entries plus duplicate, similarity, and full accuracy review before archival completion.
+- Focused on widening category coverage so later batches can scale without early repetition.
 
 ## Notes
 

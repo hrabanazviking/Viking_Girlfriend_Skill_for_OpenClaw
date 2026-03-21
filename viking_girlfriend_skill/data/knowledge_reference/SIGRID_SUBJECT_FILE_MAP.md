@@ -4,7 +4,7 @@ Authoritative subject-to-filename mapping derived from `Subject_Matters_Domains_
 
 | # | Subject literal name | Required filename | Current state | Count |
 | --- | --- | --- | --- | ---: |
-| 1 | Software engineering | `sigrid_data_Software_engineering.md` | existing subject file | 10 |
+| 1 | Software engineering | `sigrid_data_Software_engineering.md` | existing subject file | 25 |
 | 2 | AI/ML systems | `sigrid_data_AI_ML_systems.md` | existing subject file | 0 |
 | 3 | Data science | `sigrid_data_Data_science.md` | existing subject file | 0 |
 | 4 | Cybersecurity | `sigrid_data_Cybersecurity.md` | existing subject file | 0 |
