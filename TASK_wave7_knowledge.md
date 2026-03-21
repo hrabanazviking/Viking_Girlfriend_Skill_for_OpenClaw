@@ -85,17 +85,17 @@ quality, token accuracy, and hot-reload capability. Two modules, 56 tests.
 
 ## Progress Tracker
 
-- [ ] TASK file committed
-- [ ] E-26 BM25 pre-filter implemented
-- [ ] E-27 Axiom integrity implemented
-- [ ] E-28 Dynamic reordering implemented
-- [ ] E-29 Skaldic vocabulary implemented (data file + injection)
-- [ ] E-30 Token counting implemented
-- [ ] E-31 Hot-reload implemented
-- [ ] All 6 test files written
-- [ ] Tests passing (full suite)
-- [ ] STATUS + memory updated
-- [ ] Committed and pushed
+- [x] TASK file committed
+- [x] E-26 BM25 pre-filter implemented
+- [x] E-27 Axiom integrity implemented
+- [x] E-28 Dynamic reordering implemented
+- [x] E-29 Skaldic vocabulary implemented (data file + injection)
+- [x] E-30 Token counting implemented
+- [x] E-31 Hot-reload implemented
+- [x] All 6 test files written (57 tests)
+- [x] Tests passing (304 total, 0 failures)
+- [x] STATUS + memory updated
+- [x] Committed and pushed
 
 ---
 
