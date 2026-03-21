@@ -99,6 +99,11 @@ class LaunchCalibrator:
         ("SIGRID_MODE",        "openclaw"),
         ("SIGRID_BIRTH_DATE",  "2004-08-12"),
         ("SIGRID_CYCLE_START_DATE", "2026-03-01"),
+        # Mimir-Vordur pipeline
+        ("MIMIR_COLLECTION_NAME",    "sigrid_knowledge"),
+        ("MIMIR_SEMANTIC_ENABLED",   "true"),
+        ("VORDUR_HIGH_THRESHOLD",    "0.80"),
+        ("DEAD_LETTER_PATH",         "session/dead_letters.jsonl"),
     ]
 
     _REQUIRED_DATA_FILES = [
@@ -129,6 +134,10 @@ class LaunchCalibrator:
         ("scripts.environment_mapper", "EnvironmentMapper"),
         ("scripts.prompt_synthesizer", "PromptSynthesizer"),
         ("scripts.model_router_client","ModelRouterClient"),
+        ("scripts.mimir_well",         "MimirWell"),
+        ("scripts.huginn",             "HuginnRetriever"),
+        ("scripts.vordur",             "VordurChecker"),
+        ("scripts.cove_pipeline",      "CovePipeline"),
         ("scripts.main",               "(main entry)"),
     ]
 
@@ -157,8 +166,10 @@ class LaunchCalibrator:
         self._check_env_vars()
         self._check_data_files()
         self._check_service_health()
+        self._check_mimir_infrastructure()
         self._check_module_imports()
         self._check_module_init()
+        self._check_mimir_init()
         self._calibrate_seeds()
         self._write_calibrated_config()
 
@@ -304,6 +315,35 @@ class LaunchCalibrator:
             },
             "scheduler": {"timezone": "local"},
             "project_generator": {"data_root": data_root},
+            # Mimir-Vordur pipeline config
+            "mimir_well": {
+                "data_root": data_root,
+                "collection_name": os.environ.get("MIMIR_COLLECTION_NAME", "sigrid_knowledge"),
+                "persist_dir": str(_SKILL_ROOT / "data" / "chromadb"),
+                "auto_ingest": False,
+                "force_reindex": False,
+            },
+            "huginn": {
+                "n_initial": 10,
+                "n_final": 3,
+                "domain_detection": True,
+                "include_episodic": False,
+            },
+            "vordur": {
+                "enabled": True,
+                "high_threshold": float(os.environ.get("VORDUR_HIGH_THRESHOLD", "0.80")),
+                "persona_check": True,
+                "judge_tier": "subconscious",
+            },
+            "cove": {
+                "min_complexity": "medium",
+                "n_verification_questions": 3,
+                "checkpoint_dir": str(_PROJECT_ROOT / "session" / "cove_checkpoints"),
+            },
+            "health_monitor": {
+                "check_interval_s": 60.0,
+                "dead_letter_alert_threshold": 5,
+            },
         }
         self._calibrated["base_config"] = cfg
 
@@ -332,6 +372,136 @@ class LaunchCalibrator:
                 self._record(STATUS_OK, f"init:{mod_name}", f"{fn_name}() succeeded")
             except Exception as exc:
                 self._record(STATUS_WARN, f"init:{mod_name}", f"{fn_name}() raised: {exc}")
+
+    def _check_mimir_infrastructure(self) -> None:
+        """Check directory structure, ChromaDB persist path, and dead-letter writability
+        required by the Mimir-Vordur RAG pipeline before any module is imported."""
+
+        # knowledge_reference directory
+        kr_dir = _SKILL_ROOT / "data" / "knowledge_reference"
+        if kr_dir.is_dir():
+            md_files = list(kr_dir.glob("*.md"))
+            if md_files:
+                self._record(STATUS_OK, "mimir:knowledge_reference",
+                             f"{len(md_files)} .md file(s) found in {kr_dir.name}/")
+            else:
+                self._record(STATUS_WARN, "mimir:knowledge_reference",
+                             f"Directory exists but contains no .md files — "
+                             f"Huginn will have no Ground Truth context")
+        else:
+            self._record(STATUS_WARN, "mimir:knowledge_reference",
+                         f"Missing: {kr_dir} — "
+                         f"create and populate before first run")
+
+        # ChromaDB persist directory (create on first run — just check parent is writable)
+        chroma_dir = _SKILL_ROOT / "data" / "chromadb"
+        try:
+            chroma_dir.mkdir(parents=True, exist_ok=True)
+            self._record(STATUS_OK, "mimir:chromadb_dir",
+                         f"Persist dir ready: {chroma_dir}")
+        except Exception as exc:
+            self._record(STATUS_WARN, "mimir:chromadb_dir",
+                         f"Could not create ChromaDB dir: {exc}")
+
+        # session/ writable (dead-letter store and cove checkpoints live here)
+        session_dir = _PROJECT_ROOT / "session"
+        try:
+            session_dir.mkdir(parents=True, exist_ok=True)
+            probe = session_dir / ".write_probe"
+            probe.write_text("ok")
+            probe.unlink()
+            dl_env = os.environ.get("DEAD_LETTER_PATH", "session/dead_letters.jsonl")
+            self._record(STATUS_OK, "mimir:session_dir",
+                         f"session/ writable; dead-letter path: {dl_env}")
+        except Exception as exc:
+            self._record(STATUS_WARN, "mimir:session_dir",
+                         f"session/ not writable: {exc} — dead-letter store will be read-only")
+
+    def _check_mimir_init(self) -> None:
+        """Cascade dry-run init of MimirWell -> HuginnRetriever -> VordurChecker -> CovePipeline.
+
+        Each step passes its singleton to the next so dependency injection mirrors
+        what main.py does at runtime. All failures are WARN (services may be absent
+        at calibration time).
+        """
+        cfg = self._calibrated.get("base_config", {})
+        well = None
+        router = None
+        vordur_obj = None
+
+        # Step 1: MimirWell
+        try:
+            mod = importlib.import_module("scripts.mimir_well")
+            fn = getattr(mod, "init_mimir_well_from_config", None)
+            if fn is None:
+                raise AttributeError("init_mimir_well_from_config not found")
+            well = fn(cfg, auto_ingest=False)
+            doc_count = well.get_state().document_count if well else 0
+            self._record(STATUS_OK, "init:mimir_well",
+                         f"MimirWell ready (document_count={doc_count})")
+        except Exception as exc:
+            self._record(STATUS_WARN, "init:mimir_well", f"init raised: {exc}")
+
+        # Step 2: HuginnRetriever (requires MimirWell)
+        try:
+            mod = importlib.import_module("scripts.huginn")
+            fn = getattr(mod, "init_huginn_from_config", None)
+            if fn is None:
+                raise AttributeError("init_huginn_from_config not found")
+            huginn = fn(cfg, mimir_well=well)
+            self._record(STATUS_OK, "init:huginn", "HuginnRetriever ready")
+        except Exception as exc:
+            self._record(STATUS_WARN, "init:huginn", f"init raised: {exc}")
+
+        # Step 3: VordurChecker (router=None is acceptable for dry-run)
+        try:
+            mod = importlib.import_module("scripts.vordur")
+            fn = getattr(mod, "init_vordur_from_config", None)
+            if fn is None:
+                raise AttributeError("init_vordur_from_config not found")
+            vordur_obj = fn(cfg, router=None)
+            self._record(STATUS_OK, "init:vordur", "VordurChecker ready (router=None)")
+        except Exception as exc:
+            self._record(STATUS_WARN, "init:vordur", f"init raised: {exc}")
+
+        # Step 4: CovePipeline (router=None acceptable for dry-run)
+        try:
+            mod = importlib.import_module("scripts.cove_pipeline")
+            fn = getattr(mod, "init_cove_from_config", None)
+            if fn is None:
+                raise AttributeError("init_cove_from_config not found")
+            fn(cfg, mimir_well=well, router=router, vordur=vordur_obj)
+            self._record(STATUS_OK, "init:cove_pipeline", "CovePipeline ready (router=None)")
+        except Exception as exc:
+            self._record(STATUS_WARN, "init:cove_pipeline", f"init raised: {exc}")
+
+        # Step 5: MimirHealthMonitor
+        try:
+            mod = importlib.import_module("scripts.mimir_well")
+            cls = getattr(mod, "MimirHealthMonitor", None)
+            get_well = getattr(mod, "get_mimir_well", None)
+            if cls and get_well:
+                hm_cfg = cfg.get("health_monitor", {})
+                monitor = cls(
+                    mimir_well=get_well(),
+                    vordur=None,
+                    huginn=None,
+                    cove=None,
+                    dead_letter_store=None,
+                    bus=None,
+                    check_interval_s=float(hm_cfg.get("check_interval_s", 60.0)),
+                    dead_letter_alert_threshold=int(
+                        hm_cfg.get("dead_letter_alert_threshold", 5)
+                    ),
+                )
+                state = monitor.get_state()
+                self._record(STATUS_OK, "init:mimir_health_monitor",
+                             f"MimirHealthMonitor ready (overall={state.overall})")
+            else:
+                self._record(STATUS_WARN, "init:mimir_health_monitor",
+                             "MimirHealthMonitor class not found in mimir_well")
+        except Exception as exc:
+            self._record(STATUS_WARN, "init:mimir_health_monitor", f"init raised: {exc}")
 
     def _calibrate_seeds(self) -> None:
         """Pre-seed oracle and Wyrd Matrix with today's values."""
@@ -407,6 +577,28 @@ class LaunchCalibrator:
             self._record(STATUS_OK, "time of day", tod)
         except Exception as exc:
             self._record(STATUS_WARN, "time of day", f"Failed: {exc}")
+
+        # ── Mimir corpus snapshot ──────────────────────────────────────────────
+        try:
+            from scripts.mimir_well import get_mimir_well
+            well = get_mimir_well()
+            state = well.get_state()
+            kr_dir = _SKILL_ROOT / "data" / "knowledge_reference"
+            md_count = len(list(kr_dir.glob("*.md"))) if kr_dir.is_dir() else 0
+            chromadb_ok = state.chromadb_status == "ok"
+            self._calibrated["mimir_corpus"] = {
+                "document_count": state.document_count,
+                "last_ingest": state.last_ingest_at,
+                "knowledge_files": md_count,
+                "chromadb_status": state.chromadb_status,
+                "fallback_mode": state.fallback_mode,
+            }
+            self._record(STATUS_OK, "mimir corpus",
+                         f"document_count={state.document_count} | "
+                         f"knowledge_files={md_count} | "
+                         f"chromadb={state.chromadb_status}")
+        except Exception as exc:
+            self._record(STATUS_WARN, "mimir corpus", f"Failed: {exc}")
 
     def _write_calibrated_config(self) -> None:
         """Write session/calibrated_config.json for main.py to consume at startup."""
