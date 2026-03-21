@@ -1,6 +1,6 @@
 # Sigrid - OpenClaw Viking Companion Skill
 
-![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA) 
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/viking_girlfriend_logos/6fb0c9df-8a6a-4f72-814b-24ebbce4c420.jpg?token=GHSAT0AAAAAADVQFGEJMLRC2ALJZQZHCRQC2N6XLLA)
 
 https://github.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/tree/development
 
