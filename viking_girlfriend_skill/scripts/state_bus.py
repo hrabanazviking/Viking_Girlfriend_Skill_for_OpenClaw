@@ -136,6 +136,8 @@ class StateBus:
         self._outbound_created_at: deque[str] = deque()
 
         # Telemetry counters — Huginn's tally of all traffic
+        self._inbound_subscriber_dropped = 0   # fan-out drops to slow inbound subscribers
+        self._state_subscriber_dropped = 0     # fan-out drops to slow state subscribers
         self._inbound_published = 0
         self._outbound_enqueued = 0
         self._outbound_dropped = 0
@@ -162,12 +164,24 @@ class StateBus:
             try:
                 queue.put_nowait(event)
             except asyncio.QueueFull:
-                pass  # Slow subscriber — skip rather than block
+                self._inbound_subscriber_dropped += 1
+                import logging as _log
+                _log.getLogger(__name__).warning(
+                    "StateBus backpressure: inbound subscriber queue full "
+                    "(channel=%r, total_dropped=%d) — event skipped",
+                    event.channel, self._inbound_subscriber_dropped,
+                )
         for queue in tuple(self._inbound_topics.get(_WILDCARD, ())):
             try:
                 queue.put_nowait(event)
             except asyncio.QueueFull:
-                pass
+                self._inbound_subscriber_dropped += 1
+                import logging as _log
+                _log.getLogger(__name__).warning(
+                    "StateBus backpressure: wildcard inbound subscriber queue full "
+                    "(total_dropped=%d) — event skipped",
+                    self._inbound_subscriber_dropped,
+                )
 
     async def next_inbound(self) -> InboundEvent:
         """Await the next inbound event from the main queue."""
@@ -237,12 +251,24 @@ class StateBus:
             try:
                 queue.put_nowait(event)
             except asyncio.QueueFull:
-                pass
+                self._state_subscriber_dropped += 1
+                import logging as _log
+                _log.getLogger(__name__).warning(
+                    "StateBus backpressure: state subscriber queue full "
+                    "(event_type=%r, total_dropped=%d) — event skipped",
+                    event.event_type, self._state_subscriber_dropped,
+                )
         for queue in tuple(self._state_topics.get(_WILDCARD, ())):
             try:
                 queue.put_nowait(event)
             except asyncio.QueueFull:
-                pass
+                self._state_subscriber_dropped += 1
+                import logging as _log
+                _log.getLogger(__name__).warning(
+                    "StateBus backpressure: wildcard state subscriber queue full "
+                    "(total_dropped=%d) — event skipped",
+                    self._state_subscriber_dropped,
+                )
 
     async def next_state(self) -> StateEvent:
         """Await the next state event from the main queue."""
@@ -331,6 +357,8 @@ class StateBus:
             "state_size": self._state.qsize(),
             "state_published": self._state_published,
             "state_dropped": self._state_dropped,
+            "inbound_subscriber_dropped": self._inbound_subscriber_dropped,
+            "state_subscriber_dropped": self._state_subscriber_dropped,
             "dead_letter_size": self._dead_letter.qsize(),
             "dead_letter_enqueued": self._dead_letter_enqueued,
             "inbound_topic_count": sum(

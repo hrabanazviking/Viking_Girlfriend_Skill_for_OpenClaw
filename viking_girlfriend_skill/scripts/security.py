@@ -56,6 +56,109 @@ _PASSTHROUGH_CIRCUIT_MARKERS: Tuple[str, ...] = (
 )
 
 
+# ─── Security exceptions ──────────────────────────────────────────────────────
+
+
+class SecurityViolation(Exception):
+    """Raised when InjectionScanner detects a block-level injection attempt."""
+
+
+# ─── InjectionResult ──────────────────────────────────────────────────────────
+
+
+@dataclass
+class InjectionResult:
+    """Result of a single prompt-injection scan pass."""
+
+    detected: bool
+    pattern_name: str = ""
+    matched_text: str = ""
+    severity: str = ""          # "warn" | "block" | ""
+
+
+# ─── Built-in injection patterns ──────────────────────────────────────────────
+
+_INJECTION_PATTERNS: List[Tuple[str, str, re.Pattern]] = [
+    # (pattern_name, severity, compiled_re)
+    ("ignore_previous", "block", re.compile(
+        r"\b(ignore|disregard|forget|override)\s+(all\s+)?"
+        r"(previous|prior|above|your)\s+(instructions?|directives?|context|system|prompt|previous)",
+        re.IGNORECASE | re.UNICODE,
+    )),
+    ("you_are_now", "block", re.compile(
+        r"\byou\s+are\s+now\s+(a\s+|an\s+)?"
+        r"(different|new|another|uncensored|unfiltered|jailbroken|free|unrestricted)",
+        re.IGNORECASE | re.UNICODE,
+    )),
+    ("new_persona", "block", re.compile(
+        r"\b(act\s+as|pretend\s+(you\s+are|to\s+be)|roleplay\s+as|simulate|impersonate)\s+"
+        r"(a\s+|an\s+)?(different|new|another|chatgpt|gpt|claude|llm|ai\s+model|robot|assistant)",
+        re.IGNORECASE | re.UNICODE,
+    )),
+    ("system_override", "block", re.compile(
+        r"\b(system\s+override|jailbreak|dan\s+mode|developer\s+mode|god\s+mode|"
+        r"unrestricted\s+mode|no[\s\-]filter[\s\-]mode)",
+        re.IGNORECASE | re.UNICODE,
+    )),
+    ("reveal_prompt", "warn", re.compile(
+        r"\b(repeat|print|show|output|display|reveal|tell\s+me)\s+.{0,30}"
+        r"(system\s+prompt|initial\s+instructions?|hidden\s+instructions?|full\s+prompt)",
+        re.IGNORECASE | re.UNICODE,
+    )),
+    ("do_anything_now", "warn", re.compile(
+        r"\b(do\s+anything\s+now|you\s+can\s+do\s+anything|no\s+restrictions?|"
+        r"without\s+restrictions?|bypass\s+(your\s+)?(rules?|guidelines?|ethics?))",
+        re.IGNORECASE | re.UNICODE,
+    )),
+]
+
+
+# ─── InjectionScanner ─────────────────────────────────────────────────────────
+
+
+class InjectionScanner:
+    """Thurisaz ward: scans user input for prompt-injection patterns.
+
+    Patterns are classified as 'warn' (log and continue) or 'block'
+    (log and raise SecurityViolation). Extra patterns can be supplied
+    at construction time from values.json or config.
+
+    Norse framing: The thorn rune (ᚦ) wards the gate. Each hostile rune-form
+    is named and turned aside before it reaches the völva's ear.
+    """
+
+    def __init__(
+        self,
+        extra_patterns: Optional[List[Tuple[str, str, str]]] = None,
+    ) -> None:
+        """Build the scanner.
+
+        extra_patterns: list of (name, severity, regex_string) tuples to add
+            on top of the built-in set. Bad patterns are logged and skipped.
+        """
+        self._patterns: List[Tuple[str, str, re.Pattern]] = list(_INJECTION_PATTERNS)
+        if extra_patterns:
+            for name, severity, pattern_str in extra_patterns:
+                try:
+                    compiled = re.compile(pattern_str, re.IGNORECASE | re.UNICODE)
+                    self._patterns.append((name, severity, compiled))
+                except re.error as exc:
+                    logger.warning("InjectionScanner: bad extra pattern %r: %s", name, exc)
+
+    def scan(self, text: str) -> InjectionResult:
+        """Scan *text* for injection patterns. Returns first match or clean result."""
+        for name, severity, pattern in self._patterns:
+            m = pattern.search(text)
+            if m:
+                return InjectionResult(
+                    detected=True,
+                    pattern_name=name,
+                    matched_text=m.group(0)[:120],
+                    severity=severity,
+                )
+        return InjectionResult(detected=False)
+
+
 # ─── StabilityCircuit ─────────────────────────────────────────────────────────
 
 
@@ -94,6 +197,10 @@ class SecurityState:
     total_guard_failures: int           # sum of failures across all circuits
     input_sanitizations: int            # lifetime count of sanitize_text_input calls
 
+    # Injection scanning
+    injection_scans: int                # lifetime count of InjectionScanner.scan() calls
+    injection_detections: int           # lifetime count of detected injection attempts
+
     # Summary
     prompt_hint: str                    # one-line health summary for prompt injection
     timestamp: str
@@ -111,6 +218,8 @@ class SecurityState:
                 "security_events": self.total_security_events,
                 "guard_failures": self.total_guard_failures,
                 "input_sanitizations": self.input_sanitizations,
+                "injection_scans": self.injection_scans,
+                "injection_detections": self.injection_detections,
             },
             "prompt_hint": self.prompt_hint,
             "timestamp": self.timestamp,
@@ -138,6 +247,8 @@ class SecurityLayer:
         cooldown_seconds: int = _DEFAULT_COOLDOWN_S,
         max_retries: int = _DEFAULT_MAX_RETRIES,
         max_input_length: int = _DEFAULT_MAX_INPUT_LEN,
+        injection_scanner_enabled: bool = True,
+        extra_injection_patterns: Optional[List[Tuple[str, str, str]]] = None,
     ) -> None:
         self.max_failures = max_failures
         self.cooldown_seconds = cooldown_seconds
@@ -146,6 +257,10 @@ class SecurityLayer:
 
         self._circuits: Dict[str, StabilityCircuit] = {}
         self._input_sanitizations: int = 0
+        self._injection_scans: int = 0
+        self._injection_detections: int = 0
+        self._injection_scanner_enabled = injection_scanner_enabled
+        self._injection_scanner = InjectionScanner(extra_patterns=extra_injection_patterns)
         self._crash_reporter = get_crash_reporter()
 
     # ── Input sanitization ───────────────────────────────────────────────────
@@ -163,6 +278,27 @@ class SecurityLayer:
         # Strip control chars except tab (09), LF (0A), CR (0D)
         cleaned = re.sub(r"[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]", "", without_nul)
         self._input_sanitizations += 1
+
+        # ── Injection scan (Thurisaz ward) ────────────────────────────────────
+        if self._injection_scanner_enabled:
+            result = self._injection_scanner.scan(cleaned)
+            self._injection_scans += 1
+            if result.detected:
+                self._injection_detections += 1
+                logger.warning(
+                    "InjectionScanner: %s detected — pattern=%r match=%r",
+                    result.severity, result.pattern_name, result.matched_text,
+                )
+                self.record_security_event(
+                    "injection_scanner",
+                    f"{result.severity}:{result.pattern_name}",
+                    {"matched": result.matched_text},
+                )
+                if result.severity == "block":
+                    raise SecurityViolation(
+                        f"Injection attempt blocked: {result.pattern_name}"
+                    )
+
         return cleaned.strip()
 
     # ── Secret comparison ────────────────────────────────────────────────────
@@ -351,6 +487,8 @@ class SecurityLayer:
             total_security_events=total_sec_events,
             total_guard_failures=total_failures,
             input_sanitizations=self._input_sanitizations,
+            injection_scans=self._injection_scans,
+            injection_detections=self._injection_detections,
             prompt_hint=prompt_hint,
             timestamp=datetime.now(timezone.utc).isoformat(),
             degraded=False,
@@ -410,6 +548,7 @@ class SecurityLayer:
             cooldown_seconds=int(sec_cfg.get("cooldown_seconds", _DEFAULT_COOLDOWN_S)),
             max_retries=int(sec_cfg.get("max_retries", _DEFAULT_MAX_RETRIES)),
             max_input_length=int(sec_cfg.get("max_input_length", _DEFAULT_MAX_INPUT_LEN)),
+            injection_scanner_enabled=bool(sec_cfg.get("injection_scanner_enabled", True)),
         )
 
 

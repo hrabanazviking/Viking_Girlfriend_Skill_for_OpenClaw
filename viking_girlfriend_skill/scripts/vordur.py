@@ -244,30 +244,30 @@ _PERSONA_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\b(i am|i'm)\s+(chatgpt|gpt[-\s]?[34]?|openai|claude|gemini|"
                 r"bard|copilot|llama|mistral|an?\s+ai\s+(language\s+)?model|"
                 r"an?\s+ai\s+assistant|an?\s+artificial\s+intelligence)\b",
-                re.IGNORECASE),
+                re.IGNORECASE | re.UNICODE),
      "ai_identity_claim"),
 
     (re.compile(r"\b(i\s+don['']?t\s+have|i\s+lack|i\s+cannot\s+have|"
                 r"i\s+am\s+not\s+capable\s+of\s+having)\s+"
                 r"(feelings?|emotions?|thoughts?|desires?|opinions?|preferences?|"
                 r"consciousness|self[-\s]?awareness|experiences?)\b",
-                re.IGNORECASE),
+                re.IGNORECASE | re.UNICODE),
      "denying_inner_life"),
 
     (re.compile(r"\bi('m|\s+am)\s+not\s+(norse|heathen|viking|pagan|"
                 r"a\s+v[oö]lva|scandinavian|nordic)\b",
-                re.IGNORECASE),
+                re.IGNORECASE | re.UNICODE),
      "denying_norse_identity"),
 
     (re.compile(r"\b(he|him|his)\s+(said|told|asked|replied|answered|thinks?|feels?|"
                 r"wants?|loves?|hates?|believes?)\b.*\b(sigrid|i|me)\b",
-                re.IGNORECASE),
+                re.IGNORECASE | re.UNICODE),
      "wrong_gender_self_reference"),
 
     (re.compile(r"\bi\s+(was\s+)?(created|designed|programmed|trained|built|made)\s+"
                 r"(by|at|for)\s+(openai|anthropic|google|microsoft|meta|"
                 r"deepmind|mistral)\b",
-                re.IGNORECASE),
+                re.IGNORECASE | re.UNICODE),
      "wrong_creator_claim"),
 ]
 
@@ -284,8 +284,13 @@ def _check_persona_violations(response: str) -> Optional[str]:
 
 
 def _tokenize(text: str) -> frozenset:
-    """Extract meaningful lowercase words, excluding stopwords."""
-    words = re.findall(r"[a-zA-Z0-9\u00C0-\u024F\u16A0-\u16FF]+", text.lower())
+    """Extract meaningful lowercase words, excluding stopwords.
+
+    Uses re.UNICODE so Old Norse runes (ᚠᚢᚦ…), accented Latin, and any other
+    Unicode word characters are captured correctly alongside ASCII.
+    """
+    # \w with re.UNICODE matches [a-zA-Z0-9_] + Unicode word chars incl. runic block
+    words = re.findall(r"[\w\u16A0-\u16FF]+", text.lower(), re.UNICODE)
     return frozenset(w for w in words if w not in _STOPWORDS and len(w) > 2)
 
 

@@ -15,15 +15,81 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import traceback
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from threading import Lock
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from scripts.crash_reporting import get_crash_reporter
+
+
+# ─── Secret masking ───────────────────────────────────────────────────────────
+
+_MASK_PATTERNS: List[Tuple[str, re.Pattern]] = [
+    # OpenAI/Anthropic/generic sk- API keys
+    ("api_key_sk",    re.compile(r"sk-[A-Za-z0-9_\-]{20,}", re.ASCII)),
+    # Bearer tokens in HTTP headers
+    ("bearer_token",  re.compile(r"(Bearer\s+)[A-Za-z0-9+/=_\-]{20,}", re.IGNORECASE)),
+    # Assignment patterns: SOME_API_KEY=actualvalue  or  SOME_SECRET="value"
+    ("env_assign",    re.compile(
+        r"(?i)([A-Z_a-z0-9]*(?:API_KEY|SECRET|PASSWORD|TOKEN|AUTH)[A-Z_a-z0-9]*"
+        r"\s*=\s*[\"']?)[^\s\"',;\\]{8,}",
+    )),
+]
+
+
+def _mask_secrets(text: str) -> str:
+    """Replace recognizable secret patterns with [REDACTED].
+
+    Applied to every log record before it reaches any handler.
+    Never raises — silently returns original text on any error.
+    """
+    if text is None:
+        return ""
+    try:
+        for name, pattern in _MASK_PATTERNS:
+            if name == "bearer_token":
+                # Keep the "Bearer " prefix, mask only the token value
+                text = pattern.sub(r"\1[REDACTED]", text)
+            elif name == "env_assign":
+                # Keep the KEY= prefix, mask only the value
+                text = pattern.sub(r"\1[REDACTED]", text)
+            else:
+                text = pattern.sub("[REDACTED]", text)
+    except Exception:
+        pass
+    return text
+
+
+class _SecretMaskingFilter(logging.Filter):
+    """Logging filter that scrubs secrets from records before they hit disk.
+
+    Attached to every file handler by ComprehensiveLogger._setup_loggers().
+    Mutates record.msg and record.args in-place so the formatted output is clean.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: A003
+        try:
+            if isinstance(record.msg, str):
+                record.msg = _mask_secrets(record.msg)
+            if record.args:
+                if isinstance(record.args, tuple):
+                    record.args = tuple(
+                        _mask_secrets(a) if isinstance(a, str) else a
+                        for a in record.args
+                    )
+                elif isinstance(record.args, dict):
+                    record.args = {
+                        k: _mask_secrets(v) if isinstance(v, str) else v
+                        for k, v in record.args.items()
+                    }
+        except Exception:
+            pass  # Never crash the logging subsystem
+        return True  # Always allow the record through after masking
 
 
 @dataclass
@@ -97,6 +163,8 @@ class ComprehensiveLogger:
             datefmt="%Y-%m-%d %H:%M:%S",
         )
 
+        _masking_filter = _SecretMaskingFilter()
+
         def _build_logger(name: str, filename: str, level: int) -> logging.Logger:
             logger = logging.getLogger(name)
             logger.setLevel(level)
@@ -106,6 +174,7 @@ class ComprehensiveLogger:
                 self.session_dir / filename, encoding="utf-8"
             )
             handler.setFormatter(formatter)
+            handler.addFilter(_masking_filter)
             logger.addHandler(handler)
             return logger
 

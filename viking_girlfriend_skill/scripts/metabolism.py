@@ -116,6 +116,7 @@ class MetabolismState:
     # ── Raw hardware metrics ─────────────────────────────────────────────────
     cpu_percent: float
     cpu_temp_celsius: Optional[float]       # None if unavailable (e.g. Windows)
+    temp_source: str                        # "sensor" | "proxy" | "unavailable"
     ram_percent: float
     ram_used_gb: float
     ram_total_gb: float
@@ -152,6 +153,7 @@ class MetabolismState:
                 "cpu_temp_celsius": (
                     round(self.cpu_temp_celsius, 1) if self.cpu_temp_celsius is not None else None
                 ),
+                "temp_source": self.temp_source,
                 "ram_percent": round(self.ram_percent, 1),
                 "ram_used_gb": round(self.ram_used_gb, 2),
                 "ram_total_gb": round(self.ram_total_gb, 2),
@@ -217,6 +219,8 @@ class MetabolismAdapter:
         # Cache last state to avoid hammering psutil
         self._cached_state: Optional[MetabolismState] = None
         self._last_poll_time: float = 0.0
+        # Warn only once when falling back to thermal proxy
+        self._temp_proxy_warned: bool = False
 
         logger.info(
             "MetabolismAdapter initialised — poll_interval=%.1fs, temp_key=%r",
@@ -288,7 +292,7 @@ class MetabolismAdapter:
         now_ts = time.monotonic()
 
         cpu_percent = self._read_cpu()
-        cpu_temp = self._read_cpu_temp()
+        cpu_temp, temp_source = self._read_cpu_temp(cpu_percent)
         ram_percent, ram_used_gb, ram_total_gb = self._read_ram()
         disk_read_mbps, disk_write_mbps = self._read_disk_rate(now_ts)
         battery_pct, battery_charging = self._read_battery()
@@ -315,10 +319,9 @@ class MetabolismAdapter:
         if cpu_temp is not None:
             body_warmth = _threshold_label(cpu_temp, _CPU_TEMP_THRESHOLDS)
         else:
-            # Infer warmth from CPU load as fallback
-            body_warmth = _threshold_label(
-                cpu_percent * 0.75, _CPU_TEMP_THRESHOLDS
-            )
+            # cpu_temp is None only if _read_cpu_temp itself returned None (should not happen)
+            body_warmth = _threshold_label(cpu_percent * 0.75, _CPU_TEMP_THRESHOLDS)
+            temp_source = "unavailable"
 
         memory_pressure = _threshold_label(ram_percent, _RAM_THRESHOLDS)
 
@@ -349,6 +352,7 @@ class MetabolismAdapter:
         return MetabolismState(
             cpu_percent=cpu_percent,
             cpu_temp_celsius=cpu_temp,
+            temp_source=temp_source,
             ram_percent=ram_percent,
             ram_used_gb=ram_used_gb,
             ram_total_gb=ram_total_gb,
@@ -383,24 +387,40 @@ class MetabolismAdapter:
             logger.warning("CPU percent unavailable: %s", exc)
             return 0.0
 
-    def _read_cpu_temp(self) -> Optional[float]:
-        """Read CPU temperature in Celsius. Returns None if unavailable."""
+    def _read_cpu_temp(self, cpu_percent: float) -> Tuple[Optional[float], str]:
+        """Read CPU temperature in Celsius.
+
+        Returns (temp_celsius, source) where source is:
+          "sensor"      — real hardware reading
+          "proxy"       — computed from CPU load (Windows / no sensor rights)
+          "unavailable" — psutil has no temperature API at all
+
+        Logs a one-time WARNING when falling back to proxy.
+        """
         try:
             sensors = psutil.sensors_temperatures()
-            if not sensors:
-                return None
-            # Try preferred key first, then fall back to any available
-            for key in (self._temp_sensor_key, "k10temp", "coretemp", "cpu_thermal",
-                        "cpu-thermal", "acpitz"):
-                if key in sensors and sensors[key]:
-                    return float(sensors[key][0].current)
-            # Last resort: first available sensor
-            for readings in sensors.values():
-                if readings:
-                    return float(readings[0].current)
+            if sensors:
+                # Try preferred key first, then fall back to any available
+                for key in (self._temp_sensor_key, "k10temp", "coretemp",
+                            "cpu_thermal", "cpu-thermal", "acpitz"):
+                    if key in sensors and sensors[key]:
+                        return float(sensors[key][0].current), "sensor"
+                # Last resort: first available sensor
+                for readings in sensors.values():
+                    if readings:
+                        return float(readings[0].current), "sensor"
         except (AttributeError, Exception) as exc:
-            logger.debug("CPU temperature unavailable: %s", exc)
-        return None
+            logger.debug("CPU temperature sensor error: %s", exc)
+
+        # No sensor data — compute thermal proxy from CPU load
+        if not self._temp_proxy_warned:
+            self._temp_proxy_warned = True
+            logger.warning(
+                "MetabolismAdapter: CPU temperature sensor unavailable "
+                "(Windows or no admin rights) — using load-based thermal proxy."
+            )
+        proxy_temp = 35.0 + cpu_percent * 0.45
+        return proxy_temp, "proxy"
 
     def _read_ram(self) -> Tuple[float, float, float]:
         """Read RAM usage. Returns (percent, used_gb, total_gb)."""

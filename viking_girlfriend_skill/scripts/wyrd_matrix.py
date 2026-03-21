@@ -536,9 +536,11 @@ class StressAccumulator:
     """
 
     stress_level: float = 0.0
+    decay_mode: str = "exponential"     # "exponential" | "linear"
     _history: List[Dict[str, Any]] = field(default_factory=list)
 
-    DECAY_PER_TURN: float = 1.5
+    DECAY_PER_TURN: float = 1.5         # used only when decay_mode="linear"
+    DECAY_RATE: float = 0.06            # fraction per turn for exponential mode
     SPIKE_THRESHOLD: float = 40.0
     BREAKDOWN_THRESHOLD: float = 80.0
 
@@ -566,8 +568,17 @@ class StressAccumulator:
             self._history = self._history[-30:]
 
     def decay_turn(self) -> None:
-        """Natural stress relief — call once per turn."""
-        self.stress_level = max(0.0, self.stress_level - self.DECAY_PER_TURN)
+        """Natural stress relief — call once per turn.
+
+        Exponential mode (default): stress decays by a fixed fraction each turn,
+        so high stress drops faster at first and slows as it approaches zero —
+        mimicking human physiological recovery curves.
+        Linear mode: fixed constant subtraction per turn (legacy behaviour).
+        """
+        if self.decay_mode == "exponential":
+            self.stress_level = max(0.0, self.stress_level * (1.0 - self.DECAY_RATE))
+        else:
+            self.stress_level = max(0.0, self.stress_level - self.DECAY_PER_TURN)
 
     def apply_ritual(self, ritual_type: str) -> float:
         """Apply ritual stress relief. Returns new stress level."""
@@ -599,13 +610,17 @@ class StressAccumulator:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "stress_level": round(self.stress_level, 2),
+            "decay_mode": self.decay_mode,
             "label": self.label,
             "history": self._history[-10:],
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "StressAccumulator":
-        obj = cls(stress_level=data.get("stress_level", 0.0))
+        obj = cls(
+            stress_level=data.get("stress_level", 0.0),
+            decay_mode=data.get("decay_mode", "exponential"),
+        )
         obj._history = data.get("history", [])
         return obj
 
