@@ -45,16 +45,16 @@ Total expected new tests: ~53 across 4 new test files + extensions.
 ## Progress Tracker
 
 - [x] TASK file committed
-- [ ] S-01: RAG chunk injection scan
-- [ ] S-02: Response size capping
-- [ ] S-03: Precise token budget
-- [ ] S-04: Hard token cap + auto-truncation
-- [ ] S-05: ContextGuard + soul re-injection
-- [ ] S-06: Session file integrity
-- [ ] All test files written
-- [ ] Tests passing
-- [ ] STATUS + memory updated
-- [ ] Committed and pushed
+- [x] S-01: RAG chunk injection scan
+- [x] S-02: Response size capping
+- [x] S-03: Precise token budget
+- [x] S-04: Hard token cap + auto-truncation
+- [x] S-05: ContextGuard + soul re-injection
+- [x] S-06: Session file integrity
+- [x] All test files written (48 new tests)
+- [x] Tests passing (491 total, 5 pre-existing backpressure failures only)
+- [x] STATUS + memory updated
+- [x] Committed and pushed
 
 ---
 
