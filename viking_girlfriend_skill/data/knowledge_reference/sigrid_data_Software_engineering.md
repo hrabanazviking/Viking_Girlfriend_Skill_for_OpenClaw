@@ -120,6 +120,97 @@ Verified against the ACM/IEEE Software Engineering Code of Ethics and cross-chec
 **Uniqueness note:**  
 This entry establishes the ethical boundary of the subject; it is not a generic workplace-values note.
 
+
+## Entry 0006 - Requirements Elicitation Is Discovery, Not Mere Form Filling
+
+**Subject:** Software engineering  
+**Category:** Methods and workflows  
+**Type:** method  
+
+**Entry:**  
+Requirements elicitation is the disciplined effort to discover stakeholder needs, operational constraints, domain rules, and success conditions before those are formalized into stable requirements artifacts. In mature software engineering, elicitation is not just collecting feature wishes through a questionnaire; it involves interviews, observation, document analysis, prototypes, scenario exploration, and conflict clarification because stakeholders often express solutions, assumptions, or partial views rather than complete requirements.
+
+**Why it matters:**  
+A project can build exactly what was written down and still fail if the team never uncovered the real need, hidden constraint, or conflicting stakeholder expectation. Good elicitation reduces expensive downstream rework.
+
+**Verification note:**  
+Cross-checked with SWEBOK's software requirements knowledge area and BABOK-style requirements practice summaries, which agree that elicitation includes discovery, clarification, and negotiation rather than passive form capture alone.
+
+**Uniqueness note:**  
+This entry concerns the front-end discovery activity itself, not later specification quality criteria or change management.
+
+## Entry 0007 - Abstraction Controls Complexity by Suppressing Irrelevant Detail
+
+**Subject:** Software engineering  
+**Category:** Core principles  
+**Type:** principle  
+
+**Entry:**  
+Abstraction is the engineering practice of representing a component, behavior, or system at a level that exposes the details needed for reasoning while hiding details that are irrelevant to the current task. This is not vagueness; it is selective precision. A good abstraction gives developers a reliable interface or model that supports design, implementation, testing, and maintenance without forcing them to think about every internal mechanism simultaneously.
+
+**Why it matters:**  
+Large software systems become unmanageable when every developer must reason about all layers at once. Abstraction is one of the central mechanisms that makes scale, modularity, and change tolerance possible.
+
+**Verification note:**  
+Validated against SWEBOK's design knowledge area and standard software-design texts that consistently treat abstraction as a primary complexity-management tool alongside modularity and information hiding.
+
+**Uniqueness note:**  
+Distinct from modularity because abstraction concerns representation level, while modularity concerns system partitioning and dependency structure.
+
+## Entry 0008 - Modularity Is About Change Boundaries as Much as Code Organization
+
+**Subject:** Software engineering  
+**Category:** Architectures and patterns  
+**Type:** principle  
+
+**Entry:**  
+Modularity means decomposing a software system into parts whose responsibilities, interfaces, and dependencies are structured so that changes can be localized rather than spread chaotically through the whole system. A modular design is not just one with many files or packages; it is one where cohesion is intentionally high, coupling is intentionally controlled, and the partitioning reflects how the system is expected to evolve.
+
+**Why it matters:**  
+Teams often mistake surface-level code organization for sound architecture. Real modularity reduces coordination cost, eases testing, and limits the blast radius of defects or requirement changes.
+
+**Verification note:**  
+Checked against classic design principles from Parnas on modular decomposition and against SWEBOK design guidance emphasizing cohesion, coupling, and interface clarity as core modularity criteria.
+
+**Uniqueness note:**  
+This entry focuses on module boundaries and change isolation, not on object-oriented design specifically or on deployment-level microservice partitioning.
+
+## Entry 0009 - Nonfunctional Requirements Are System Qualities with Engineering Consequences
+
+**Subject:** Software engineering  
+**Category:** Reliability and security  
+**Type:** concept  
+
+**Entry:**  
+Nonfunctional requirements describe system qualities and operational constraints such as performance, availability, security, safety, usability, maintainability, portability, and compliance. The label can be misleading because these requirements are not optional or secondary; they often determine architecture, infrastructure, testing strategy, and acceptance criteria more strongly than individual features do.
+
+**Why it matters:**  
+Projects that treat quality attributes as afterthoughts frequently discover too late that the chosen architecture cannot satisfy latency targets, resilience expectations, or regulatory obligations without major redesign.
+
+**Verification note:**  
+Cross-checked with ISO/IEC 25010 quality-model concepts and SWEBOK's treatment of quality requirements. Both support the view that system qualities materially constrain design and verification.
+
+**Uniqueness note:**  
+Different from later entries on specific attributes such as reliability or performance because this one establishes the overarching role of quality requirements as a class.
+
+## Entry 0010 - Configuration Management Preserves Integrity Across Evolving Baselines
+
+**Subject:** Software engineering  
+**Category:** Operational practice  
+**Type:** mechanism  
+
+**Entry:**  
+Software configuration management governs the identification, versioning, change control, status accounting, and auditability of software artifacts across time. Its purpose is not only to store versions, but to preserve the integrity of baselines so that teams know what was built, tested, released, changed, and approved. In disciplined engineering, source code, build scripts, infrastructure definitions, requirements baselines, and release metadata may all fall under configuration control.
+
+**Why it matters:**  
+Without configuration management, teams lose traceability, reproduce defects poorly, and struggle to make reliable release or rollback decisions. It is one of the quiet foundations of dependable engineering.
+
+**Verification note:**  
+Verified against SWEBOK's software configuration management knowledge area and long-standing lifecycle standards that treat identification, control, status accounting, and audit as core SCM functions.
+
+**Uniqueness note:**  
+This entry defines the engineering purpose of SCM broadly rather than focusing only on Git workflows or branching strategies.
+
 ## Final Quality Check
 - Entry count verified: no
 - Duplicate pass completed: no
