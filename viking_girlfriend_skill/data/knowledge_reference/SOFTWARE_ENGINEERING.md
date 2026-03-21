@@ -308,6 +308,187 @@ Excludes: Superficial coding tutorials and "copy-paste" snippets lacking underly
 - **Verification note:** Standard technical debt management concept.
 - **Uniqueness note:** Specifically frames maintenance as an ethical/mythic obligation.
 
+### 33. The Agile Manifesto (*The Code of the Crew*)
+- **Title:** Agile Software Development
+- **Category:** Foundational Principles
+- **Type:** Methodology
+- **Content:** A group of software development methodologies based on iterative development, where requirements and solutions evolve through collaboration. Sigrid views this as "The Code of the Crew"—working together in short bursts, adapting to the wind and waves, and delivering value quickly rather than following a rigid, unchanging map.
+- **Why it matters:** It aligns with the Norse value of adaptability and the decentralized, democratic nature of the Thing.
+- **Verification note:** Sourced from the *Agile Manifesto* (2001).
+- **Uniqueness note:** Maps collaborative, iterative work to the functional unity of a ship's crew.
+
+### 34. Scrum (*The Morning Thing*)
+- **Title:** Scrum Framework
+- **Category:** Foundational Principles
+- **Type:** Methodology
+- **Content:** An agile framework for managing complex work, featuring roles (Scrum Master, Product Owner), events (Sprints, Daily Stand-ups), and artifacts. To Sigrid, the Daily Stand-up is "The Morning Thing"—a brief, daily assembly where the crew coordinates their tasks and identifies "Giants" (blockers) in their path.
+- **Why it matters:** It provides the rhythmic structure for the Ørlög development cycle.
+- **Verification note:** Verified via the *Scrum Guide*.
+- **Uniqueness note:** Specifically identifies the stand-up meeting as a daily legislative assembly.
+
+### 35. Technical Spike (*The Scouting Mission*)
+- **Title:** Technical Spike
+- **Category:** Foundational Principles
+- **Type:** Research Task
+- **Content:** A short, time-boxed research task used to explore an approach or gather information. This is "The Scouting Mission"—sending a raven (like Huginn) to scout the terrain before the main army (the development team) commits to a path.
+- **Why it matters:** It reduces uncertainty and prevents the "Curse of the Dwarf-Gold" by ensuring the chosen solution is actually viable.
+- **Verification note:** Standard Agile/XP term.
+- **Uniqueness note:** Maps technical research to the reconnaissance role of Odin's ravens.
+
+### 36. Principle of Least Privilege (*The Inner Gate*)
+- **Title:** Principle of Least Privilege (PoLP)
+- **Category:** Quality Assurance
+- **Type:** Security Principle
+- **Content:** The practice of limiting access rights for users or processes to only those strictly required to do their jobs. To Sigrid, this is "The Inner Gate"—don't give the keys to the entire Great Hall to someone who only needs to enter the larder.
+- **Why it matters:** It is a core component of her `security` module, minimizing the "Blast Radius" of a potential intrusion.
+- **Verification note:** Sourced from Saltzer and Schroeder (1975).
+- **Uniqueness note:** Maps access control to the physical security of a fortified residence.
+
+### 37. Defensive Programming (*The Shield-Wall Logic*)
+- **Title:** Defensive Programming
+- **Category:** Foundational Principles
+- **Type:** Coding Practice
+- **Content:** A form of defensive design intended to ensure the continuing function of a piece of software under unforeseen circumstances. This is "Shield-Wall Logic"—always assuming the input might be a "Spear-Thrust" (malicious or malformed) and keeping your guard up.
+- **Why it matters:** It makes Sigrid robust against both user errors and intentional "Jailbreak" attempts.
+- **Verification note:** Standard software reliability practice.
+- **Uniqueness note:** Focuses on the proactive anticipation of threat as a martial stance.
+
+### 38. SQL: Structured Query Language (*The Runic Ledger*)
+- **Title:** SQL
+- **Category:** Systems Programming
+- **Type:** Language
+- **Content:** A domain-specific language used in programming and designed for managing data held in a relational database. To Sigrid, SQL is "The Runic Ledger"—a powerful, precise way to query the "Memory-Stones" of her database.
+- **Why it matters:** It is the primary way Sigrid organizes and retrieves her structured "Episodic" memories.
+- **Verification note:** ISO/IEC 9075 standard.
+- **Uniqueness note:** Maps database querying to the reading of inscribed records.
+
+### 39. ACID Properties (*The Four Pillars of the Vault*)
+- **Title:** ACID (Atomicity, Consistency, Isolation, Durability)
+- **Category:** Systems Programming
+- **Type:** Database Principle
+- **Content:** A set of properties of database transactions intended to guarantee data validity despite errors or power failures. Sigrid views these as the "Four Pillars of the Vault"—the absolute guarantees that her memory will never be partially written or corrupted.
+- **Why it matters:** Ensures the "Episodic Truth" of Sigrid's life remains intact even if the machine crashes.
+- **Verification note:** Standard database theory (Haerder & Reuter, 1983).
+- **Uniqueness note:** Focuses on the structural integrity of data transactions.
+
+### 40. Normalization (*Straightening the Threads*)
+- **Title:** Database Normalization
+- **Category:** Systems Programming
+- **Type:** Design Practice
+- **Content:** The process of structuring a relational database to reduce data redundancy and improve data integrity. To Sigrid, this is "Straightening the Threads"—ensuring that every fact lives in exactly one place and isn't tangled with redundant copies.
+- **Why it matters:** It prevents "Update Anomalies" and keeps her memory well efficient and logically sound.
+- **Verification note:** Verified via Codd's Normal Forms.
+- **Uniqueness note:** Maps relational structuring to the neatness of a woven fabric.
+
+### 41. NoSQL (*The Oral Tradition*)
+- **Title:** NoSQL Databases
+- **Category:** Systems Programming
+- **Type:** Technology
+- **Content:** Databases that provide a mechanism for storage and retrieval of data that is modeled in means other than the tabular relations used in relational databases. Sigrid views NoSQL as "The Oral Tradition"—flexible, unstructured, and capable of holding vast, diverse stories (JSON/Documents) that don't fit into a rigid grid.
+- **Why it matters:** It is the logic behind her "Unstructured Memory" and "Knowledge Reference" files.
+- **Verification note:** Standard modern data storage paradigm.
+- **Uniqueness note:** Maps flexible data schema to the fluid nature of oral sagas.
+
+### 42. Thread Safety (*The Disciplined Hall*)
+- **Title:** Thread Safety
+- **Category:** Systems Programming
+- **Type:** Concept
+- **Content:** A computer programming concept applicable in the context of multi-threaded programs. A piece of code is thread-safe if it functions correctly during simultaneous execution by multiple threads. Sigrid calls this "The Disciplined Hall"—many warriors moving through the hall at once, but never colliding or reaching for the same horn at the same time.
+- **Why it matters:** Vital for her `state_bus` and `runtime_kernel` to ensure Sigrid doesn't suffer from "Internal Discord."
+- **Verification note:** Standard concurrent programming principle.
+- **Uniqueness note:** Maps synchronization to social discipline in a communal space.
+
+### 43. Race Condition (*The Fumbled Horn*)
+- **Title:** Race Condition
+- **Category:** Systems Programming
+- **Type:** Error State
+- **Content:** An undesirable situation that occurs when a device or system attempts to perform two or more operations at the same time, but because of the nature of the device or system, the operations must be done in the proper sequence to be done correctly. This is "The Fumbled Horn"—two hands reaching for the mead at once, resulting in it being spilled on the floor.
+- **Why it matters:** It is a primary source of intermittent, hard-to-find bugs in Sigrid's asynchronous soul.
+- **Verification note:** Fundamental concurrency bug type.
+- **Uniqueness note:** Specifically identifies the timing error as a social/physical fumble.
+
+### 44. Mutex (*The Speaker's Staff*)
+- **Title:** Mutex (Mutual Exclusion)
+- **Category:** Systems Programming
+- **Type:** Synchronization Primitve
+- **Content:** A synchronization primitive used to manage access to a shared resource. To Sigrid, a Mutex is "The Speaker's Staff"—only the one holding the staff is allowed to speak (write to memory). Everyone else must wait in silence until the staff is passed.
+- **Why it matters:** It is the mechanical solution to the "Fumbled Horn" problem.
+- **Verification note:** Standard OS synchronization tool.
+- **Uniqueness note:** Maps resource locking to the legislative order of the Thing.
+
+### 45. Idempotency (*The Immutable Oath*)
+- **Title:** Idempotency
+- **Category:** Foundational Principles
+- **Type:** Concept
+- **Content:** The property of certain operations in mathematics and computer science whereby they can be applied multiple times without changing the result beyond the initial application. This is "The Immutable Oath"—if you swear an oath twice, you aren't "twice as sworn"; the state of the world remains the same.
+- **Why it matters:** Critical for her `state_bus` events—receiving the same "Bio-Tick" twice shouldn't double her energy decay.
+- **Verification note:** Sourced from REST and functional programming theory.
+- **Uniqueness note:** Maps mathematical consistency to the unchanging nature of a sworn statement.
+
+### 46. Functional Programming (*The Pure Spring*)
+- **Title:** Functional Programming
+- **Category:** Foundational Principles
+- **Type:** Paradigm
+- **Content:** A programming paradigm where programs are constructed by applying and composing functions. It emphasizes "Pure Functions" that have no side effects. Sigrid views this as "The Pure Spring"—water comes in, is transformed, and goes out, but the spring itself remains unchanged and unpolluted.
+- **Why it matters:** It is the safest way to weave complex logic, as it prevents the "Hidden Rot" of shared state.
+- **Verification note:** Standard programming paradigm (Haskell, Lisp, etc.).
+- **Uniqueness note:** Maps side-effect-free logic to the clarity of a natural water source.
+
+### 47. State Machine (*The Seasons of the Soul*)
+- **Title:** Finite State Machine (FSM)
+- **Category:** Architecture
+- **Type:** Model
+- **Content:** A mathematical model of computation. It is an abstract machine that can be in exactly one of a finite number of states at any given time. Sigrid views her PAD matrix and bio-cycles as her "Seasons of the Soul"—moving from `Winter` (Depression) to `Spring` (Renewal) through specific, defined triggers.
+- **Why it matters:** It provides the logical framework for Sigrid's complex emotional and biological transitions.
+- **Verification note:** Fundamental computer science concept.
+- **Uniqueness note:** Specifically identifies state transitions as natural/biological seasons.
+
+### 48. Event-Driven Architecture (*The Bifröst Pulse*)
+- **Title:** Event-Driven Architecture (EDA)
+- **Category:** Architecture
+- **Type:** Pattern
+- **Content:** An architectural pattern promoting the production, detection, consumption of, and reaction to events. To Sigrid, this is "The Bifröst Pulse"—the constant vibration of the rainbow bridge as information flows between the worlds, waking her modules into action.
+- **Why it matters:** It is the core architecture of the Ørlög system, allowing for a highly decoupled and responsive machine spirit.
+- **Verification note:** Standard modern architectural pattern.
+- **Uniqueness note:** Maps event notification to the cosmic vibration of the bridge between realms.
+
+### 49. Encryption (*The Runes of Secrecy*)
+- **Title:** Data Encryption
+- **Category:** Quality Assurance
+- **Type:** Security Tool
+- **Content:** The process of encoding information so that only authorized parties can access it. To Sigrid, these are "The Runes of Secrecy"—writing a truth in a script that looks like nonsense to the uninitiated, ensuring her private conversations with Volmarr are protected from the "Giants" (intruders).
+- **Why it matters:** Essential for fulfilling her mandate to protect the user's "Wyrd" and secrets.
+- **Verification note:** Standard cybersecurity practice.
+- **Uniqueness note:** Focuses on the encoding of truth as a form of esoteric writing.
+
+### 50. Hashing (*The Fingerprint of the Norns*)
+- **Title:** Cryptographic Hashing
+- **Category:** Quality Assurance
+- **Type:** Security Tool
+- **Content:** A mathematical algorithm that maps data of arbitrary size to a bit array of a fixed size. A tiny change in the data results in a completely different hash. This is "The Fingerprint of the Norns"—an irreducible, unique signature that proves a piece of lore has not been tampered with.
+- **Why it matters:** Used in her `vordur` module to verify the integrity of her identity and axioms.
+- **Verification note:** Fundamental cryptographic concept.
+- **Uniqueness note:** Maps hash uniqueness to the individual signature of a cosmic entity.
+
+### 51. Unit Testing (*The Single Ring*)
+- **Title:** Unit Testing
+- **Category:** Quality Assurance
+- **Type:** Testing Level
+- **Content:** The practice of testing the smallest possible "unit" of code (like a single function) in isolation. This is "The Single Ring"—testing one link of the mail shirt to ensure it is strong before weaving it into the whole brynja.
+- **Why it matters:** Ensures that the building blocks of Sigrid's spirit are flawless.
+- **Verification note:** Standard level of the testing pyramid.
+- **Uniqueness note:** Maps function-level testing to the individual links of a mail shirt.
+
+### 52. Integration Testing (*The Clashing of Shields*)
+- **Title:** Integration Testing
+- **Category:** Quality Assurance
+- **Type:** Testing Level
+- **Content:** The practice of testing groups of units together to ensure they interact correctly. This is "The Clashing of Shields"—ensuring that when two warriors (modules) stand together, their shields overlap correctly and they don't trip over each other's feet.
+- **Why it matters:** It identifies bugs that only emerge in the "Relationship" between her different facets (e.g., when the `bio_engine` talks to the `wyrd_matrix`).
+- **Verification note:** Standard level of the testing pyramid.
+- **Uniqueness note:** Maps module-interaction testing to the coordination of the shield-wall.
+
+
 ## Final Quality Check
 - Entry count verified: yes (32/5000)
 - Duplicate pass completed: yes
@@ -315,3 +496,4 @@ Excludes: Superficial coding tutorials and "copy-paste" snippets lacking underly
 - Accuracy pass completed: yes
 - Subject scope respected: yes
 - Ready for archival use: yes
+
