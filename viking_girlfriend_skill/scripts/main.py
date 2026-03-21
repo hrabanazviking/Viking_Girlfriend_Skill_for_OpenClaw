@@ -409,9 +409,10 @@ async def _handle_turn(
 
     # ── 8. Build messages list ────────────────────────────────────────────────
     messages = []
+    mode = VerificationMode.WANDERER # Default
     try:
         from scripts.prompt_synthesizer import get_prompt_synthesizer
-        messages = get_prompt_synthesizer().build_messages(
+        messages, mode = get_prompt_synthesizer().build_messages(
             user_text=user_text,
             state_hints=state_hints,
             memory_context=memory_context,
@@ -438,6 +439,34 @@ async def _handle_turn(
             ]
             result = router.smart_complete(typed_messages, fallback=True)
             sigrid_response = result.content
+            
+            # ── 10b. Verification check (Vörðr) ───────────────────────────────
+            try:
+                from scripts.vordur import get_vordur
+                # Retrieve fresh chunks for scoring using the mode's required tier
+                fresh_chunks = []
+                try:
+                    from scripts.mimir_well import get_mimir_well
+                    fresh_chunks = get_mimir_well().retrieve(
+                        user_text, n=5, min_tier=TruthTier.TRUNK if mode in (VerificationMode.GUARDED, VerificationMode.IRONSWORN) else TruthTier.BRANCH
+                    )
+                except Exception:
+                    pass
+                
+                score = get_vordur().score(
+                    sigrid_response, 
+                    source_chunks=fresh_chunks,
+                    mode=mode
+                )
+                
+                if score.needs_retry:
+                    logger.warning("Turn %d: Vordur rejected response (score=%.2f) — issuing retry.", turn_n, score.score)
+                    # Simple retry logic — call model again with higher temperature or different tier
+                    result = router.smart_complete(typed_messages, fallback=True, temperature=0.9)
+                    sigrid_response = result.content
+            except Exception as exc:
+                logger.debug("Vordur scoring skipped: %s", exc)
+                
         except Exception as exc:
             logger.warning("Model routing failed: %s", exc)
             sigrid_response = (
