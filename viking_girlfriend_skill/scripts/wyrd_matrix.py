@@ -780,6 +780,7 @@ class WyrdState:
     # Meta
     turn: int
     timestamp: str
+    vitality_modulated_decay: bool = False   # True if Hugr decay was slowed by low vitality
     degraded: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
@@ -805,6 +806,7 @@ class WyrdState:
             "nature_summary": self.nature_summary,
             "turn": self.turn,
             "timestamp": self.timestamp,
+            "vitality_modulated_decay": self.vitality_modulated_decay,
             "degraded": self.degraded,
         }
 
@@ -884,6 +886,7 @@ class WyrdMatrix:
         self.soul = SoulLayer(character_id="sigrid")
         self.stress = StressAccumulator()
         self._turn: int = 0
+        self._vitality_modulated: bool = False   # E-07: set True when tick() receives vitality
 
         # Seed CognitiveFriction with Sigrid's core values
         if core_values:
@@ -962,13 +965,36 @@ class WyrdMatrix:
             logger.error("WyrdMatrix.apply_stimuli failed: %s", exc)
             return self._degraded_state()
 
-    def tick(self) -> WyrdState:
+    def tick(self, metabolism_vitality: Optional[float] = None) -> WyrdState:
         """Advance one conversation turn — decay, echo, check overrides.
+
+        Args:
+            metabolism_vitality: vitality_score from MetabolismState (0.0–1.0).
+                When provided, slows Hugr decay proportional to exhaustion —
+                low vitality makes emotions "stick" longer.
 
         Returns WyrdState after tick. Call once per user message exchange.
         """
         try:
             self._turn += 1
+
+            # E-07: Vitality-driven emotional inertia
+            # Low vitality (exhaustion) → emotions decay more slowly
+            # vitality=1.0 → normal decay; vitality=0.0 → 1.5× slower decay
+            base_decay = self.profile.decay_rate
+            if metabolism_vitality is not None:
+                vitality = max(0.0, min(1.0, float(metabolism_vitality)))
+                effective_decay = base_decay / (1.0 + (1.0 - vitality) * 0.5)
+                self.soul.hugr.decay_rate = effective_decay
+                self._vitality_modulated = True
+                logger.debug(
+                    "WyrdMatrix vitality modulation: vitality=%.2f → decay %.3f→%.3f",
+                    vitality, base_decay, effective_decay,
+                )
+            else:
+                self.soul.hugr.decay_rate = base_decay
+                self._vitality_modulated = False
+
             events = self.soul.tick(self._turn)
             self.stress.decay_turn()
 
@@ -1012,6 +1038,7 @@ class WyrdMatrix:
                 nature_summary=self.profile.nature_summary(),
                 turn=self._turn,
                 timestamp=datetime.now(timezone.utc).isoformat(),
+                vitality_modulated_decay=self._vitality_modulated,
                 degraded=False,
             )
         except Exception as exc:

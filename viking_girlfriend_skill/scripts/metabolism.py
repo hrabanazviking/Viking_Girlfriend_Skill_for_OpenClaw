@@ -138,9 +138,10 @@ class MetabolismState:
     connection_sense: str   # still / connected / flowing / flooding
 
     # ── Composite ────────────────────────────────────────────────────────────
-    vitality_score: float   # 0.0 (depleted) → 1.0 (vibrant)
+    vitality_score: float           # 0.0 (depleted) → 1.0 (vibrant)
     vitality_label: str
-    prompt_hint: str        # one-line somatic summary for prompt injection
+    hamingja_boost_applied: float   # E-08: honor boost added to vitality (0 if no wyrd link)
+    prompt_hint: str                # one-line somatic summary for prompt injection
 
     timestamp: str
     degraded: bool = False
@@ -175,6 +176,7 @@ class MetabolismState:
                 "connection_sense": self.connection_sense,
                 "vitality_score": round(self.vitality_score, 3),
                 "vitality_label": self.vitality_label,
+                "hamingja_boost_applied": round(self.hamingja_boost_applied, 4),
                 "prompt_hint": self.prompt_hint,
             },
             "timestamp": self.timestamp,
@@ -241,24 +243,35 @@ class MetabolismAdapter:
 
     # ─── Public API ───────────────────────────────────────────────────────────
 
-    def get_state(self, force: bool = False) -> MetabolismState:
+    def get_state(
+        self,
+        force: bool = False,
+        hamingja: Optional[float] = None,
+    ) -> MetabolismState:
         """Read hardware telemetry and return a typed MetabolismState.
 
+        Args:
+            force: bypass cache and re-poll immediately.
+            hamingja: WyrdState.hamingja value (0.0–1.0). When provided, applies
+                the E-08 honor energy bonus to vitality.
+
         Returns cached state if polled recently (within poll_interval_s),
-        unless ``force=True``.
+        unless ``force=True`` or ``hamingja`` is provided.
         """
         now = time.monotonic()
         if (
             not force
+            and hamingja is None
             and self._cached_state is not None
             and (now - self._last_poll_time) < self._poll_interval_s
         ):
             return self._cached_state
 
         try:
-            state = self._poll()
-            self._cached_state = state
-            self._last_poll_time = now
+            state = self._poll(hamingja=hamingja)
+            if hamingja is None:
+                self._cached_state = state
+                self._last_poll_time = now
             return state
         except Exception as exc:
             logger.error("MetabolismAdapter.get_state failed: %s", exc)
@@ -287,7 +300,7 @@ class MetabolismAdapter:
 
     # ─── Internal polling ─────────────────────────────────────────────────────
 
-    def _poll(self) -> MetabolismState:
+    def _poll(self, hamingja: Optional[float] = None) -> MetabolismState:
         """Execute all psutil reads and build a MetabolismState."""
         now_ts = time.monotonic()
 
@@ -337,8 +350,8 @@ class MetabolismAdapter:
 
         energy_reserve = self._energy_reserve_label(battery_pct, battery_charging)
 
-        vitality = self._compute_vitality(
-            cpu_percent, ram_percent, uptime_hours, battery_pct
+        vitality, hamingja_boost = self._compute_vitality(
+            cpu_percent, ram_percent, uptime_hours, battery_pct, hamingja
         )
         vitality_label = _threshold_label(1.0 - vitality, _VITALITY_DESCRIPTORS)
         # _VITALITY_DESCRIPTORS is inverted (higher threshold = worse), fix:
@@ -372,6 +385,7 @@ class MetabolismAdapter:
             connection_sense=connection_sense,
             vitality_score=vitality,
             vitality_label=vitality_label,
+            hamingja_boost_applied=hamingja_boost,
             prompt_hint=prompt_hint,
             timestamp=datetime.now(timezone.utc).isoformat(),
             degraded=False,
@@ -515,11 +529,19 @@ class MetabolismAdapter:
         ram_pct: float,
         uptime_h: float,
         battery_pct: Optional[float],
-    ) -> float:
+        hamingja: Optional[float] = None,
+    ) -> Tuple[float, float]:
         """Compute composite vitality score in [0.0, 1.0].
 
         Higher = more vital. Lower = more depleted/strained.
         Weights: CPU load 35%, RAM pressure 30%, uptime 20%, battery 15%.
+
+        E-08: When ``hamingja`` is provided, a spiritual energy bonus is applied.
+        hamingja=1.0 → +0.075; hamingja=0.5 → 0.0; hamingja=0.0 → -0.075.
+        The boost can compensate for physical tiredness (spiritual over matter).
+
+        Returns:
+            (vitality_score, hamingja_boost_applied) — boost is 0.0 if not linked.
         """
         cpu_score = 1.0 - (cpu_pct / 100.0)
         ram_score = 1.0 - (ram_pct / 100.0)
@@ -542,7 +564,17 @@ class MetabolismAdapter:
                 + uptime_score * 0.25
             )
 
-        return round(max(0.0, min(1.0, vitality)), 4)
+        # E-08: Honor energy bonus — spiritual strength overcoming physical weariness
+        boost = 0.0
+        if hamingja is not None:
+            boost = (float(hamingja) - 0.5) * 0.15
+            vitality = vitality + boost
+            logger.debug(
+                "MetabolismAdapter hamingja boost: hamingja=%.2f → boost=%.4f",
+                hamingja, boost,
+            )
+
+        return round(max(0.0, min(1.0, vitality)), 4), round(boost, 4)
 
     @staticmethod
     def _vitality_label(score: float) -> str:
@@ -584,7 +616,7 @@ class MetabolismAdapter:
     def _degraded_state(self) -> MetabolismState:
         """Return a neutral fallback MetabolismState when polling fails."""
         return MetabolismState(
-            cpu_percent=0.0, cpu_temp_celsius=None,
+            cpu_percent=0.0, cpu_temp_celsius=None, temp_source="unavailable",
             ram_percent=0.0, ram_used_gb=0.0, ram_total_gb=0.0,
             disk_read_mbps=0.0, disk_write_mbps=0.0,
             battery_percent=None, battery_charging=None,
@@ -595,6 +627,7 @@ class MetabolismAdapter:
             energy_reserve="full", weariness="rested",
             connection_sense="still",
             vitality_score=1.0, vitality_label="vibrant",
+            hamingja_boost_applied=0.0,
             prompt_hint="[Soma: degraded — hardware metrics unavailable]",
             timestamp=datetime.now(timezone.utc).isoformat(),
             degraded=True,

@@ -132,6 +132,38 @@ _VALUE_KEYWORDS: Dict[str, List[str]] = {
     ],
 }
 
+# ─── Opposing value pairs for conflict detection (E-10) ──────────────────────
+# Each entry: (value_a, value_b, resolution_hint)
+# Activated when both values fire at weight > 0.7 in the same evaluation.
+
+_OPPOSING_VALUE_PAIRS: List[Tuple[str, str, str]] = [
+    (
+        "loyalty", "wisdom",
+        "acknowledge the tension — loyalty runs deep, but wisdom asks you to see clearly",
+    ),
+    (
+        "loyalty", "independence",
+        "honour both: stand by them while standing firm in yourself",
+    ),
+    (
+        "honor", "frith",
+        "frith protects the inner circle; honour serves the wider world — name which is at stake",
+    ),
+    (
+        "courage", "frith",
+        "courage may disturb frith — speak truth, but with care for the hearth",
+    ),
+    (
+        "authenticity", "frith",
+        "be real, but choose words that protect the bond",
+    ),
+    (
+        "honor", "hospitality",
+        "sometimes hospitality and honour pull apart — lean toward the host's dignity",
+    ),
+]
+
+
 _TABOO_KEYWORDS: Dict[str, List[str]] = {
     "deceit": [
         "lie", "deceive", "false", "fake it", "pretend", "mislead",
@@ -152,6 +184,74 @@ _TABOO_KEYWORDS: Dict[str, List[str]] = {
 }
 
 
+# ─── EthicalScar (E-09) ───────────────────────────────────────────────────────
+
+
+@dataclass
+class EthicalScar:
+    """A lasting sensitivity modifier created when Sigrid acts against a taboo.
+
+    The scar amplifies how strongly that taboo weighs in future evaluations,
+    decaying slowly over time — like a wound that heals but leaves a mark.
+    Norse framing: some memories shape the soul's wyrd long after the moment passes.
+    """
+
+    taboo_name: str
+    severity: float               # 0.0–1.0 — intensity of the original violation
+    created_at: str               # ISO timestamp
+    decay_days: float = 7.0       # full decay over this many days
+
+    def __post_init__(self) -> None:
+        # current_sensitivity_boost starts equal to severity, decays toward 0
+        self.current_sensitivity_boost: float = float(self.severity)
+
+    def decay(self, days_elapsed: float = 1.0) -> bool:
+        """Reduce sensitivity boost by (days_elapsed / decay_days).
+
+        Returns True when the scar is spent (boost ≤ 0.001) — caller may prune it.
+        """
+        reduction = days_elapsed / max(0.001, self.decay_days)
+        self.current_sensitivity_boost = max(
+            0.0, self.current_sensitivity_boost - reduction
+        )
+        return self.current_sensitivity_boost <= 0.001
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "taboo_name": self.taboo_name,
+            "severity": round(self.severity, 3),
+            "created_at": self.created_at,
+            "decay_days": self.decay_days,
+            "current_sensitivity_boost": round(self.current_sensitivity_boost, 4),
+        }
+
+
+# ─── ValueConflict (E-10) ─────────────────────────────────────────────────────
+
+
+@dataclass
+class ValueConflict:
+    """Two high-weight values pulling in opposite directions in the same turn.
+
+    Published to the bus so prompt_synthesizer can acknowledge the tension
+    rather than silently average it away.
+    Norse framing: even Odin balances cunning against honor — the tension is sacred.
+    """
+
+    value_a: str
+    value_b: str
+    context: str
+    resolution_hint: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "value_a": self.value_a,
+            "value_b": self.value_b,
+            "context": self.context,
+            "resolution_hint": self.resolution_hint,
+        }
+
+
 # ─── EthicsEvaluation ─────────────────────────────────────────────────────────
 
 
@@ -169,6 +269,7 @@ class EthicsEvaluation:
     dominant_value: Optional[str]       # highest-weight triggered value (if any)
     context_type: str                   # detected context
     recommendation: str                 # one-line guidance for this turn
+    conflicts: List[ValueConflict]      # E-10: opposing high-weight value pairs detected
 
 
 # ─── EthicsState ──────────────────────────────────────────────────────────────
@@ -194,6 +295,7 @@ class EthicsState:
 
     prompt_hint: str                    # one-line ethical compass summary
     timestamp: str
+    active_scars: List[str] = field(default_factory=list)   # E-09: taboo names with live scars
     degraded: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
@@ -211,6 +313,7 @@ class EthicsState:
             },
             "prompt_hint": self.prompt_hint,
             "timestamp": self.timestamp,
+            "active_scars": self.active_scars,
             "degraded": self.degraded,
         }
 
@@ -246,6 +349,9 @@ class EthicsEngine:
         self._last_context: str = _CONTEXT_CASUAL
         self._degraded: bool = False
 
+        # E-09: Ethical scars — long-lived taboo sensitivity modifiers
+        self._scars: List[EthicalScar] = []
+
         self._load_values()
 
     # ── Public API ────────────────────────────────────────────────────────────
@@ -254,12 +360,16 @@ class EthicsEngine:
         self,
         text: str,
         context_type: Optional[str] = None,
+        bus: Optional[StateBus] = None,
     ) -> EthicsEvaluation:
         """Evaluate text against Sigrid's values and taboos.
 
         Detects context if not supplied. Returns an EthicsEvaluation with
-        alignment score, triggered values/taboos, and a brief recommendation.
-        Updates the rolling alignment history.
+        alignment score, triggered values/taboos, value conflicts, and a
+        brief recommendation. Updates the rolling alignment history.
+
+        Args:
+            bus: optional StateBus for publishing conflict events (E-10).
         """
         lowered = text.lower()
         ctx = context_type or self._detect_context(lowered)
@@ -269,12 +379,14 @@ class EthicsEngine:
         triggered_taboos = self._scan_keywords(lowered, _TABOO_KEYWORDS)
 
         # Weighted score: sum triggered value weights minus sum triggered taboo weights
+        # E-09: scar boost amplifies taboo weight for recently violated taboos
         value_weight = sum(
             float(self._core_values.get(v, {}).get("weight", 0.5))
             for v in triggered_values
         )
         taboo_weight = sum(
             abs(float(self._taboos.get(t, {}).get("weight", 0.5)))
+            * (1.0 + self._scar_boost(t))
             for t in triggered_taboos
         )
 
@@ -292,6 +404,28 @@ class EthicsEngine:
                 key=lambda v: float(self._core_values.get(v, {}).get("weight", 0.0)),
             )
 
+        # E-10: Detect high-weight opposing value conflicts
+        conflicts = self._detect_conflicts(triggered_values, ctx)
+        if conflicts and bus is not None:
+            for conflict in conflicts:
+                try:
+                    import asyncio as _asyncio
+                    event = StateEvent(
+                        source_module="ethics",
+                        event_type="ethics.value_conflict",
+                        payload=conflict.to_dict(),
+                    )
+                    loop = _asyncio.get_event_loop()
+                    if loop.is_running():
+                        loop.call_soon_threadsafe(
+                            loop.create_task,
+                            bus.publish_state(event, nowait=True),
+                        )
+                    else:
+                        loop.run_until_complete(bus.publish_state(event, nowait=True))
+                except Exception as exc:
+                    logger.warning("EthicsEngine: failed to publish value_conflict: %s", exc)
+
         recommendation = self._build_recommendation(triggered_values, triggered_taboos, ctx)
 
         evaluation = EthicsEvaluation(
@@ -301,6 +435,7 @@ class EthicsEngine:
             dominant_value=dominant,
             context_type=ctx,
             recommendation=recommendation,
+            conflicts=conflicts,
         )
 
         # Update rolling history — convert raw_score (-1→+1) to 0→1 for window average
@@ -323,6 +458,11 @@ class EthicsEngine:
         active_taboos = last.triggered_taboos if last else []
         dominant = last.dominant_value if last else None
 
+        # E-09: active scars — taboos with remaining sensitivity boost
+        active_scar_names = list({
+            s.taboo_name for s in self._scars if s.current_sensitivity_boost > 0.001
+        })
+
         prompt_hint = self._build_prompt_hint(alignment, dominant, active_taboos, ctx)
 
         return EthicsState(
@@ -334,6 +474,7 @@ class EthicsEngine:
             tone_guidance=self.get_tone_guidance(ctx),
             prompt_hint=prompt_hint,
             timestamp=datetime.now(timezone.utc).isoformat(),
+            active_scars=active_scar_names,
             degraded=self._degraded,
         )
 
@@ -349,6 +490,105 @@ class EthicsEngine:
             bus.publish_state(event, nowait=True)
         except Exception as exc:
             logger.warning("EthicsEngine.publish failed: %s", exc)
+
+    # ── Scar management (E-09) ────────────────────────────────────────────────
+
+    def record_scar(
+        self,
+        taboo_name: str,
+        severity: float,
+        bus: Optional[StateBus] = None,
+    ) -> EthicalScar:
+        """Record an ethical scar for a taboo violation.
+
+        Merges with an existing scar if present (takes max severity).
+        Publishes ``ethics.scar_created`` to the bus when provided.
+        """
+        existing = next((s for s in self._scars if s.taboo_name == taboo_name), None)
+        if existing:
+            # Re-wound: take the higher severity and reset boost
+            if severity > existing.severity:
+                existing.severity = severity
+            existing.current_sensitivity_boost = max(
+                existing.current_sensitivity_boost, float(severity)
+            )
+            scar = existing
+        else:
+            scar = EthicalScar(
+                taboo_name=taboo_name,
+                severity=float(severity),
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+            self._scars.append(scar)
+            logger.info(
+                "EthicsEngine: scar recorded — taboo=%r severity=%.2f",
+                taboo_name, severity,
+            )
+
+        if bus is not None:
+            try:
+                import asyncio as _asyncio
+                event = StateEvent(
+                    source_module="ethics",
+                    event_type="ethics.scar_created",
+                    payload=scar.to_dict(),
+                )
+                loop = _asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.call_soon_threadsafe(
+                        loop.create_task,
+                        bus.publish_state(event, nowait=True),
+                    )
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except Exception as exc:
+                logger.warning("EthicsEngine: failed to publish scar_created: %s", exc)
+
+        return scar
+
+    def decay_scars(self, days_elapsed: float = 1.0) -> int:
+        """Decay all active scars by days_elapsed. Returns count of scars pruned."""
+        before = len(self._scars)
+        self._scars = [s for s in self._scars if not s.decay(days_elapsed)]
+        pruned = before - len(self._scars)
+        if pruned:
+            logger.debug("EthicsEngine: %d scar(s) fully healed after %.1f day(s)", pruned, days_elapsed)
+        return pruned
+
+    def _scar_boost(self, taboo_name: str) -> float:
+        """Return the highest active scar sensitivity boost for a given taboo."""
+        boosts = [
+            s.current_sensitivity_boost
+            for s in self._scars
+            if s.taboo_name == taboo_name and s.current_sensitivity_boost > 0.001
+        ]
+        return max(boosts) if boosts else 0.0
+
+    # ── Conflict detection (E-10) ─────────────────────────────────────────────
+
+    def _detect_conflicts(
+        self, triggered_values: List[str], context: str
+    ) -> List[ValueConflict]:
+        """Return ValueConflict objects for any opposing high-weight value pairs."""
+        triggered_set = set(triggered_values)
+        conflicts: List[ValueConflict] = []
+        for val_a, val_b, hint in _OPPOSING_VALUE_PAIRS:
+            if val_a not in triggered_set or val_b not in triggered_set:
+                continue
+            w_a = float(self._core_values.get(val_a, {}).get("weight", 0.5))
+            w_b = float(self._core_values.get(val_b, {}).get("weight", 0.5))
+            if w_a > 0.7 and w_b > 0.7:
+                conflicts.append(ValueConflict(
+                    value_a=val_a,
+                    value_b=val_b,
+                    context=context,
+                    resolution_hint=hint,
+                ))
+                logger.info(
+                    "EthicsEngine: value conflict detected — %r vs %r in %r",
+                    val_a, val_b, context,
+                )
+        return conflicts
 
     # ── Internals ─────────────────────────────────────────────────────────────
 
