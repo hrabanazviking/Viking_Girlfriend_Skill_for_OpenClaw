@@ -1522,6 +1522,91 @@ class MimirWell:
 
         return "\n".join(lines)
 
+    # ─── Dream Tick Integration ───────────────────────────────────────────────
+
+    def associative_link_pass(
+        self,
+        session_dir: Optional[Union[str, Path]] = None,
+    ) -> List[Tuple[str, str]]:
+        """E-15: Find nearest semantic neighbour pairs in the flat index.
+
+        Walks every chunk in the in-memory BM25 flat index and, for each
+        chunk, retrieves its single closest neighbour by keyword overlap.
+        Unique (a, b) pairs (where a < b by chunk_id) are collected and
+        optionally written to ``<session_dir>/association_cache.json``.
+
+        This is a lightweight associative pass — the Well dreams of its own
+        contents, drawing threads between distantly related knowledge.  It
+        runs once per deep_night entry and is best-effort throughout: any
+        exception is caught and logged as WARN so the scheduler is never
+        blocked.
+
+        Args:
+            session_dir: Optional path to the session directory.  When
+                provided the pairs list is persisted as JSON.
+
+        Returns:
+            List of ``(chunk_id_a, chunk_id_b)`` string tuples — at most
+            one pair per source chunk.  Empty list on failure or empty index.
+        """
+        try:
+            all_ids = list(self._chunks_by_id.keys())
+            if not all_ids:
+                logger.debug("MimirWell.associative_link_pass: flat index empty — skipping.")
+                return []
+
+            pairs: List[Tuple[str, str]] = []
+            seen: set = set()
+
+            for chunk_id in all_ids:
+                chunk = self._chunks_by_id.get(chunk_id)
+                if chunk is None:
+                    continue
+                # Use a short excerpt as the query to avoid re-chunking costs
+                query_text = chunk.text[:200]
+                neighbours = self._bm25_retrieve(query_text, n=2, domain=None)
+                for neighbour in neighbours:
+                    if neighbour.chunk_id == chunk_id:
+                        continue
+                    # Canonical ordering so (a,b) == (b,a)
+                    pair_key = (
+                        min(chunk_id, neighbour.chunk_id),
+                        max(chunk_id, neighbour.chunk_id),
+                    )
+                    if pair_key not in seen:
+                        seen.add(pair_key)
+                        pairs.append(pair_key)
+                    break  # one neighbour per source chunk
+
+            logger.info(
+                "MimirWell: associative link pass found %d pairs from %d chunks.",
+                len(pairs),
+                len(all_ids),
+            )
+
+            if session_dir is not None and pairs:
+                try:
+                    cache_path = Path(session_dir) / "association_cache.json"
+                    cache_path.parent.mkdir(parents=True, exist_ok=True)
+                    payload = {
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                        "pairs": [[a, b] for a, b in pairs],
+                    }
+                    cache_path.write_text(
+                        json.dumps(payload, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+                    logger.debug("MimirWell: association_cache written to %s", cache_path)
+                except Exception as write_exc:
+                    logger.warning(
+                        "MimirWell: failed to write association_cache.json: %s", write_exc
+                    )
+
+            return pairs
+        except Exception as exc:
+            logger.warning("MimirWell.associative_link_pass failed: %s", exc)
+            return []
+
     # ─── State & Bus ──────────────────────────────────────────────────────────
 
     def get_state(self) -> MimirState:

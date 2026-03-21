@@ -25,10 +25,12 @@ what they have already woven. Sigrid's dreams are dispatches from Yggdrasil.
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import random
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from scripts.state_bus import StateBus, StateEvent
@@ -440,6 +442,64 @@ class DreamEngine:
             if cat:
                 return cat
         return rng.choice(_CATEGORIES)
+
+    # ── Factory ───────────────────────────────────────────────────────────────
+
+    def handle_dream_tick(
+        self,
+        session_dir: Optional[str] = None,
+        seed_hints: Optional[List[str]] = None,
+    ) -> Optional["Dream"]:
+        """E-15: Generate a dream on demand (called when deep_night begins).
+
+        Generates a new vision, caps the active dream list, and optionally
+        persists the result to ``session/last_dream.json``.  Best-effort —
+        all exceptions are caught and logged as WARN so the caller never
+        crashes from a dream tick.
+
+        Args:
+            session_dir: Path to the session directory.  When provided the
+                generated dream is written to ``<session_dir>/last_dream.json``.
+            seed_hints: Optional list of hint strings forwarded to
+                ``_generate_dream()``.  Defaults to an empty list.
+
+        Returns:
+            The newly generated Dream, or None on failure.
+        """
+        try:
+            hints: List[str] = list(seed_hints) if seed_hints else []
+            dream = self._generate_dream(self._turn_count, hints)
+
+            # Append and cap to max_active
+            self._dreams.append(dream)
+            if len(self._dreams) > self.max_active:
+                self._dreams = self._dreams[-self.max_active :]
+
+            logger.info(
+                "DreamEngine: dream tick generated — symbol='%s' category='%s'",
+                dream.symbol,
+                dream.category,
+            )
+
+            # Persist to session/last_dream.json if session_dir provided
+            if session_dir is not None:
+                try:
+                    path = Path(session_dir) / "last_dream.json"
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(
+                        json.dumps(dream.to_dict(), ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+                    logger.debug("DreamEngine: persisted last_dream to %s", path)
+                except Exception as write_exc:
+                    logger.warning(
+                        "DreamEngine: failed to write last_dream.json: %s", write_exc
+                    )
+
+            return dream
+        except Exception as exc:
+            logger.warning("DreamEngine.handle_dream_tick failed: %s", exc)
+            return None
 
     # ── Factory ───────────────────────────────────────────────────────────────
 

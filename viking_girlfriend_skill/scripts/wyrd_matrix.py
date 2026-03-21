@@ -29,6 +29,7 @@ it braided — the way the Norns braid fate at the roots of Yggdrasil.
 from __future__ import annotations
 
 import logging
+import random
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -1073,6 +1074,32 @@ class WyrdMatrix:
         """Called by memory_store when Muninn surfaces a charged memory."""
         self.soul.attach_echo(memory_id, emotion_deltas, self._turn, strength)
         logger.info("Memory echo attached from '%s' (strength=%.2f)", memory_id, strength)
+
+    def handle_dream_tick(self) -> None:
+        """E-15: Apply a subtle PAD shuffle when deep_night begins.
+
+        Sigrid's Hugr stirs as the dream-weave opens.  Each active emotion
+        channel receives a small ±0.05 nudge seeded by the current turn so
+        the effect is reproducible but different each night.  Best-effort —
+        all exceptions are caught and logged as WARN.
+        """
+        try:
+            rng = random.Random(self._turn)
+            emotions = self.soul.hugr.emotions
+            if not emotions:
+                logger.debug("WyrdMatrix.handle_dream_tick: no active emotions — skipping.")
+                return
+            for channel in list(emotions.keys()):
+                delta = rng.uniform(-0.05, 0.05)
+                current = emotions[channel]
+                emotions[channel] = round(max(-1.0, min(1.0, current + delta)), 4)
+            logger.info(
+                "WyrdMatrix: dream tick PAD shuffle applied to %d channels (turn %d).",
+                len(emotions),
+                self._turn,
+            )
+        except Exception as exc:
+            logger.warning("WyrdMatrix.handle_dream_tick failed: %s", exc)
 
     def apply_ritual_calm(self, ritual_type: str = "fire_vigil") -> float:
         """Apply ritual stress relief. Returns new stress level."""

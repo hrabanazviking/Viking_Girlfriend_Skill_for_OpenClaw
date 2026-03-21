@@ -808,11 +808,11 @@ Specialized truth-checking per knowledge domain.
 | E-08 | Honor-Driven Energy Reserve | `wyrd_matrix.py`, `metabolism.py` | ✅ DONE |
 | E-09 | Ethical Scarring | `ethics.py` | ✅ DONE |
 | E-10 | Value-Conflict Mediation | `ethics.py` | ✅ DONE |
-| E-11 | Bio Stochastic Variance | `bio_engine.py` | ⏳ PENDING |
-| E-12 | Variable Cycle Length | `bio_engine.py` | ⏳ PENDING |
-| E-13 | Heartbeat Sentinel | `scheduler.py` | ⏳ PENDING |
-| E-14 | Seasonal Awareness | `scheduler.py` | ⏳ PENDING |
-| E-15 | Dream Tick Integration | `scheduler.py`, `dream_engine.py`, `mimir_well.py` | ⏳ PENDING |
+| E-11 | Bio Stochastic Variance | `bio_engine.py` | ✅ DONE |
+| E-12 | Variable Cycle Length | `bio_engine.py` | ✅ DONE |
+| E-13 | Heartbeat Sentinel | `scheduler.py` | ✅ DONE |
+| E-14 | Seasonal Awareness | `scheduler.py` | ✅ DONE |
+| E-15 | Dream Tick Integration | `scheduler.py`, `dream_engine.py`, `mimir_well.py` | ✅ DONE |
 | E-16 | Associative Memory Hooks | `memory_store.py` | ⏳ PENDING |
 | E-17 | Emotional Significance Weighting | `memory_store.py` | ⏳ PENDING |
 | E-18 | Synonym Expansion | `memory_store.py` | ⏳ PENDING |

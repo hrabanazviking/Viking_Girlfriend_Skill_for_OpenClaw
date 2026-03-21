@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import math
+import random
 from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -212,6 +213,7 @@ class BioState:
     biorhythm_intellectual: float    # 33-day cycle, sin wave
     narrative_hint: str
     timestamp: str
+    variance_applied: float = 0.0    # E-11: mean abs jitter applied to emotion multipliers
     degraded: bool = False           # True if a required config value was missing
 
     def to_dict(self) -> Dict[str, Any]:
@@ -232,6 +234,7 @@ class BioState:
             "biorhythm_emotional": round(self.biorhythm_emotional, 4),
             "biorhythm_intellectual": round(self.biorhythm_intellectual, 4),
             "narrative_hint": self.narrative_hint,
+            "variance_applied": round(self.variance_applied, 4),
             "timestamp": self.timestamp,
             "degraded": self.degraded,
         }
@@ -341,11 +344,26 @@ class BioEngine:
         cycle_length: int = 28,
         sensitivity: float = 0.10,
         chart_path: Optional[Path] = None,
+        chaos_factor: float = 0.05,   # E-11: daily stochastic jitter on emotion multipliers
+        session_seed: int = 0,         # E-11: added to cycle_day for per-day determinism
     ) -> None:
         self._birth_date = birth_date
         self._cycle_start_date = cycle_start_date
-        self._cycle_length = max(21, min(40, int(cycle_length)))  # clamp to sane range
+
+        # E-12: validate cycle length [21–35]; warn and fallback to 28 if out of range
+        _cl = int(cycle_length)
+        if not (21 <= _cl <= 35):
+            logger.warning(
+                "BioEngine: cycle_length=%d is outside valid range [21–35] — "
+                "falling back to 28.", _cl,
+            )
+            _cl = 28
+        self._cycle_length = _cl
         self._sensitivity = max(0.0, min(1.0, float(sensitivity)))
+
+        # E-11: chaos parameters
+        self._chaos_factor: float = max(0.0, min(1.0, float(chaos_factor)))
+        self._session_seed: int = int(session_seed)
 
         # Build phase table and day index — Verdandi's loom is warped once at init
         self._phases = _load_phases(chart_path)
@@ -385,7 +403,8 @@ class BioEngine:
 
         birth_date = cls._parse_date(block.get("birth_date"), "birth_date")
         cycle_start_date = cls._parse_date(block.get("cycle_start_date"), "cycle_start_date")
-        cycle_length = int(block.get("cycle_length", 28))
+        # E-12: support "cycle_length_days" key (from environment.json) as well as "cycle_length"
+        cycle_length = int(block.get("cycle_length_days", block.get("cycle_length", 28)))
         sensitivity = float(block.get("sensitivity", 0.10))
 
         # Allow chart_path override from config
@@ -398,6 +417,8 @@ class BioEngine:
             cycle_length=cycle_length,
             sensitivity=sensitivity,
             chart_path=chart_path,
+            chaos_factor=float(block.get("chaos_factor", 0.05)),
+            session_seed=int(block.get("session_seed", 0)),
         )
 
     @staticmethod
@@ -415,11 +436,17 @@ class BioEngine:
 
     # ─── Public API ───────────────────────────────────────────────────────────
 
-    def get_state(self, reference_date: Optional[date] = None) -> BioState:
+    def get_state(
+        self,
+        reference_date: Optional[date] = None,
+        seasonal_modifier: float = 1.0,
+    ) -> BioState:
         """Compute and return the current BioState snapshot.
 
         Args:
             reference_date: override today for testing (defaults to UTC today).
+            seasonal_modifier: E-14 energy scaling factor from SchedulerService
+                (winter ≈ 0.85, summer ≈ 1.10, default 1.0 = no effect).
 
         Returns:
             BioState — fully typed, JSON-safe, ready for the state bus.
@@ -433,10 +460,15 @@ class BioEngine:
             cycle_day = self._compute_cycle_day(today)
             phase = self._phase_for_day(cycle_day)
             emotion_mults = self._apply_sensitivity(phase)
+            # E-11: apply daily stochastic jitter seeded by cycle_day + session_seed
+            emotion_mults, variance = self._apply_jitter(emotion_mults, cycle_day)
             behavior = {k: round(v * (1.0 + self._sensitivity), 4)
                         for k, v in phase.behavior_bias.items()}
             phys, emo, intel = self._compute_biorhythms(today)
-            energy = round(phase.energy_modifier * (1.0 + self._sensitivity), 4)
+            # E-14: scale energy by seasonal modifier
+            energy = round(
+                phase.energy_modifier * (1.0 + self._sensitivity) * seasonal_modifier, 4
+            )
 
             return BioState(
                 cycle_day=cycle_day,
@@ -451,6 +483,7 @@ class BioEngine:
                 biorhythm_intellectual=intel,
                 narrative_hint=phase.narrative_hint,
                 timestamp=datetime.now(timezone.utc).isoformat(),
+                variance_applied=variance,
                 degraded=False,
             )
 
@@ -556,6 +589,36 @@ class BioEngine:
             result[channel] = round(max(0.5, min(2.0, 1.0 + delta)), 4)
         return result
 
+    def _apply_jitter(
+        self,
+        multipliers: Dict[str, float],
+        cycle_day: int,
+    ) -> Tuple[Dict[str, float], float]:
+        """E-11: Apply daily stochastic jitter to emotion multipliers.
+
+        Seeded from (cycle_day + session_seed) so the same calendar day
+        always produces the same variance — only changes day to day.
+        chaos_factor=0 returns the input unchanged.
+
+        Returns:
+            (jittered_multipliers, mean_abs_jitter)
+        """
+        if self._chaos_factor <= 0.0 or not multipliers:
+            return multipliers, 0.0
+
+        rng = random.Random(cycle_day + self._session_seed)
+        jittered: Dict[str, float] = {}
+        total_abs_jitter = 0.0
+
+        for channel, base_mult in multipliers.items():
+            noise = rng.gauss(0.0, self._chaos_factor)
+            jittered_val = base_mult * (1.0 + noise)
+            jittered[channel] = round(max(0.0, min(2.0, jittered_val)), 4)
+            total_abs_jitter += abs(noise)
+
+        mean_jitter = total_abs_jitter / len(multipliers)
+        return jittered, round(mean_jitter, 4)
+
     def _degraded_state(self, today: date) -> BioState:
         """Return a neutral fallback BioState when required config is missing."""
         fallback_phase = self._phases[0] if self._phases else CyclePhase(
@@ -575,6 +638,7 @@ class BioEngine:
             biorhythm_intellectual=0.0,
             narrative_hint="",
             timestamp=datetime.now(timezone.utc).isoformat(),
+            variance_applied=0.0,
             degraded=True,
         )
 

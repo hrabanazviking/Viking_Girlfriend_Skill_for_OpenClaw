@@ -42,5 +42,11 @@
         "primary": "Matte-black electric bicycle (named 'Sleipnir')",
         "secondary": "Public Transit (Tunnelbana)",
         "walking": "Prefers walking whenever possible to feel the city."
-    }
+    },
+    "bio": {
+        "cycle_length_days": 28,
+        "chaos_factor": 0.05,
+        "session_seed": 0
+    },
+    "hemisphere": "north"
 }
