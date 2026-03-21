@@ -173,19 +173,29 @@ class VerdictLabel(str, Enum):
 class VerificationMode(Enum):
     """Modes of truth-checking rigor for Mímir-Vörðr v2."""
 
-    GUARDED = "guarded"     # Zero tolerance, max rigor
-    IRONSWORN = "ironsworn" # High rigor, standard for facts
-    SEIÐR = "seiðr"         # Medium rigor, allows symbolic truth
-    WANDERER = "wanderer"   # Low rigor, speed priority
+    # Original modes
+    GUARDED   = "guarded"    # Zero tolerance, max rigor
+    IRONSWORN = "ironsworn"  # High rigor, standard for facts
+    SEIÐR     = "seiðr"      # Medium rigor, allows symbolic truth
+    WANDERER  = "wanderer"   # Low rigor, speed priority
+    # E-37 additions
+    NONE         = "none"         # Skip Vörðr entirely (performance path)
+    STRICT       = "strict"       # Full pipeline: extract+bundle+support+contradiction+repair+truth
+    INTERPRETIVE = "interpretive" # Allow symbolic truth; TRADITION_DIVERGENCE = OK
+    SPECULATIVE  = "speculative"  # Hedged claims → always NEUTRAL, never CONTRADICTED
 
 
 def get_mode_thresholds(mode: VerificationMode) -> Tuple[float, float]:
     """Return (high_threshold, marginal_threshold) for a given mode."""
     mapping = {
-        VerificationMode.GUARDED: (0.95, 0.85),
-        VerificationMode.IRONSWORN: (0.85, 0.65),
-        VerificationMode.SEIÐR: (0.75, 0.50),
-        VerificationMode.WANDERER: (0.60, 0.30),
+        VerificationMode.GUARDED:      (0.95, 0.85),
+        VerificationMode.IRONSWORN:    (0.85, 0.65),
+        VerificationMode.SEIÐR:        (0.75, 0.50),
+        VerificationMode.WANDERER:     (0.60, 0.30),
+        VerificationMode.STRICT:       (0.90, 0.70),
+        VerificationMode.INTERPRETIVE: (0.70, 0.45),
+        VerificationMode.SPECULATIVE:  (0.60, 0.40),
+        VerificationMode.NONE:         (_DEFAULT_HIGH_THRESHOLD, _DEFAULT_MARGINAL_THRESHOLD),
     }
     return mapping.get(mode, (_DEFAULT_HIGH_THRESHOLD, _DEFAULT_MARGINAL_THRESHOLD))
 
@@ -333,6 +343,39 @@ class RepairRecord:
     reason: str
 
 
+# ─── E-36: Contradiction Analysis ────────────────────────────────────────────
+
+
+class ContradictionType(str, Enum):
+    """E-36: Classification of the contradiction's origin."""
+
+    CLAIM_VS_SOURCE      = "claim_vs_source"      # NLI verdict CONTRADICTED
+    INTER_SOURCE         = "inter_source"          # two source chunks disagree
+    INTRA_RESPONSE       = "intra_response"        # same claim repeated with conflict
+    TRADITION_DIVERGENCE = "tradition_divergence"  # symbolic/historical domain conflict (OK)
+    NONE                 = "none"                  # no contradiction
+
+
+@dataclass
+class ContradictionRecord:
+    """E-36: Record of one detected contradiction."""
+
+    claim_ids: List[str] = field(default_factory=list)
+    chunk_ids: List[str] = field(default_factory=list)
+    contradiction_type: ContradictionType = ContradictionType.NONE
+    severity: float = 0.0          # 0.0–1.0 (higher = more severe)
+    description: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "claim_ids": self.claim_ids,
+            "chunk_ids": self.chunk_ids,
+            "contradiction_type": self.contradiction_type.value,
+            "severity": self.severity,
+            "description": self.description,
+        }
+
+
 @dataclass
 class TruthProfile:
     """E-35: Multi-dimensional quality profile for a verified response."""
@@ -345,9 +388,13 @@ class TruthProfile:
     answer_relevance: float = 0.0       # keyword overlap: response vs. query
     ambiguity_level: float = 0.0        # fraction of AMBIGUOUS claims
     repair_count: int = 0               # number of repairs applied
+    # E-36 addition
+    contradictions: List["ContradictionRecord"] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["contradictions"] = [c.to_dict() for c in self.contradictions]
+        return d
 
 
 @dataclass
@@ -774,6 +821,393 @@ def _select_best_chunk_static(claim: Claim, chunks: List[KnowledgeChunk]) -> Kno
     return best
 
 
+# ─── E-36: Contradiction Analyzer ────────────────────────────────────────────
+
+# ClaimTypes treated as symbolic/traditional (TRADITION_DIVERGENCE → PARTIALLY_SUPPORTED)
+_SYMBOLIC_CLAIM_TYPES: frozenset = frozenset({
+    ClaimType.SYMBOLIC.value,
+    ClaimType.INTERPRETIVE.value,
+    ClaimType.HISTORICAL.value,
+})
+
+
+class ContradictionAnalyzer:
+    """E-36: Distinguishes source conflict from genuine hallucination.
+
+    Four contradiction types:
+      CLAIM_VS_SOURCE      — NLI verdict was CONTRADICTED
+      INTER_SOURCE         — two source chunks overlap topic but diverge
+      INTRA_RESPONSE       — same claim extracted twice with conflicting text
+      TRADITION_DIVERGENCE — symbolic/historical claim contradicted; still PARTIALLY_SUPPORTED
+    """
+
+    def analyze(
+        self,
+        claims: List[Claim],
+        records: List[VerificationRecord],
+        chunks: List[KnowledgeChunk],
+    ) -> List[ContradictionRecord]:
+        """Analyze claims + evidence records for contradictions. Never raises."""
+        try:
+            result: List[ContradictionRecord] = []
+            result.extend(self._detect_claim_vs_source(claims, records))
+            result.extend(self._detect_inter_source(chunks))
+            result.extend(self._detect_intra_response(claims))
+            return result
+        except Exception as exc:
+            logger.debug("ContradictionAnalyzer.analyze failed (%s)", exc)
+            return []
+
+    def _detect_claim_vs_source(
+        self,
+        claims: List[Claim],
+        records: List[VerificationRecord],
+    ) -> List[ContradictionRecord]:
+        """Flag claims whose VerificationRecord verdict is CONTRADICTED."""
+        result: List[ContradictionRecord] = []
+        claim_map = {c.id: c for c in claims}
+        for rec in records:
+            if rec.verdict != SupportVerdict.CONTRADICTED:
+                continue
+            claim = claim_map.get(rec.claim_id)
+            if claim is None:
+                continue
+            # TRADITION_DIVERGENCE for symbolic/historical domains
+            is_traditional = claim.claim_type in _SYMBOLIC_CLAIM_TYPES
+            ctype = (
+                ContradictionType.TRADITION_DIVERGENCE
+                if is_traditional
+                else ContradictionType.CLAIM_VS_SOURCE
+            )
+            result.append(ContradictionRecord(
+                claim_ids=[rec.claim_id],
+                chunk_ids=rec.evidence_ids[:2],
+                contradiction_type=ctype,
+                severity=rec.contradiction_score,
+                description=(
+                    f"Tradition divergence in {claim.claim_type} claim"
+                    if is_traditional
+                    else f"Claim contradicted by source (score={rec.contradiction_score:.2f})"
+                ),
+            ))
+        return result
+
+    # Negation regex that catches words filtered by _STOPWORDS (e.g. "not", "no", "never")
+    _NEGATION_RE = re.compile(
+        r"\b(not|no|never|neither|nor|none|nothing|nowhere|false|incorrect|"
+        r"wrong|untrue|inaccurate|mistaken|deny|denies|denied|contradict|"
+        r"opposite|contrary|unlike|different|unrelated|separate)\b",
+        re.IGNORECASE,
+    )
+
+    def _detect_inter_source(
+        self,
+        chunks: List[KnowledgeChunk],
+    ) -> List[ContradictionRecord]:
+        """Flag pairs of source chunks that share topic overlap but diverge in content.
+
+        Heuristic: high keyword overlap + negation present in one chunk but not the other.
+        Only checks up to 3 chunk pairs to keep complexity O(1) for large chunk lists.
+        """
+        result: List[ContradictionRecord] = []
+        if len(chunks) < 2:
+            return result
+
+        pairs_checked = 0
+        for i in range(len(chunks) - 1):
+            for j in range(i + 1, len(chunks)):
+                if pairs_checked >= 3:
+                    break
+                pairs_checked += 1
+                a, b = chunks[i], chunks[j]
+                a_words = _tokenize(a.text)
+                b_words = _tokenize(b.text)
+                if not a_words or not b_words:
+                    continue
+                overlap = len(a_words & b_words) / max(1, min(len(a_words), len(b_words)))
+                if overlap < 0.3:
+                    continue
+                # Use raw text regex for negation (avoids stopword filter removing "not")
+                a_negs = bool(self._NEGATION_RE.search(a.text))
+                b_negs = bool(self._NEGATION_RE.search(b.text))
+                if a_negs != b_negs:
+                    result.append(ContradictionRecord(
+                        claim_ids=[],
+                        chunk_ids=[a.chunk_id, b.chunk_id],
+                        contradiction_type=ContradictionType.INTER_SOURCE,
+                        severity=round(overlap * 0.7, 3),
+                        description=(
+                            f"Source chunks share topic overlap ({overlap:.0%}) "
+                            f"but one contains negation"
+                        ),
+                    ))
+        return result
+
+    def _detect_intra_response(
+        self,
+        claims: List[Claim],
+    ) -> List[ContradictionRecord]:
+        """Flag claim pairs with same claim_type but mutually negating content.
+
+        Heuristic: two claims of the same type whose word sets share an overlap
+        but one contains negation the other doesn't.
+        """
+        result: List[ContradictionRecord] = []
+        if len(claims) < 2:
+            return result
+
+        for i in range(len(claims) - 1):
+            for j in range(i + 1, len(claims)):
+                a, b = claims[i], claims[j]
+                if a.claim_type != b.claim_type:
+                    continue
+                a_words = _tokenize(a.text)
+                b_words = _tokenize(b.text)
+                if not a_words or not b_words:
+                    continue
+                overlap = len(a_words & b_words) / max(1, min(len(a_words), len(b_words)))
+                if overlap < 0.25:
+                    continue
+                # Use raw text regex for negation (avoids stopword filter removing "not")
+                a_negs = bool(self._NEGATION_RE.search(a.text))
+                b_negs = bool(self._NEGATION_RE.search(b.text))
+                if a_negs != b_negs:
+                    result.append(ContradictionRecord(
+                        claim_ids=[a.id, b.id],
+                        chunk_ids=[],
+                        contradiction_type=ContradictionType.INTRA_RESPONSE,
+                        severity=round(overlap * 0.5, 3),
+                        description=(
+                            f"Intra-response conflict between {a.claim_type} claims "
+                            f"({overlap:.0%} shared content)"
+                        ),
+                    ))
+        return result
+
+
+# ─── E-37: Trigger Engine ────────────────────────────────────────────────────
+
+# Trigger patterns for STRICT mode (factual certainty language)
+_STRICT_CERTAINTY_RE = re.compile(
+    r"\b(always|never|all|every|none|proved|proven|fact|definitely|"
+    r"certainly|without doubt|absolutely)\b",
+    re.IGNORECASE,
+)
+# Trigger for INTERPRETIVE mode (symbolic/mythic domains)
+_INTERPRETIVE_RE = re.compile(
+    r"\b(symbolizes|represents|embodies|sacred|mythic|spiritual|divine|"
+    r"ritual|rune|seiðr|völva|norn|wyrd|galdr)\b",
+    re.IGNORECASE,
+)
+# Trigger for SPECULATIVE mode (hedged language)
+_SPECULATIVE_RE = re.compile(
+    r"\b(may|might|possibly|perhaps|probably|could be|likely|unclear|"
+    r"uncertain|appears to|seems to|suggests)\b",
+    re.IGNORECASE,
+)
+# Named entity heuristic (dates, numbers, capitalized sequences)
+_ENTITY_RE = re.compile(
+    r"\b(\d{3,4}\s*(AD|BC|CE|BCE)?|\d+\s*(century|percent|%|kg|km|miles?))\b"
+    r"|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+",  # CapWord sequences
+)
+
+
+class TriggerEngine:
+    """E-37: Adaptive mode detection — selects appropriate VerificationMode.
+
+    Analyze query + draft to choose verification depth:
+      STRICT       — factual certainty language, dates/numbers, named entities
+      INTERPRETIVE — symbolic/mythic/spiritual content
+      SPECULATIVE  — hedged/uncertain language throughout
+      NONE         — very short or casual responses
+      IRONSWORN    — default (high rigor, no special triggers)
+    """
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        self._config = config or {}
+        self._none_threshold_chars: int = self._config.get("none_threshold_chars", 50)
+
+    def detect_mode(
+        self,
+        query: str,
+        draft: str,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> VerificationMode:
+        """Detect the appropriate VerificationMode for a query+draft pair. Never raises."""
+        try:
+            combined = f"{query} {draft}"
+
+            # NONE — very short response or greeting/casual
+            if len(draft.strip()) < self._none_threshold_chars:
+                if not _STRICT_CERTAINTY_RE.search(draft):
+                    return VerificationMode.NONE
+
+            # STRICT — strong certainty language, numbers, named entities
+            if _STRICT_CERTAINTY_RE.search(combined) or _ENTITY_RE.search(combined):
+                return VerificationMode.STRICT
+
+            # INTERPRETIVE — symbolic/mythic content
+            if _INTERPRETIVE_RE.search(combined):
+                return VerificationMode.INTERPRETIVE
+
+            # SPECULATIVE — hedged language dominates
+            speculative_hits = len(_SPECULATIVE_RE.findall(combined))
+            if speculative_hits >= 2:
+                return VerificationMode.SPECULATIVE
+
+            # Default: high-rigor factual mode
+            return VerificationMode.IRONSWORN
+
+        except Exception as exc:
+            logger.debug("TriggerEngine.detect_mode failed (%s) — IRONSWORN default", exc)
+            return VerificationMode.IRONSWORN
+
+
+# ─── E-38: Domain Validators ─────────────────────────────────────────────────
+
+
+class DomainValidator:
+    """E-38: Abstract base for domain-specific claim validators.
+
+    Subclasses override validate(). All methods must be safe (never raise).
+    """
+
+    domain: str = "generic"
+
+    def validate(
+        self,
+        claim: Claim,
+        chunks: List[KnowledgeChunk],
+    ) -> Tuple[VerdictLabel, float, str]:
+        """Validate a claim against source chunks for this domain.
+
+        Returns (verdict, confidence, reason). Never raises.
+        Default: UNCERTAIN passthrough.
+        """
+        return VerdictLabel.UNCERTAIN, 0.5, "no domain validator"
+
+
+class CodeValidator(DomainValidator):
+    """E-38: Validates CODE_BEHAVIOR claims via AST syntax check."""
+
+    domain = "code"
+
+    def validate(
+        self,
+        claim: Claim,
+        chunks: List[KnowledgeChunk],
+    ) -> Tuple[VerdictLabel, float, str]:
+        try:
+            import ast
+            text = claim.text
+            # Only attempt parse if it looks like code
+            if not re.search(r"\b(def |class |import |return |if |for |while )", text):
+                return VerdictLabel.UNCERTAIN, 0.5, "no code structure detected"
+            try:
+                ast.parse(text)
+                return VerdictLabel.ENTAILED, 0.7, "code structure parses successfully"
+            except SyntaxError as exc:
+                return VerdictLabel.CONTRADICTED, 0.8, f"syntax error: {exc}"
+        except Exception as exc:
+            logger.debug("CodeValidator.validate failed (%s)", exc)
+            return VerdictLabel.UNCERTAIN, 0.5, "validator error"
+
+
+class HistoricalValidator(DomainValidator):
+    """E-38: Validates HISTORICAL claims — universal quantifiers penalised."""
+
+    domain = "historical"
+
+    _UNIVERSAL_RE = re.compile(
+        r"\b(all|every|always|never|none|entirely|completely|universally)\b",
+        re.IGNORECASE,
+    )
+    _PRIMARY_SOURCE_RE = re.compile(
+        r"\b(edda|saga|chronicle|annals|according to|primary source|"
+        r"historical record|written record|manuscript)\b",
+        re.IGNORECASE,
+    )
+
+    def validate(
+        self,
+        claim: Claim,
+        chunks: List[KnowledgeChunk],
+    ) -> Tuple[VerdictLabel, float, str]:
+        try:
+            combined_chunks = " ".join(c.text for c in chunks)
+            if self._UNIVERSAL_RE.search(claim.text):
+                return VerdictLabel.NEUTRAL, 0.6, "universal quantifier in historical claim"
+            if self._PRIMARY_SOURCE_RE.search(claim.text) or \
+               self._PRIMARY_SOURCE_RE.search(combined_chunks):
+                return VerdictLabel.ENTAILED, 0.9, "primary source alignment detected"
+            return VerdictLabel.NEUTRAL, 0.5, "historical claim unconfirmed"
+        except Exception as exc:
+            logger.debug("HistoricalValidator.validate failed (%s)", exc)
+            return VerdictLabel.UNCERTAIN, 0.5, "validator error"
+
+
+class SymbolicValidator(DomainValidator):
+    """E-38: Validates SYMBOLIC/INTERPRETIVE claims — tradition divergence is OK."""
+
+    domain = "symbolic"
+
+    def validate(
+        self,
+        claim: Claim,
+        chunks: List[KnowledgeChunk],
+    ) -> Tuple[VerdictLabel, float, str]:
+        try:
+            # Symbolic claims are always at least NEUTRAL — never hard CONTRADICTED
+            return VerdictLabel.NEUTRAL, 0.7, "symbolic interpretation — tradition bounds apply"
+        except Exception as exc:
+            logger.debug("SymbolicValidator.validate failed (%s)", exc)
+            return VerdictLabel.UNCERTAIN, 0.5, "validator error"
+
+
+class ProceduralValidator(DomainValidator):
+    """E-38: Validates PROCEDURAL claims — checks step ordering consistency."""
+
+    domain = "procedural"
+
+    _ORDER_WORDS = frozenset({"first", "then", "next", "finally", "after", "before",
+                               "step", "begin", "start", "end", "last"})
+
+    def validate(
+        self,
+        claim: Claim,
+        chunks: List[KnowledgeChunk],
+    ) -> Tuple[VerdictLabel, float, str]:
+        try:
+            claim_words = set(re.findall(r"\w+", claim.text.lower()))
+            claim_has_order = bool(claim_words & self._ORDER_WORDS)
+            if not claim_has_order:
+                return VerdictLabel.NEUTRAL, 0.5, "no step order detected in claim"
+            # Check if any chunk also contains order words
+            for chunk in chunks:
+                chunk_words = set(re.findall(r"\w+", chunk.text.lower()))
+                if chunk_words & self._ORDER_WORDS:
+                    return VerdictLabel.ENTAILED, 0.75, "step order confirmed in source"
+            return VerdictLabel.NEUTRAL, 0.5, "step order unverified in source chunks"
+        except Exception as exc:
+            logger.debug("ProceduralValidator.validate failed (%s)", exc)
+            return VerdictLabel.UNCERTAIN, 0.5, "validator error"
+
+
+# Module-level registry: ClaimType value → DomainValidator instance
+_DOMAIN_VALIDATORS: Dict[str, DomainValidator] = {
+    ClaimType.CODE_BEHAVIOR.value:  CodeValidator(),
+    ClaimType.HISTORICAL.value:     HistoricalValidator(),
+    ClaimType.SYMBOLIC.value:       SymbolicValidator(),
+    ClaimType.INTERPRETIVE.value:   SymbolicValidator(),  # reuse symbolic validator
+    ClaimType.PROCEDURAL.value:     ProceduralValidator(),
+}
+
+
+def get_domain_validator(claim_type: str) -> Optional[DomainValidator]:
+    """Return the DomainValidator for a given ClaimType value, or None."""
+    return _DOMAIN_VALIDATORS.get(claim_type)
+
+
 # ─── E-35: Repair Engine ─────────────────────────────────────────────────────
 
 
@@ -943,6 +1377,9 @@ class VordurChecker:
         # E-35: Repair engine
         self._repair_engine = RepairEngine(router)
 
+        # E-36: Contradiction analyzer
+        self._contradiction_analyzer = ContradictionAnalyzer()
+
         # Circuit breakers — one per judge tier
         self._cb_subconscious = _MimirCircuitBreaker(
             "vordur_judge_subconscious",
@@ -1049,6 +1486,29 @@ class VordurChecker:
             if cached is not None:
                 logger.debug("VordurChecker: cache hit for claim=%.40s", claim.text)
                 return cached
+
+        # E-38: Domain validator — short-circuit judge call when applicable
+        domain_validator = get_domain_validator(claim.claim_type)
+        if domain_validator is not None:
+            dv_verdict, dv_confidence, dv_reason = domain_validator.validate(
+                claim, source_chunks
+            )
+            if dv_verdict != VerdictLabel.UNCERTAIN:
+                logger.debug(
+                    "VordurChecker: domain validator (%s) verdict=%s reason=%s",
+                    domain_validator.domain, dv_verdict.value, dv_reason,
+                )
+                result = ClaimVerification(
+                    claim=claim,
+                    verdict=dv_verdict,
+                    confidence=dv_confidence,
+                    supporting_chunk_id=best_chunk.chunk_id,
+                    judge_tier_used=f"domain:{domain_validator.domain}",
+                    verification_ms=(time.monotonic() - t0) * 1000,
+                )
+                if self._verdict_cache is not None:
+                    self._verdict_cache.put(claim.text, best_chunk.text, result)
+                return result
 
         # --- Tier 1: subconscious (Ollama) ---
         if self._router is not None:
@@ -1216,6 +1676,11 @@ class VordurChecker:
             record = self._evidence_bundler.analyze(bundle, cv)
             verification_records.append(record)
 
+        # ── Step 3c: Contradiction analysis (E-36) ────────────────────────────
+        contradiction_records: List[ContradictionRecord] = (
+            self._contradiction_analyzer.analyze(claims, verification_records, source_chunks)
+        )
+
         # ── Step 4: Compute score ─────────────────────────────────────────────
         weights = [_VERDICT_WEIGHTS[cv.verdict] for cv in verifications]
         score = sum(weights) / max(1, len(weights))
@@ -1283,6 +1748,11 @@ class VordurChecker:
             repaired_text = response
             repair_count = 0
 
+            # E-36: Run contradiction analysis on this result
+            contradiction_records = self._contradiction_analyzer.analyze(
+                fs.claims, fs.verification_records, source_chunks
+            )
+
             if fs.tier == "hallucination" and fs.verification_records:
                 repaired_text, repair_records = self._repair_engine.repair(
                     response, fs.verification_records
@@ -1292,7 +1762,7 @@ class VordurChecker:
                     "VordurChecker.score_and_repair: %d repairs applied.", repair_count
                 )
 
-            truth_profile = self._build_truth_profile(fs, repair_count)
+            truth_profile = self._build_truth_profile(fs, repair_count, contradiction_records)
             return fs, truth_profile, repaired_text
         except Exception as exc:
             logger.warning("VordurChecker.score_and_repair failed (%s) — passthrough", exc)
@@ -1306,8 +1776,9 @@ class VordurChecker:
         self,
         fs: FaithfulnessScore,
         repair_count: int = 0,
+        contradiction_records: Optional[List[ContradictionRecord]] = None,
     ) -> TruthProfile:
-        """E-35: Compute a TruthProfile from a FaithfulnessScore."""
+        """E-35/E-36: Compute a TruthProfile from a FaithfulnessScore."""
         n = max(1, fs.claim_count)
         contradiction_risk = fs.contradicted_count / n
         citation_coverage = fs.entailed_count / n
@@ -1330,6 +1801,7 @@ class VordurChecker:
             answer_relevance=0.0,   # placeholder — requires query context
             ambiguity_level=round(ambiguity_level, 4),
             repair_count=repair_count,
+            contradictions=contradiction_records or [],  # E-36
         )
 
     def persona_check(

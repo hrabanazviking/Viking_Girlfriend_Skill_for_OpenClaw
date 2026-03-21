@@ -152,6 +152,11 @@ class ModelRouterError(Exception):
     pass
 
 
+class _SkipVordur(Exception):
+    """E-37: Internal sentinel — raised to cleanly skip VordurChecker in NONE mode."""
+    pass
+
+
 # ─── Coding intent detector ───────────────────────────────────────────────────
 
 
@@ -836,6 +841,7 @@ class ModelRouterClient:
         dead_letter_store: Optional[Any] = None,  # _DeadLetterStore
         ethics_state: Optional[Any] = None,     # ethics.EthicsState
         trust_state: Optional[Any] = None,      # trust_engine.TrustState
+        trigger_engine: Optional[Any] = None,   # E-37: TriggerEngine — adaptive mode detection
         fallback: bool = True,
         max_vordur_retries: int = 2,
         **kwargs: Any,
@@ -970,19 +976,48 @@ class ModelRouterClient:
                     final_text = base.content
                     cove_applied = False
 
-                # ── Stage 4: VordurChecker ─────────────────────────────────────
+                # ── Stage 4: VordurChecker (E-37: TriggerEngine adaptive mode) ───
                 faithfulness_score = None
                 faithfulness_tier_label = ""
                 needs_retry = False
 
                 if vordur is not None and final_text and knowledge_chunks:
                     try:
-                        score_result = vordur.score(
+                        # E-37: Detect verification mode via TriggerEngine if available
+                        vordur_mode = None
+                        if trigger_engine is not None:
+                            try:
+                                from scripts.vordur import VerificationMode
+                                detected = trigger_engine.detect_mode(query, final_text, {})
+                                if detected == VerificationMode.NONE:
+                                    logger.debug(
+                                        "smart_complete_with_cove: TriggerEngine → NONE, "
+                                        "skipping Vordur stage"
+                                    )
+                                    faithfulness_score = None
+                                    faithfulness_tier_label = ""
+                                    needs_retry = False
+                                    # Skip scoring entirely for NONE mode
+                                    raise _SkipVordur()
+                                vordur_mode = detected
+                            except _SkipVordur:
+                                raise
+                            except Exception as te_exc:
+                                logger.debug(
+                                    "smart_complete_with_cove: TriggerEngine failed (%s)"
+                                    " — default scoring", te_exc,
+                                )
+
+                        score_kwargs = dict(
                             response=final_text,
                             source_chunks=knowledge_chunks,
                             ethics_state=ethics_state,
                             trust_state=trust_state,
                         )
+                        if vordur_mode is not None:
+                            score_kwargs["mode"] = vordur_mode
+
+                        score_result = vordur.score(**score_kwargs)
                         faithfulness_score = score_result.score
                         faithfulness_tier_label = score_result.tier
                         needs_retry = score_result.needs_retry
@@ -990,6 +1025,8 @@ class ModelRouterClient:
                             "smart_complete_with_cove: Vordur score=%.2f tier=%s retry=%s",
                             faithfulness_score, faithfulness_tier_label, needs_retry,
                         )
+                    except _SkipVordur:
+                        pass  # NONE mode — skip scoring cleanly
                     except Exception as exc:
                         logger.warning(
                             "smart_complete_with_cove: Vordur scoring failed (%s)"
