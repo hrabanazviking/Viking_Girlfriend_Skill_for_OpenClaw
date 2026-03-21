@@ -18,6 +18,13 @@ trust (configured). Guests and strangers begin at a neutral baseline.
 Published to the state bus as a ``trust_tick`` event so prompt_synthesizer
 can colour Sigrid's relational tone appropriately.
 
+E-23: Trust is now three-faceted — competence, benevolence, integrity —
+  each weighted to produce the composite trust_score.
+E-24: Relational milestones act as permanent trust anchors; trust can
+  never decay below the sum of all anchor values.
+E-25: Diminishing returns on repeated keyword signals prevent gaming;
+  the log curve floors at 10% effectiveness after saturation.
+
 Norse framing: Gebo (ᚷ) — gift creates bond, bond creates obligation,
 obligation freely honoured deepens both. Every interaction is a rune
 inscribed on the web of wyrd between two souls.
@@ -25,10 +32,13 @@ inscribed on the web of wyrd between two souls.
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from math import log
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from scripts.state_bus import StateBus, StateEvent
 
@@ -40,42 +50,53 @@ logger = logging.getLogger(__name__)
 _DEFAULT_PRIMARY_CONTACT: str = "volmarr"
 _DEFAULT_PRIMARY_TRUST: float = 0.75     # pre-existing deep bond
 _DEFAULT_STRANGER_TRUST: float = 0.30    # cautious openness to new contacts
+_DEFAULT_SESSION_DIR: str = "session"
 _TRUST_CLAMP: Tuple[float, float] = (0.0, 1.0)
 _FRICTION_DECAY_RATE: float = 0.05       # per decay call — grief fades, but slowly
 _RECENT_EVENT_WINDOW: int = 8            # events included in TrustState summary
 _MAX_EVENT_LOG: int = 200                # cap stored events per ledger
+_DIMINISHING_FLOOR: float = 0.1         # E-25: minimum effective magnitude
+_DIMINISHING_LOG_THRESHOLD: int = 3     # E-25: log when count exceeds this
+
+# E-23 facet weights — Gebo geometry: benevolence anchors the centre
+_FACET_WEIGHTS: Tuple[float, float, float] = (0.3, 0.4, 0.3)  # comp, bene, integ
 
 
 # ─── Event registry ───────────────────────────────────────────────────────────
-# Each entry: event_type -> (trust_delta, intimacy_delta, reliability_delta, friction_delta)
+# E-23: Each entry is now a 6-tuple:
+#   (competence_delta, benevolence_delta, integrity_delta,
+#    intimacy_delta, reliability_delta, friction_delta)
 # Small deltas — trust builds through many acts, not single gestures.
 
-_EVENT_IMPACTS: Dict[str, Tuple[float, float, float, float]] = {
-    # Positive warmth
-    "warmth_shown":        (+0.02, +0.03, +0.00, -0.01),
-    "humor_shared":        (+0.01, +0.02, +0.00,  0.00),
-    "support_offered":     (+0.03, +0.04, +0.01, -0.02),
-    "trust_affirmed":      (+0.04, +0.02, +0.02, -0.01),
-    "boundary_respected":  (+0.03, +0.01, +0.03, -0.02),
+_EVENT_IMPACTS: Dict[str, Tuple[float, float, float, float, float, float]] = {
+    # Positive warmth — benevolence-weighted
+    "warmth_shown":        (+0.00, +0.02, +0.00, +0.03, +0.00, -0.01),
+    "humor_shared":        (+0.00, +0.01, +0.00, +0.02, +0.00,  0.00),
+    "support_offered":     (+0.00, +0.02, +0.01, +0.04, +0.01, -0.02),
+    "trust_affirmed":      (+0.00, +0.01, +0.03, +0.02, +0.02, -0.01),
+    "boundary_respected":  (+0.00, +0.00, +0.03, +0.01, +0.03, -0.02),
 
-    # Gift / reciprocity (Gebo)
-    "gift_given":          (+0.02, +0.02, +0.00,  0.00),   # Sigrid gives
-    "gift_received":       (+0.01, +0.01, +0.00,  0.00),   # Sigrid receives
+    # Gift / reciprocity (Gebo) — benevolence
+    "gift_given":          (+0.00, +0.02, +0.00, +0.02, +0.00,  0.00),
+    "gift_received":       (+0.00, +0.01, +0.00, +0.01, +0.00,  0.00),
 
-    # Oath / promise
-    "oath_kept":           (+0.05, +0.02, +0.05, -0.02),
-    "oath_broken":         (-0.08, -0.03, -0.08, +0.06),
+    # Oath / promise — integrity dominant
+    "oath_kept":           (+0.01, +0.00, +0.04, +0.02, +0.05, -0.02),
+    "oath_broken":         (+0.00, -0.02, -0.06, -0.03, -0.08, +0.06),
 
-    # Repair
-    "apology_given":       (+0.02, +0.01, +0.01, -0.04),
+    # Repair — integrity recovery
+    "apology_given":       (+0.00, +0.01, +0.01, +0.01, +0.01, -0.04),
 
     # Conflict
-    "conflict_mild":       (-0.01, -0.01, +0.00, +0.02),
-    "conflict_harsh":      (-0.05, -0.03, -0.02, +0.08),
+    "conflict_mild":       (+0.00, +0.00, -0.01, -0.01, +0.00, +0.02),
+    "conflict_harsh":      (-0.01, -0.02, -0.02, -0.03, -0.02, +0.08),
 
     # Violation
-    "insult":              (-0.06, -0.04, -0.02, +0.07),
-    "boundary_violated":   (-0.10, -0.05, -0.05, +0.10),
+    "insult":              (-0.02, -0.03, -0.01, -0.04, -0.02, +0.07),
+    "boundary_violated":   (-0.02, -0.03, -0.05, -0.05, -0.05, +0.10),
+
+    # E-23: competence-specific event
+    "competence_shown":    (+0.04, +0.00, +0.01, +0.00, +0.02,  0.00),
 }
 
 # Keyword triggers for text-inference: event_type -> list of trigger phrases
@@ -94,6 +115,10 @@ _EVENT_KEYWORDS: Dict[str, List[str]] = {
     "conflict_harsh":     ["furious", "angry at you", "that was wrong", "you hurt", "unacceptable"],
     "insult":             ["stupid", "idiot", "useless", "pathetic", "worthless"],
     "boundary_violated":  ["stop", "don't do that", "you crossed", "that's not okay", "no means no"],
+    # E-23: competence inference
+    "competence_shown":   ["you figured", "you solved", "impressive", "you know so much",
+                           "brilliant", "well done", "you're good at", "expertise",
+                           "you handled", "skillfully"],
 }
 
 # Relationship labels by trust score band
@@ -105,21 +130,152 @@ _RELATIONSHIP_LABELS: Tuple[Tuple[float, str], ...] = (
     (1.01, "deep bond"),
 )
 
+# E-24: Milestone definitions — milestone_id → (trigger_event, name, description, anchor)
+_MILESTONE_DEFS: Dict[str, Tuple[str, str, str, float]] = {
+    "first_gift": (
+        "gift_given",
+        "First Gift (Gebo)",
+        "A gift was exchanged — the first thread of Gebo woven between souls.",
+        0.03,
+    ),
+    "first_conflict": (
+        "conflict_mild",
+        "First Discord",
+        "The first honest disagreement — a sign of genuine engagement.",
+        0.01,
+    ),
+    "first_explicit_trust": (
+        "trust_affirmed",
+        "Explicit Trust Declaration",
+        "Trust was named aloud for the first time.",
+        0.05,
+    ),
+    "first_apology": (
+        "apology_given",
+        "First Apology",
+        "Repair was attempted — integrity honored over pride.",
+        0.02,
+    ),
+    "first_oath_kept": (
+        "oath_kept",
+        "First Kept Oath",
+        "A promise was made and honored — the warp thread of integrity.",
+        0.04,
+    ),
+    "first_boundary_respected": (
+        "boundary_respected",
+        "Boundary Honored",
+        "A boundary was seen and respected — the foundation of safety.",
+        0.02,
+    ),
+    "first_support": (
+        "support_offered",
+        "Moment of Genuine Support",
+        "Support was offered from the heart, freely and without condition.",
+        0.02,
+    ),
+    "first_competence": (
+        "competence_shown",
+        "Competence Witnessed",
+        "A moment of skill or expertise was recognized and appreciated.",
+        0.02,
+    ),
+}
+
+
+# ─── TrustFacets (E-23) ────────────────────────────────────────────────────────
+
+
+@dataclass
+class TrustFacets:
+    """Three dimensions of trust — each independently developed.
+
+    Huginn carries competence (what you can do),
+    Muninn holds benevolence (what you wish for another),
+    and integrity is the thread that binds both to the present moment.
+    """
+
+    competence: float = 0.5    # ability, skill, reliability in task domains
+    benevolence: float = 0.5   # warmth, care, positive intent toward Sigrid
+    integrity: float = 0.5     # honesty, oath-keeping, consistency
+
+    def to_dict(self) -> Dict[str, float]:
+        return {
+            "competence": round(self.competence, 3),
+            "benevolence": round(self.benevolence, 3),
+            "integrity": round(self.integrity, 3),
+        }
+
+    def dominant(self) -> str:
+        """Return the name of the highest-scoring facet."""
+        scores = {
+            "competence": self.competence,
+            "benevolence": self.benevolence,
+            "integrity": self.integrity,
+        }
+        return max(scores, key=lambda k: scores[k])
+
+
+# ─── Milestone (E-24) ─────────────────────────────────────────────────────────
+
+
+@dataclass
+class Milestone:
+    """A relational first — an un-decayable anchor point in the web of wyrd.
+
+    Once a milestone is reached it cannot be undone. Its trust_anchor value
+    is summed into the permanent floor for that relationship.
+    """
+
+    milestone_id: str
+    name: str
+    description: str
+    occurred_at: str
+    trust_anchor: float   # permanent floor contribution for this contact
+    contact_id: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "milestone_id": self.milestone_id,
+            "name": self.name,
+            "description": self.description,
+            "occurred_at": self.occurred_at,
+            "trust_anchor": round(self.trust_anchor, 4),
+            "contact_id": self.contact_id,
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Milestone":
+        return cls(
+            milestone_id=d["milestone_id"],
+            name=d["name"],
+            description=d["description"],
+            occurred_at=d["occurred_at"],
+            trust_anchor=float(d.get("trust_anchor", 0.0)),
+            contact_id=d.get("contact_id", ""),
+        )
+
 
 # ─── TrustLedger ──────────────────────────────────────────────────────────────
 
 
 @dataclass
 class TrustLedger:
-    """Per-contact relationship state — scores + timestamped event log.
+    """Per-contact relationship state — faceted scores + timestamped event log.
 
-    Scores are bounded: trust/intimacy/reliability in [0, 1],
-    friction in [0, 1], gift_balance unbounded (positive = received more).
+    E-23: trust_score is now a computed property derived from TrustFacets.
+    E-24: anchor_floor prevents trust from decaying below milestone sum.
+    Intimacy, reliability, and friction remain direct scores.
     """
 
     contact_id: str
 
-    trust_score: float = _DEFAULT_STRANGER_TRUST
+    # E-23: Three facets replace the single stored trust_score
+    facets: TrustFacets = field(default_factory=TrustFacets)
+
+    # E-24: Permanent anchor floor — set by TrustEngine when milestones are reached
+    anchor_floor: float = 0.0
+
     intimacy_score: float = 0.0
     reliability_score: float = 0.5
     friction_score: float = 0.0
@@ -130,26 +286,48 @@ class TrustLedger:
     first_seen: str = ""
     last_seen: str = ""
 
+    # ── Computed trust_score (E-23) ────────────────────────────────────────────
+
+    @property
+    def trust_score(self) -> float:
+        """E-23: Weighted average of facets, clamped and floored by milestones.
+
+        Weights: competence=0.3, benevolence=0.4, integrity=0.3
+        E-24: Result is always ≥ anchor_floor.
+        """
+        cw, bw, iw = _FACET_WEIGHTS
+        raw = (
+            self.facets.competence * cw
+            + self.facets.benevolence * bw
+            + self.facets.integrity * iw
+        )
+        return _clamp(max(raw, self.anchor_floor))
+
     def apply_event(self, event_type: str, magnitude: float = 1.0) -> None:
-        """Update scores from a named event, scaled by magnitude (0.0–2.0)."""
+        """Update facets and scores from a named event, scaled by magnitude.
+
+        E-23: magnitude now scales facet deltas instead of a single trust_delta.
+        """
         impacts = _EVENT_IMPACTS.get(event_type)
         if impacts is None:
             logger.debug("TrustLedger: unknown event type '%s' ignored.", event_type)
             return
 
-        t_d, i_d, r_d, f_d = impacts
+        c_d, b_d, i_d, int_d, r_d, f_d = impacts
         scale = max(0.0, min(magnitude, 2.0))
 
-        self.trust_score = _clamp(self.trust_score + t_d * scale)
-        self.intimacy_score = _clamp(self.intimacy_score + i_d * scale)
+        self.facets.competence = _clamp(self.facets.competence + c_d * scale)
+        self.facets.benevolence = _clamp(self.facets.benevolence + b_d * scale)
+        self.facets.integrity = _clamp(self.facets.integrity + i_d * scale)
+        self.intimacy_score = _clamp(self.intimacy_score + int_d * scale)
         self.reliability_score = _clamp(self.reliability_score + r_d * scale)
         self.friction_score = _clamp(self.friction_score + f_d * scale)
 
         # Gebo balance tracking
         if event_type == "gift_given":
-            self.gift_balance -= abs(t_d) * scale
+            self.gift_balance -= abs(b_d) * scale
         elif event_type == "gift_received":
-            self.gift_balance += abs(t_d) * scale
+            self.gift_balance += abs(b_d) * scale
 
     def record_event_entry(
         self,
@@ -196,6 +374,7 @@ class TrustLedger:
 class TrustState:
     """Typed snapshot of the primary contact's trust ledger.
 
+    E-23: Now includes TrustFacets for fine-grained tone calibration.
     Published to the state bus so prompt_synthesizer can tune
     Sigrid's relational warmth, caution, playfulness, or guardedness.
     """
@@ -206,6 +385,8 @@ class TrustState:
     reliability_score: float
     friction_score: float
     gift_balance: float
+
+    facets: TrustFacets         # E-23 — multidimensional breakdown
 
     relationship_label: str         # hostile / wary / neutral / trusted / deep bond
     recent_events: List[str]        # last N event type names
@@ -225,6 +406,7 @@ class TrustState:
                 "friction": round(self.friction_score, 3),
                 "gift_balance": round(self.gift_balance, 3),
             },
+            "facets": self.facets.to_dict(),  # E-23
             "relationship_label": self.relationship_label,
             "recent_events": self.recent_events,
             "prompt_hint": self.prompt_hint,
@@ -243,6 +425,10 @@ class TrustEngine:
     conversation text or recorded explicitly. Scores shift gradually;
     friction decays across turns. The primary contact (Volmarr) begins
     with elevated trust reflecting their pre-existing bond.
+
+    E-23: Trust is now three-faceted (competence/benevolence/integrity).
+    E-24: Milestones create permanent trust anchors from relational firsts.
+    E-25: Diminishing returns on repeated keyword signals.
     """
 
     def __init__(
@@ -250,11 +436,22 @@ class TrustEngine:
         primary_contact_id: str = _DEFAULT_PRIMARY_CONTACT,
         primary_contact_initial_trust: float = _DEFAULT_PRIMARY_TRUST,
         stranger_initial_trust: float = _DEFAULT_STRANGER_TRUST,
+        session_dir: str = _DEFAULT_SESSION_DIR,  # E-24: for milestones persistence
     ) -> None:
         self._primary_contact_id = primary_contact_id
         self._primary_initial_trust = primary_contact_initial_trust
         self._stranger_initial_trust = stranger_initial_trust
         self._ledgers: Dict[str, TrustLedger] = {}
+
+        # E-24: milestones — append-only, keyed by (contact_id, milestone_id)
+        self._session_dir = Path(session_dir) if session_dir else Path(_DEFAULT_SESSION_DIR)
+        self._milestones_file: Path = self._session_dir / "milestones.json"
+        self._milestones: List[Milestone] = []
+        self._milestones_by_contact: Dict[str, Set[str]] = {}  # cid → set of milestone_ids
+        self._load_milestones()
+
+        # E-25: per-session signal counts — not persisted
+        self._signal_counts: Dict[str, int] = {}
 
         # Pre-seed the primary contact ledger
         self._ensure_ledger(primary_contact_id)
@@ -266,19 +463,37 @@ class TrustEngine:
         user_text: str,
         sigrid_text: str,
         contact_id: Optional[str] = None,
+        bus: Optional[StateBus] = None,
     ) -> Dict[str, Any]:
         """Infer trust events from a conversation turn and update the ledger.
 
         Scans both user_text and sigrid_text for keyword triggers.
+        E-24: Detects relational milestones and publishes StateEvents.
+        E-25: Applies diminishing returns on repeated keyword signals.
         Returns a summary dict of what was detected and applied.
         """
         cid = contact_id or self._primary_contact_id
         ledger = self._ensure_ledger(cid)
         combined = f"{user_text} {sigrid_text}".lower()
         inferred = self._infer_events(combined)
+
         for event_type in inferred:
-            ledger.apply_event(event_type)
-            ledger.record_event_entry(event_type, magnitude=1.0)
+            # E-25: diminishing returns
+            count = self._signal_counts.get(event_type, 0)
+            effective_mag = max(_DIMINISHING_FLOOR, 1.0 / (1.0 + log(1.0 + count)))
+            if count > _DIMINISHING_LOG_THRESHOLD:
+                logger.debug(
+                    "TrustEngine: diminishing returns on '%s' "
+                    "(count=%d, factor=%.3f).",
+                    event_type, count, effective_mag,
+                )
+            ledger.apply_event(event_type, magnitude=effective_mag)
+            ledger.record_event_entry(event_type, magnitude=effective_mag)
+            self._signal_counts[event_type] = count + 1
+
+        # E-24: detect milestones from this turn's inferred events
+        if inferred:
+            self._detect_milestones(cid, inferred, bus)
 
         return {
             "contact_id": cid,
@@ -298,6 +513,7 @@ class TrustEngine:
 
         Use this for explicit milestones (first meeting, major oath, etc.)
         that may not surface clearly from keyword scanning.
+        Note: explicit events are NOT subject to E-25 diminishing returns.
         """
         cid = contact_id or self._primary_contact_id
         ledger = self._ensure_ledger(cid)
@@ -320,6 +536,11 @@ class TrustEngine:
                 cid, before, ledger.friction_score,
             )
 
+    def reset_signal_counts(self) -> None:
+        """E-25: Reset per-session signal counts (call at session end)."""
+        self._signal_counts.clear()
+        logger.debug("TrustEngine: signal counts reset.")
+
     def get_ledger(self, contact_id: Optional[str] = None) -> TrustLedger:
         """Return the TrustLedger for a contact (creates if absent)."""
         return self._ensure_ledger(contact_id or self._primary_contact_id)
@@ -338,6 +559,11 @@ class TrustEngine:
             reliability_score=ledger.reliability_score,
             friction_score=ledger.friction_score,
             gift_balance=ledger.gift_balance,
+            facets=TrustFacets(
+                competence=ledger.facets.competence,
+                benevolence=ledger.facets.benevolence,
+                integrity=ledger.facets.integrity,
+            ),
             relationship_label=label,
             recent_events=recent,
             prompt_hint=hint,
@@ -361,21 +587,31 @@ class TrustEngine:
     # ── Internals ─────────────────────────────────────────────────────────────
 
     def _ensure_ledger(self, contact_id: str) -> TrustLedger:
-        """Return existing ledger or create a fresh one with correct initial trust."""
+        """Return existing ledger or create a fresh one with correct initial trust.
+
+        E-23: Initialises all three facets to initial_trust so that
+        trust_score == initial_trust at baseline.
+        """
         if contact_id not in self._ledgers:
-            initial_trust = (
+            initial = (
                 self._primary_initial_trust
                 if contact_id == self._primary_contact_id
                 else self._stranger_initial_trust
             )
             ledger = TrustLedger(
                 contact_id=contact_id,
-                trust_score=initial_trust,
+                facets=TrustFacets(
+                    competence=initial,
+                    benevolence=initial,
+                    integrity=initial,
+                ),
             )
+            # E-24: restore milestone anchor floor if any milestones already loaded
+            ledger.anchor_floor = self._compute_anchor_floor(contact_id)
             self._ledgers[contact_id] = ledger
             logger.debug(
-                "TrustEngine: new ledger for '%s' (initial trust=%.2f).",
-                contact_id, initial_trust,
+                "TrustEngine: new ledger for '%s' (initial=%.2f, anchor=%.3f).",
+                contact_id, initial, ledger.anchor_floor,
             )
         return self._ledgers[contact_id]
 
@@ -391,8 +627,15 @@ class TrustEngine:
         return inferred
 
     def _build_prompt_hint(self, ledger: TrustLedger, label: str) -> str:
-        """Compose a one-line relational context summary for prompt injection."""
+        """Compose a one-line relational context summary for prompt injection.
+
+        E-23: Extended with dominant facet and brief facet breakdown.
+        """
         parts: List[str] = [f"bond={label}"]
+
+        # E-23: facet awareness
+        dominant = ledger.facets.dominant()
+        parts.append(f"dominant={dominant}")
 
         if ledger.friction_score >= 0.3:
             parts.append("friction present")
@@ -416,6 +659,107 @@ class TrustEngine:
 
         return f"[Trust/{ledger.contact_id}: {'; '.join(parts)}]"
 
+    # ── E-24: Milestone management ─────────────────────────────────────────────
+
+    def _detect_milestones(
+        self,
+        contact_id: str,
+        inferred_events: List[str],
+        bus: Optional[StateBus],
+    ) -> None:
+        """Check whether any inferred events trigger a relational first.
+
+        Only fires once per milestone_id per contact — firsts are forever.
+        """
+        reached_ids = self._milestones_by_contact.get(contact_id, set())
+
+        for m_id, (trigger, name, description, anchor) in _MILESTONE_DEFS.items():
+            key = f"{contact_id}:{m_id}"
+            if m_id in reached_ids:
+                continue
+            if trigger not in inferred_events:
+                continue
+
+            # New milestone reached — inscribe it
+            now = datetime.now(timezone.utc).isoformat()
+            milestone = Milestone(
+                milestone_id=m_id,
+                name=name,
+                description=description,
+                occurred_at=now,
+                trust_anchor=anchor,
+                contact_id=contact_id,
+            )
+            self._milestones.append(milestone)
+            if contact_id not in self._milestones_by_contact:
+                self._milestones_by_contact[contact_id] = set()
+            self._milestones_by_contact[contact_id].add(m_id)
+
+            # Update the ledger's anchor floor
+            ledger = self._ensure_ledger(contact_id)
+            ledger.anchor_floor = self._compute_anchor_floor(contact_id)
+
+            logger.info(
+                "TrustEngine: milestone '%s' reached for '%s' (anchor=%.3f).",
+                name, contact_id, anchor,
+            )
+
+            # Persist and publish
+            self._save_milestones()
+            if bus is not None:
+                self._publish_milestone(bus, milestone)
+
+    def _compute_anchor_floor(self, contact_id: str) -> float:
+        """Sum all trust_anchor values for a contact's milestones."""
+        return sum(
+            m.trust_anchor
+            for m in self._milestones
+            if m.contact_id == contact_id
+        )
+
+    def _load_milestones(self) -> None:
+        """Load milestones from session/milestones.json if present."""
+        if not self._milestones_file.exists():
+            return
+        try:
+            raw = json.loads(self._milestones_file.read_text(encoding="utf-8"))
+            for d in raw:
+                m = Milestone.from_dict(d)
+                self._milestones.append(m)
+                if m.contact_id not in self._milestones_by_contact:
+                    self._milestones_by_contact[m.contact_id] = set()
+                self._milestones_by_contact[m.contact_id].add(m.milestone_id)
+            logger.debug(
+                "TrustEngine: loaded %d milestones from %s.",
+                len(self._milestones), self._milestones_file,
+            )
+        except Exception as exc:
+            logger.warning("TrustEngine: failed to load milestones: %s", exc)
+
+    def _save_milestones(self) -> None:
+        """Persist milestones to session/milestones.json (append-only semantic)."""
+        try:
+            self._milestones_file.parent.mkdir(parents=True, exist_ok=True)
+            data = [m.to_dict() for m in self._milestones]
+            self._milestones_file.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+        except Exception as exc:
+            logger.warning("TrustEngine: failed to save milestones: %s", exc)
+
+    def _publish_milestone(self, bus: StateBus, milestone: Milestone) -> None:
+        """Emit a trust.milestone_reached StateEvent."""
+        try:
+            event = StateEvent(
+                source_module="trust_engine",
+                event_type="trust.milestone_reached",
+                payload=milestone.to_dict(),
+            )
+            bus.publish_state(event, nowait=True)
+        except Exception as exc:
+            logger.warning("TrustEngine._publish_milestone failed: %s", exc)
+
     # ── Factory ───────────────────────────────────────────────────────────────
 
     @classmethod
@@ -426,6 +770,7 @@ class TrustEngine:
           primary_contact_id            (str,   default "volmarr")
           primary_contact_initial_trust (float, default 0.75)
           stranger_initial_trust        (float, default 0.30)
+          session_dir                   (str,   default "session")  E-24
         """
         cfg: Dict[str, Any] = config.get("trust_engine", {})
         return cls(
@@ -438,6 +783,7 @@ class TrustEngine:
             stranger_initial_trust=float(
                 cfg.get("stranger_initial_trust", _DEFAULT_STRANGER_TRUST)
             ),
+            session_dir=str(cfg.get("session_dir", _DEFAULT_SESSION_DIR)),  # E-24
         )
 
 
