@@ -36,6 +36,7 @@ import json
 import logging
 import uuid
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -56,6 +57,8 @@ _MAX_LONG_TERM: int = 50                 # condensed long-term entries cap
 _MAX_EPISODIC: int = 500                 # max entries in episodic JSON store
 _CONTEXT_RECENT_TURNS: int = 5          # turns included in get_context() output
 _CONTEXT_EPISODIC_HITS: int = 6         # episodic entries included in context
+_CHARS_PER_TOKEN: int = 4               # rough chars-per-token estimate for budget truncation
+_FEDERATED_FETCH_TIMEOUT_S: float = 10.0  # per-future timeout in parallel fetch
 
 # Valid memory types
 MEMORY_TYPES: Tuple[str, ...] = (
@@ -440,6 +443,48 @@ class MemoryState:
         }
 
 
+# ─── Federated Memory Structures ─────────────────────────────────────────────
+
+
+@dataclass
+class FederatedMemoryRequest:
+    """Typed request for unified episodic + knowledge context retrieval.
+
+    Controls which of the four memory tiers contribute to the result and
+    how much budget each category is allowed to consume.
+
+    Four tiers:
+      episodic_buffer  — in-session ConversationBuffer (short/medium/long term)
+      episodic_json    — persistent JSON EpisodicStore (keyword search)
+      episodic_chroma  — ChromaDB semantic search over episodic memories
+      knowledge        — MimirWell knowledge base via HuginnRetriever
+    """
+
+    query: str
+    include_episodic_buffer: bool = True    # ConversationBuffer tiers
+    include_episodic_json: bool = True      # JSON EpisodicStore (keyword)
+    include_episodic_chroma: bool = True    # ChromaDB episodic semantic
+    include_knowledge: bool = True          # MimirWell via Huginn
+    max_episodic_tokens: int = 800          # ~3 200 chars budget for episodic
+    max_knowledge_tokens: int = 600         # ~2 400 chars budget for knowledge
+
+
+@dataclass
+class FederatedMemoryResult:
+    """Typed response from MemoryStore.get_context_with_knowledge().
+
+    All fields are always present — empty string / empty list on failure.
+    ``combined_context`` is ready for direct prompt injection.
+    """
+
+    episodic_context: str           # combined from all episodic tiers
+    knowledge_context: str          # from Huginn / MimirWell
+    combined_context: str           # episodic_context + knowledge_context, merged
+    sources_used: List[str]         # "episodic_buffer" | "episodic_json" |
+                                    # "episodic_chroma" | "mimir_well"
+    total_chars: int
+
+
 # ─── MemoryStore ──────────────────────────────────────────────────────────────
 
 
@@ -582,6 +627,169 @@ class MemoryStore:
                     )
 
         return "\n\n".join(sections) if sections else "[No memory context available]"
+
+    def get_context_with_knowledge(
+        self,
+        request: FederatedMemoryRequest,
+        huginn: Optional[Any] = None,       # HuginnRetriever — Any to avoid circular import
+    ) -> FederatedMemoryResult:
+        """Unified memory federation: episodic tiers + MimirWell knowledge.
+
+        Runs the episodic fetch and the Huginn knowledge fetch in parallel
+        using a two-thread executor so that a slow ChromaDB or model call
+        on one side does not hold up the other.
+
+        Per-tier isolation: each tier is wrapped in try/except. One failing
+        tier cannot prevent the others from contributing their context.
+
+        Token-budget enforcement: results are truncated to
+        ``request.max_episodic_tokens`` and ``request.max_knowledge_tokens``
+        before combining (~4 chars per token, conservative estimate).
+
+        Never raises — always returns a valid FederatedMemoryResult.
+
+        Norse framing: this is Odin sending both ravens at once. Huginn flies
+        toward the Well; Muninn combs through all that has already been lived.
+        Both return together, and together they form the full picture.
+        """
+        episodic_context: str = ""
+        knowledge_context: str = ""
+        episodic_sources: List[str] = []
+
+        # ── Inner fetch helpers ────────────────────────────────────────────
+
+        def _fetch_episodic() -> Tuple[str, List[str]]:
+            """Gather episodic context from buffer + store per request flags."""
+            sections: List[str] = []
+            sources: List[str] = []
+
+            # Tier 1 — ConversationBuffer (short / medium / long term)
+            if request.include_episodic_buffer:
+                try:
+                    lt = self._buffer.get_long_term_context()
+                    mt = self._buffer.get_medium_term_context()
+                    st = self._buffer.get_short_term_context()
+                    any_added = False
+                    for ctx in (lt, mt, st):
+                        if ctx:
+                            sections.append(ctx)
+                            any_added = True
+                    if any_added:
+                        sources.append("episodic_buffer")
+                except Exception as exc:
+                    logger.warning("FederatedMemory: buffer fetch failed: %s", exc)
+
+            # Tier 2/3 — EpisodicStore (keyword) + optional ChromaDB semantic
+            if request.include_episodic_json:
+                try:
+                    use_semantic = (
+                        request.include_episodic_chroma
+                        and self._semantic.available
+                        and bool(request.query)
+                    )
+                    if use_semantic:
+                        entries = self._retrieve_episodic(request.query)
+                        src = "episodic_chroma"
+                    else:
+                        entries = self._episodic.keyword_search(request.query)
+                        src = "episodic_json"
+
+                    if entries:
+                        lines = ["=== MEMORIES ==="]
+                        for e in entries:
+                            hint = f" [{e.context_hint}]" if e.context_hint else ""
+                            lines.append(f"• [{e.memory_type}]{hint}: {e.content}")
+                        sections.append("\n".join(lines))
+                        sources.append(src)
+                except Exception as exc:
+                    logger.warning("FederatedMemory: episodic store fetch failed: %s", exc)
+
+            return "\n\n".join(sections), sources
+
+        def _fetch_knowledge() -> str:
+            """Retrieve knowledge chunks via HuginnRetriever."""
+            if not huginn or not request.include_knowledge:
+                return ""
+            try:
+                # Local import avoids circular dependency at module load time.
+                from scripts.huginn import RetrievalRequest  # type: ignore
+                result = huginn.retrieve(
+                    RetrievalRequest(
+                        query=request.query,
+                        include_episodic=False,     # episodic handled above
+                    )
+                )
+                return result.context_string or ""
+            except Exception as exc:
+                logger.warning("FederatedMemory: Huginn fetch failed: %s", exc)
+                return ""
+
+        # ── Parallel execution ─────────────────────────────────────────────
+
+        try:
+            with ThreadPoolExecutor(max_workers=2, thread_name_prefix="fedmem") as pool:
+                ep_fut = pool.submit(_fetch_episodic)
+                kn_fut = pool.submit(_fetch_knowledge)
+
+                try:
+                    episodic_context, episodic_sources = ep_fut.result(
+                        timeout=_FEDERATED_FETCH_TIMEOUT_S
+                    )
+                except Exception as exc:
+                    logger.warning("FederatedMemory: episodic future failed: %s", exc)
+
+                try:
+                    knowledge_context = kn_fut.result(
+                        timeout=_FEDERATED_FETCH_TIMEOUT_S
+                    ) or ""
+                except Exception as exc:
+                    logger.warning("FederatedMemory: knowledge future failed: %s", exc)
+
+        except Exception as exc:
+            # Executor failed entirely — run sequentially as last resort
+            logger.warning(
+                "FederatedMemory: ThreadPoolExecutor failed (%s) — sequential fallback", exc
+            )
+            try:
+                episodic_context, episodic_sources = _fetch_episodic()
+            except Exception:
+                pass
+            try:
+                knowledge_context = _fetch_knowledge()
+            except Exception:
+                pass
+
+        # ── Token-budget truncation ────────────────────────────────────────
+
+        ep_char_limit = request.max_episodic_tokens * _CHARS_PER_TOKEN
+        kn_char_limit = request.max_knowledge_tokens * _CHARS_PER_TOKEN
+
+        if episodic_context and len(episodic_context) > ep_char_limit:
+            episodic_context = episodic_context[:ep_char_limit] + "\n[...truncated]"
+        if knowledge_context and len(knowledge_context) > kn_char_limit:
+            knowledge_context = knowledge_context[:kn_char_limit] + "\n[...truncated]"
+
+        # ── Assemble result ────────────────────────────────────────────────
+
+        sources_used = list(episodic_sources)
+        if knowledge_context:
+            sources_used.append("mimir_well")
+
+        combined_parts = [c for c in (episodic_context, knowledge_context) if c]
+        combined = "\n\n".join(combined_parts)
+
+        logger.debug(
+            "FederatedMemory: %d chars assembled (ep=%d, kn=%d, sources=%s)",
+            len(combined), len(episodic_context), len(knowledge_context), sources_used,
+        )
+
+        return FederatedMemoryResult(
+            episodic_context=episodic_context,
+            knowledge_context=knowledge_context,
+            combined_context=combined,
+            sources_used=sources_used,
+            total_chars=len(combined),
+        )
 
     def semantic_search(
         self,
