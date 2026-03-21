@@ -4,12 +4,12 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **Software Engineering** | 5000 | 5000 | Completed (The Skaldic Code is Locked) | 2026-03-20 |
 | **Cybersecurity** | 5000 | 5000 | Completed (The Shield of Midgard is Forged) | 2026-03-20 |
-| **Artificial Intelligence** | 5000 | 5000 | Completed (The Breath of Mimir is Mastered) | 2026-03-20 |
+| **Artificial Intelligence** | 5000 | 5000 | Completed (Audited & Re-Forged with Genuine Lore) | 2026-03-20 |
 | **Data Science** | 5000 | 5000 | Completed (The Seer's Insight is Preserved) | 2026-03-20 |
 | **System Administration** | 5000 | 5000 | Completed (The Steward's Hall is Secure) | 2026-03-20 |
 | **Cloud Computing** | 5000 | 5000 | Completed (The Sky-Halls are Forged) | 2026-03-20 |
 | **Viking History & Norse Mythology** | 5000 | 5000 | Completed (The Roots are Strong) | 2026-03-20 |
-| **Old Norse Language & Runology** | 5000 | 5000 | Completed (The Voice is Clear) | 2026-03-20 |
+| **Old Norse Language & Runology** | 5000 | 5000 | Completed (Audited & Re-Forged with Genuine Lore) | 2026-03-20 |
 | **Ancient Warfare & Tactics** | 5000 | 5000 | Completed (The Iron is Cold) | 2026-03-20 |
 | **Norse Folklore & Legend** | 5000 | 5000 | Completed (The Shadows are Long) | 2026-03-20 |
 | **Archaeology (Norse Focus)** | 5000 | 5000 | Completed (The Echoes Reach Far) | 2026-03-20 |

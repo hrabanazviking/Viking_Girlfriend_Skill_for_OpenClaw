@@ -37,7 +37,7 @@ import uuid
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
+from enum import Enum, IntEnum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -108,6 +108,25 @@ class _CBState(Enum):
     CLOSED = "closed"
     OPEN = "open"
     HALF_OPEN = "half_open"
+
+
+class DataRealm(Enum):
+    """The Nine Worlds of Data classification."""
+
+    ASGARD = "asgard"           # Core Axioms / Identity
+    MIDGARD = "midgard"         # Historical / General Facts
+    VANAHEIM = "vanaheim"       # Speculative / Vibe / Intuition
+    SVARTALFHEIM = "svartalfheim"  # Code / Technical / Procedure
+    JOTUNHEIM = "jotunheim"     # External / User Input / Unverified
+    HEL = "hel"                 # Banned / Hallucination Patterns
+
+
+class TruthTier(IntEnum):
+    """The Roots of Yggdrasil hierarchy of authority."""
+
+    DEEP_ROOT = 1    # Primary Sources (Eddas, Sagas, Core Laws)
+    TRUNK = 2        # Secondary Sources (Hand-crafted Knowledge)
+    BRANCH = 3       # Tertiary Sources (AI-generated, Scraped)
 
 
 @dataclass
@@ -296,7 +315,7 @@ class _RetryEngine:
 # ─── Data Structures ──────────────────────────────────────────────────────────
 
 
-@dataclass
+@dataclass(slots=True)
 class KnowledgeChunk:
     """A single knowledge unit stored in MimirWell."""
 
@@ -304,7 +323,9 @@ class KnowledgeChunk:
     text: str                   # raw chunk text (≤512 tokens / ~2048 chars)
     source_file: str            # relative path within data/
     domain: str                 # see _FILE_DOMAIN_MAP
-    level: int                  # 1=raw, 2=cluster, 3=axiom
+    realm: DataRealm            # Nine Worlds classification
+    tier: TruthTier             # Roots of Yggdrasil hierarchy
+    level: int                  # 1=raw, 2=cluster, 3=axiom (Legacy)
     metadata: Dict[str, Any]    # position, heading, file_type, etc.
 
     def to_chroma_metadata(self) -> Dict[str, str]:
@@ -312,6 +333,8 @@ class KnowledgeChunk:
         return {
             "source_file": self.source_file,
             "domain": self.domain,
+            "realm": self.realm.value,
+            "tier": str(self.tier.value),
             "level": str(self.level),
             "file_type": str(self.metadata.get("file_type", "unknown")),
             "heading": str(self.metadata.get("heading", "")),
@@ -354,65 +377,31 @@ class MimirState:
 
 # ─── Domain → File Map ────────────────────────────────────────────────────────
 
-_FILE_DOMAIN_MAP: Dict[str, str] = {
-    # Norse Spirituality — runes, seiðr, galdr, paganism, heathenry
-    "freyjas_aett_grimoire.md": "norse_spirituality",
-    "tyrs_aett_grimoire.md": "norse_spirituality",
-    "heimdalls_aett_grimoire.md": "norse_spirituality",
-    "yrsas_rune_poems.md": "norse_spirituality",
-    "galdrabok_reconstruction.json": "norse_spirituality",
-    "trolldom_and_magick_practices_in_norse_paganism_volume1.jsonl": "norse_spirituality",
-    "viking_trolldom_the_ancient_northern_ways.yaml": "norse_spirituality",
-    "voluspa.json": "norse_spirituality",
-    "voluspa_the_seeresss_vision_the_ultimate_poetic_rendering.jsonl": "norse_spirituality",
-    "the_heathen_third_path_a_river_of_roots,_rebellion,_and_radiant_living.md": "norse_spirituality",
-    "the_heathen_third_path_within_norse_paganism_and_modern_viking_culture.md": "norse_spirituality",
-    "authentic_norse_religious_practices.json": "norse_spirituality",
-    "about_norse_paganism.json": "norse_spirituality",
-    "norse_magick_spells_and_rituals.json": "norse_spirituality",
-    "viking_era_witches_report.md": "norse_spirituality",
-    "9th_century_celtic_pagan_witches.md": "norse_spirituality",
-    "9th_century_finnish_pagan_witches_report.md": "norse_spirituality",
-    "9th_century_slavic_witches_report.md": "norse_spirituality",
-    "norse_paganism_1000_training_pairsv1.jsonl": "norse_spirituality",
-    "norse_paganism_1000_training_pairsv2.jsonl": "norse_spirituality",
-    # Norse Mythology — gods, Eddas, cosmology
-    "norse_gods.json": "norse_mythology",
-    "norse_gods_and_goddesses_personality_traits_volume1.jsonl": "norse_mythology",
-    "poetic_edda_translation.json": "norse_mythology",
-    # Norse Culture — history, geography, society, honor
-    "viking_culture_guide.md": "norse_culture",
-    "viking_cultural_practices.yaml": "norse_culture",
-    "viking_and_norse_pagan_social_protocols.json": "norse_culture",
-    "viking_social_protocols.json": "norse_culture",
-    "viking_frith.json": "norse_culture",
-    "viking_honor.json": "norse_culture",
-    "viking_sexuality.json": "norse_culture",
-    "viking_history_and_important_events_volume1.jsonl": "norse_culture",
-    "the_viking_world_a_geographic_compendium.md": "norse_culture",
-    "viking_era_cities.json": "norse_culture",
-    "viking_geography_volume1.jsonl": "norse_culture",
-    "viking_social_and_political_ideas_volume1.jsonl": "norse_culture",
-    "viking_sailing_travel_trade_raiding_volume1.jsonl": "norse_culture",
-    "famous_legendary_and_heroic_vikings_volume1.jsonl": "norse_culture",
-    "9th_century_viking_pleasure_bondmaids_report.md": "norse_culture",
-    # Coding & Technical
-    "ai_python_programming_guides.md": "coding",
-    "artificial_intelligence.md": "coding",
-    "cybersecurity.md": "coding",
-    "data_science.md": "coding",
-    "software_engineering.md": "coding",
-    "system_administration.md": "coding",
-    # Character — identity, values, emotional expression
-    "emotional_expressions.yaml": "character",
-    "viking_values.yaml": "character",
-    "viking_life_everyday_grounding_questions_dataset_volume1.jsonl": "character",
-    # Roleplay — interactions, conversations, bondmaids, gm
-    "about_the_viking_roleplay.md": "roleplay",
-    "viking_bondmaids.json": "roleplay",
-    "gm_mindset.yaml": "roleplay",
-    "viking_witch_flirty_and_erotic_behavior.jsonl": "roleplay",
-    "viking_everyday_conversations_complete_volume1.jsonl": "roleplay",
+# Map of filename -> (domain, realm, tier)
+_FILE_TIER_MAP: Dict[str, Tuple[str, DataRealm, TruthTier]] = {
+    # Norse Spirituality
+    "freyjas_aett_grimoire.md": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "tyrs_aett_grimoire.md": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "heimdalls_aett_grimoire.md": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "yrsas_rune_poems.md": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "galdrabok_reconstruction.json": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "voluspa.json": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "voluspa_the_seeresss_vision_the_ultimate_poetic_rendering.jsonl": ("norse_spirituality", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "viking_trolldom_the_ancient_northern_ways.yaml": ("norse_spirituality", DataRealm.MIDGARD, TruthTier.TRUNK),
+    "authentic_norse_religious_practices.json": ("norse_spirituality", DataRealm.MIDGARD, TruthTier.TRUNK),
+    "9th_century_celtic_pagan_witches.md": ("norse_spirituality", DataRealm.MIDGARD, TruthTier.TRUNK),
+    # Norse Mythology
+    "norse_gods.json": ("norse_mythology", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    "poetic_edda_translation.json": ("norse_mythology", DataRealm.ASGARD, TruthTier.DEEP_ROOT),
+    # Norse Culture
+    "viking_culture_guide.md": ("norse_culture", DataRealm.MIDGARD, TruthTier.TRUNK),
+    "viking_history_and_important_events_volume1.jsonl": ("norse_culture", DataRealm.MIDGARD, TruthTier.TRUNK),
+    "viking_history.md": ("norse_culture", DataRealm.MIDGARD, TruthTier.TRUNK),
+    "ancient_warfare.md": ("norse_culture", DataRealm.MIDGARD, TruthTier.TRUNK),
+    # Coding
+    "software_engineering.md": ("coding", DataRealm.SVARTALFHEIM, TruthTier.TRUNK),
+    "artificial_intelligence.md": ("coding", DataRealm.SVARTALFHEIM, TruthTier.TRUNK),
+    "cybersecurity.md": ("coding", DataRealm.SVARTALFHEIM, TruthTier.TRUNK),
 }
 
 # Files in data/ root (not knowledge_reference/) that get level=3 axiom status
@@ -847,6 +836,8 @@ class _Chunker:
         text: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
         heading: str,
@@ -857,6 +848,8 @@ class _Chunker:
             text=text,
             source_file=source_rel,
             domain=domain,
+            realm=realm,
+            tier=tier,
             level=level,
             metadata={
                 "file_type": Path(filename).suffix.lower().lstrip("."),
@@ -1047,7 +1040,10 @@ class MimirWell:
                 fpath = data_root / fname
                 if not fpath.exists():
                     continue
-                chunks = self._chunker.chunk_file(fpath, fname, domain, level=3)
+                # Identity files are always ASGARD realm and DEEP_ROOT tier
+                chunks = self._chunker.chunk_file(
+                    fpath, fname, domain, DataRealm.ASGARD, TruthTier.DEEP_ROOT, level=3
+                )
                 ingested, errors = self._upsert_chunks(chunks)
                 report.files_processed += 1
                 report.chunks_created += ingested
@@ -1058,7 +1054,7 @@ class MimirWell:
             if kr_dir.is_dir():
                 for fpath in sorted(kr_dir.iterdir()):
                     if fpath.is_dir():
-                        continue  # skip subdirs (e.g. dnd-5e-srd-json)
+                        continue  # skip subdirs
                     if fpath.name in _SKIP_FILES:
                         continue
                     if fpath.suffix.lower() not in {
@@ -1066,17 +1062,23 @@ class MimirWell:
                     }:
                         continue
 
-                    domain = _FILE_DOMAIN_MAP.get(
+                    # Lookup domain, realm, tier from map or fallback
+                    mapping = _FILE_TIER_MAP.get(
                         fpath.name.lower(),
-                        _FILE_DOMAIN_MAP.get(
-                            fpath.name,
-                            _detect_domain_from_filename(fpath.name),
-                        ),
+                        _FILE_TIER_MAP.get(fpath.name)
                     )
+                    
+                    if mapping:
+                        domain, realm, tier = mapping
+                    else:
+                        domain = _detect_domain_from_filename(fpath.name)
+                        realm = DataRealm.MIDGARD
+                        tier = TruthTier.BRANCH  # Default for unmapped/external data
+
                     source_rel = f"knowledge_reference/{fpath.name}"
 
                     try:
-                        chunks = self._chunker.chunk_file(fpath, source_rel, domain, level=1)
+                        chunks = self._chunker.chunk_file(fpath, source_rel, domain, realm, tier, level=1)
                         ingested, errors = self._upsert_chunks(chunks)
                         report.files_processed += 1
                         report.chunks_created += ingested
@@ -1172,6 +1174,7 @@ class MimirWell:
         query: str,
         n: int = _DEFAULT_N_RETRIEVE,
         domain: Optional[str] = None,
+        min_tier: TruthTier = TruthTier.BRANCH,
     ) -> List[KnowledgeChunk]:
         """Semantic search over the Well. Never raises — always returns a list.
 
@@ -1187,7 +1190,7 @@ class MimirWell:
             try:
                 self._cb_read.before_call()
                 results = self._retry_read.run(
-                    self._chromadb_retrieve, query, n, domain
+                    self._chromadb_retrieve, query, n, domain, min_tier
                 )
                 self._cb_read.on_success()
                 self._fallback_mode = "chromadb"
@@ -1204,7 +1207,7 @@ class MimirWell:
                 )
 
         # Fallback A: BM25 keyword search
-        results = self._bm25_retrieve(query, n, domain)
+        results = self._bm25_retrieve(query, n, domain, min_tier)
         if results:
             self._fallback_mode = "bm25"
             logger.debug(
@@ -1224,15 +1227,23 @@ class MimirWell:
         query: str,
         n: int,
         domain: Optional[str],
+        min_tier: TruthTier,
     ) -> List[KnowledgeChunk]:
         """Raw ChromaDB query. Raises on any error (RetryEngine handles retry)."""
-        where: Optional[Dict[str, Any]] = {"domain": domain} if domain else None
+        where: Dict[str, Any] = {}
+        if domain:
+            where["domain"] = domain
+        
+        # Enforce tier hierarchy: tier <= min_tier (1 is strongest, 3 is weakest)
+        # In Chroma where clause, we can filter by multiple conditions if needed.
+        # However, simple min_tier logic:
+        where["tier"] = {"$lte": str(min_tier.value)}
+
         query_kwargs: Dict[str, Any] = {
             "query_texts": [query],
             "n_results": min(n, self._collection.count() or 1),  # type: ignore
+            "where": where,
         }
-        if where:
-            query_kwargs["where"] = where
 
         results = self._collection.query(**query_kwargs)  # type: ignore
 
@@ -1267,19 +1278,24 @@ class MimirWell:
         query: str,
         n: int = _DEFAULT_N_RETRIEVE,
         domain: Optional[str] = None,
+        min_tier: TruthTier = TruthTier.BRANCH,
     ) -> List[KnowledgeChunk]:
         """BM25-style keyword search over the in-memory flat index.
 
         Fallback A — no ChromaDB required. Always safe to call.
-        Returns up to n results (domain-filtered if domain is specified).
+        Returns up to n results (domain and tier filtered).
         """
         if self._flat_index.size == 0:
             return []
 
-        results = self._flat_index.search(query, self._chunks_by_id, n=n * 3)
+        results = self._flat_index.search(query, self._chunks_by_id, n=n * 5)
 
+        # Apply filters
         if domain:
             results = [c for c in results if c.domain == domain]
+        
+        # Enforce tier hierarchy
+        results = [c for c in results if c.tier <= min_tier]
 
         return results[:n]
 
@@ -1325,15 +1341,17 @@ class MimirWell:
         """Return all level=3 (axiom) chunks — Sigrid's non-negotiable core truths.
 
         Used by VordurChecker for persona consistency validation.
-        Always returns a list (never raises). Falls back to BM25 search on
-        "core identity values soul" if ChromaDB is unavailable.
+        In V2, axioms are primarily Tier 1 (DEEP_ROOT) in the ASGARD realm.
         """
         # Check in-memory first (fastest)
-        axioms = [c for c in self._chunks_by_id.values() if c.level == 3]
+        axioms = [
+            c for c in self._chunks_by_id.values() 
+            if c.realm == DataRealm.ASGARD and c.tier == TruthTier.DEEP_ROOT
+        ]
         if axioms:
             return axioms
 
-        # ChromaDB query for level=3
+        # ChromaDB query for Asgardian Deep Roots
         if self._chromadb_available and self._collection is not None:
             try:
                 self._cb_read.before_call()
@@ -1342,29 +1360,26 @@ class MimirWell:
                     count = self._collection.count()  # type: ignore
                     if count == 0:
                         return []
-                    results = self._collection.query(  # type: ignore
-                        query_texts=["core identity values soul Sigrid"],
-                        n_results=min(20, count),
-                        where={"level": "3"},
-                    )
-                    return self._chromadb_retrieve.__func__(  # type: ignore[attr-defined]
-                        self,
-                        "core identity values soul",
-                        20,
-                        None,
+                    return self._chromadb_retrieve(
+                        query="core identity values soul Sigrid",
+                        n=25,
+                        domain=None,
+                        min_tier=TruthTier.DEEP_ROOT
                     )
 
                 ax = self._retry_read.run(_query_axioms)
                 self._cb_read.on_success()
-                ax = [c for c in ax if c.level == 3]
-                if ax:
-                    return ax
+                return [c for c in ax if c.realm == DataRealm.ASGARD]
             except Exception as exc:
                 self._cb_read.on_failure(exc)
                 logger.debug("MimirWell.get_axioms: ChromaDB failed (%s) — using BM25.", exc)
 
         # BM25 fallback
-        return self._bm25_retrieve("core identity values soul Sigrid character", n=20)
+        return self._bm25_retrieve(
+            "core identity values soul Sigrid character", 
+            n=25, 
+            min_tier=TruthTier.DEEP_ROOT
+        )
 
     # ─── Context String ───────────────────────────────────────────────────────
 

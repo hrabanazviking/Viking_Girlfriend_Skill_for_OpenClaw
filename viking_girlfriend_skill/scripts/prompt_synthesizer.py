@@ -45,9 +45,10 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from scripts.state_bus import StateBus, StateEvent
+from scripts.vordur import VerificationMode
 
 logger = logging.getLogger(__name__)
 
@@ -161,37 +162,69 @@ class PromptSynthesizer:
         user_text: str,
         state_hints: Optional[Dict[str, str]] = None,
         memory_context: Optional[str] = None,
-    ) -> List[Dict[str, str]]:
-        """Assemble a messages list for model_router_client.complete().
+    ) -> Tuple[List[Dict[str, str]], VerificationMode]:
+        """Assemble a messages list and determine the appropriate verification mode.
 
         Parameters
         ----------
         user_text:      The human turn text.
         state_hints:    Dict mapping module name → prompt_hint string.
-                        Keys should match names in ``_HINT_SECTION_ORDER`` but
-                        any unknown key is appended at the end.
         memory_context: Optional episodic/semantic context from MemoryStore.
 
         Returns
         -------
-        List of dicts ``[{"role": "system", "content": "..."}, {"role": "user", "content": "..."}]``.
+        Tuple of (List of role/content dicts, selected VerificationMode).
         """
         hints = state_hints or {}
         system_content = self._build_system(hints, memory_context or "")
+        
+        # Determine verification mode based on context
+        mode = self.select_verification_mode(user_text, hints)
+
         self._build_count += 1
         self._last_hint_keys = list(hints.keys())
         self._last_system_chars = len(system_content)
         self._last_user_chars = len(user_text)
+        
         logger.debug(
-            "PromptSynthesizer: built message #%d (system=%d chars, hints=%d).",
+            "PromptSynthesizer: built messages #%d (system=%d, mode=%s).",
             self._build_count,
             self._last_system_chars,
-            len(hints),
+            mode.value,
         )
-        return [
+        
+        messages = [
             {"role": "system", "content": system_content},
             {"role": "user", "content": user_text},
         ]
+        return messages, mode
+
+    def select_verification_mode(
+        self,
+        user_text: str,
+        hints: Dict[str, str],
+    ) -> VerificationMode:
+        """Heuristic to pick the truth-governance rigor mode for this turn."""
+        ut = user_text.lower()
+        
+        # 1. GUARDED: Safety, Identity, or System overrides detected
+        # If ethics or security flags a violation, or user asks "who are you"
+        if "[TABOO]" in hints.get("ethics", "") or "who are you" in ut or "your nature" in ut:
+            return VerificationMode.GUARDED
+            
+        # 2. IRONSWORN: Factual, historical, or technical inquiry
+        # Triggered by domain keywords or 'scheduler' reporting a factual context
+        factual_keywords = {"history", "fact", "true", "lore", "code", "programming", "edda", "runes"}
+        if any(kw in ut for kw in factual_keywords) or "[Context: Technical]" in hints.get("ethics", ""):
+            return VerificationMode.IRONSWORN
+            
+        # 3. SEIÐR: High-vibe, spiritual, or emotional intensity
+        spiritual_keywords = {"spirit", "magic", "seidr", "gods", "ritual", "soul", "wyrd"}
+        if any(kw in ut for kw in spiritual_keywords) or "[Mood: intense]" in hints.get("wyrd_matrix", ""):
+            return VerificationMode.SEIÐR
+            
+        # 4. WANDERER: Default for casual chat
+        return VerificationMode.WANDERER
 
     def get_state(self) -> SynthesizerState:
         """Return a typed SynthesizerState snapshot."""

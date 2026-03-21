@@ -145,6 +145,26 @@ class VerdictLabel(str, Enum):
     UNCERTAIN    = "uncertain"      # garbled model output — treated as neutral
 
 
+class VerificationMode(Enum):
+    """Modes of truth-checking rigor for Mímir-Vörðr v2."""
+
+    GUARDED = "guarded"     # Zero tolerance, max rigor
+    IRONSWORN = "ironsworn" # High rigor, standard for facts
+    SEIÐR = "seiðr"         # Medium rigor, allows symbolic truth
+    WANDERER = "wanderer"   # Low rigor, speed priority
+
+
+def get_mode_thresholds(mode: VerificationMode) -> Tuple[float, float]:
+    """Return (high_threshold, marginal_threshold) for a given mode."""
+    mapping = {
+        VerificationMode.GUARDED: (0.95, 0.85),
+        VerificationMode.IRONSWORN: (0.85, 0.65),
+        VerificationMode.SEIÐR: (0.75, 0.50),
+        VerificationMode.WANDERER: (0.60, 0.30),
+    }
+    return mapping.get(mode, (_DEFAULT_HIGH_THRESHOLD, _DEFAULT_MARGINAL_THRESHOLD))
+
+
 _VERDICT_WEIGHTS: Dict[str, float] = {
     VerdictLabel.ENTAILED:     1.0,
     VerdictLabel.NEUTRAL:      0.5,
@@ -497,6 +517,7 @@ class VordurChecker:
         source_chunks: List[KnowledgeChunk],
         ethics_state: Optional[Any] = None,
         trust_state: Optional[Any] = None,
+        mode: VerificationMode = VerificationMode.IRONSWORN,
     ) -> FaithfulnessScore:
         """Full faithfulness scoring pipeline for a response.
 
@@ -511,6 +532,9 @@ class VordurChecker:
         """
         if not self._enabled:
             return self._passthrough_score(response)
+
+        # ── Step 0: Set mode-based thresholds ─────────────────────────────────
+        high_thresh, marginal_thresh = get_mode_thresholds(mode)
 
         # ── Step 1: Persona check ─────────────────────────────────────────────
         persona_intact = True
@@ -579,8 +603,8 @@ class VordurChecker:
         contradicted = sum(1 for cv in verifications if cv.verdict == VerdictLabel.CONTRADICTED)
         uncertain = sum(1 for cv in verifications if cv.verdict == VerdictLabel.UNCERTAIN)
 
-        tier = self._score_tier(score)
-        needs_retry = score < self._marginal_threshold
+        tier = self._score_tier(score, high_thresh, marginal_thresh)
+        needs_retry = score < marginal_thresh
 
         fs = FaithfulnessScore(
             score=round(score, 4),
@@ -793,11 +817,11 @@ class VordurChecker:
 
         return best_chunk
 
-    def _score_tier(self, score: float) -> str:
+    def _score_tier(self, score: float, high: float, marginal: float) -> str:
         """Map a numeric score to a tier label."""
-        if score >= self._high_threshold:
+        if score >= high:
             return "high"
-        if score >= self._marginal_threshold:
+        if score >= marginal:
             return "marginal"
         return "hallucination"
 
