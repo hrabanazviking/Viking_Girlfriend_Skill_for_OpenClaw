@@ -375,6 +375,104 @@ class MimirState:
         return asdict(self)
 
 
+# ─── Dead-Letter Store ────────────────────────────────────────────────────────
+
+
+@dataclass
+class DeadLetterEntry:
+    """One failed-verification record written to the dead-letter log."""
+
+    entry_id: str               # UUID
+    timestamp: str              # ISO-8601
+    component: str              # "vordur" | "cove" | "huginn" | "smart_complete_with_cove"
+    query: str                  # original user query
+    response: str               # response that failed verification
+    faithfulness_score: float
+    error_type: str             # e.g. "HallucinationExhausted"
+    retry_count: int
+    trace: str                  # full traceback or empty string
+    context_chunks: List[str]   # chunk IDs that were retrieved
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+class _DeadLetterStore:
+    """
+    Append-only JSONL log at session/dead_letters.jsonl.
+    Thread-safe via a lock.  Never raises — failures are silently logged.
+    Provides summary stats for the health monitor.
+    """
+
+    def __init__(self, path: Path) -> None:
+        self._path = Path(path)
+        self._lock = threading.Lock()
+        try:
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+
+    def append(self, entry: DeadLetterEntry) -> None:
+        """Write one entry to the JSONL log, thread-safely.  Never raises."""
+        import json  # stdlib — safe local import
+        try:
+            with self._lock:
+                with self._path.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(entry.to_dict()) + "\n")
+        except Exception as exc:
+            logger.warning("_DeadLetterStore.append failed: %s", exc)
+
+    def count_recent(self, window_s: float = 300.0) -> int:
+        """Return count of entries written within the last *window_s* seconds."""
+        import json
+        cutoff = datetime.now(timezone.utc).timestamp() - window_s
+        count = 0
+        try:
+            with self._lock:
+                if not self._path.exists():
+                    return 0
+                with self._path.open("r", encoding="utf-8") as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            obj = json.loads(line)
+                            ts = datetime.fromisoformat(obj.get("timestamp", "")).timestamp()
+                            if ts >= cutoff:
+                                count += 1
+                        except Exception:
+                            pass
+        except Exception as exc:
+            logger.warning("_DeadLetterStore.count_recent failed: %s", exc)
+        return count
+
+    def get_last_n(self, n: int = 10) -> List[DeadLetterEntry]:
+        """Return up to *n* most recent entries.  Skips corrupt lines silently."""
+        import json
+        entries: List[DeadLetterEntry] = []
+        try:
+            with self._lock:
+                if not self._path.exists():
+                    return []
+                with self._path.open("r", encoding="utf-8") as fh:
+                    lines = fh.readlines()
+            for line in reversed(lines):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    entries.append(DeadLetterEntry(**obj))
+                    if len(entries) >= n:
+                        break
+                except Exception:
+                    pass
+        except Exception as exc:
+            logger.warning("_DeadLetterStore.get_last_n failed: %s", exc)
+        return entries
+
+
 # ─── Domain → File Map ────────────────────────────────────────────────────────
 
 # Map of filename -> (domain, realm, tier)

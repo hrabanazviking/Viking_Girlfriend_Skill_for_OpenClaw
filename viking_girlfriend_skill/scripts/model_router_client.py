@@ -63,6 +63,7 @@ import random
 import re
 import time
 import traceback
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional
@@ -94,6 +95,14 @@ _CIRCUIT_COOLDOWN_S: int = 60
 
 ComplexityLevel = Literal["low", "medium", "high"]
 
+# Canned response returned when all Vordur retries are exhausted — never a blank.
+# Sigrid admits uncertainty rather than hallucinating.
+_CANNED_RESPONSE: str = (
+    'Sigrid pauses, brow furrowed.\n'
+    '"The threads of the Well are unclear to me right now — I want to answer\n'
+    'you truly, not from the fog. Let me return to this when the sight is clearer."'
+)
+
 
 # ─── Core types ───────────────────────────────────────────────────────────────
 
@@ -107,7 +116,13 @@ class Message:
 
 @dataclass
 class CompletionResponse:
-    """Response from any inference tier."""
+    """Response from any inference tier.
+
+    The faithfulness / CoVe fields are all Optional with safe defaults —
+    backward-compatible with any code that only reads ``content``.
+    They are populated by ``smart_complete_with_cove()`` when the full
+    Mimir-Vordur pipeline runs.
+    """
     content: str
     model: str
     tier: str
@@ -115,6 +130,15 @@ class CompletionResponse:
     finish_reason: str = "stop"
     degraded: bool = False
     raw_response: Dict[str, Any] = field(default_factory=dict)
+    # ── Mimir-Vordur pipeline metadata (all Optional / default-safe) ──────────
+    faithfulness_score: Optional[float] = None      # 0.0–1.0; None = not scored
+    faithfulness_tier: str = ""                     # "high" | "marginal" | "hallucination" | ""
+    cove_applied: bool = False                      # True when CoVe ran all 4 steps
+    cove_steps_completed: int = 0                   # 0–4
+    retrieval_domain: Optional[str] = None          # domain detected by Huginn
+    retry_count: int = 0                            # Vordur retries issued
+    ground_truth_chunks: int = 0                    # number of GT chunks injected
+    fallback_chain: List[str] = field(default_factory=list)  # CoVe / retrieval fallbacks used
 
     @property
     def text(self) -> str:
@@ -801,6 +825,252 @@ class ModelRouterClient:
             complexity, intent_score, is_coding, chosen_tier,
         )
         return self.complete(messages, tier=chosen_tier, fallback=fallback, **kwargs)
+
+    def smart_complete_with_cove(
+        self,
+        messages: List[Message],
+        huginn: Optional[Any] = None,           # HuginnRetriever — Any avoids circular import
+        vordur: Optional[Any] = None,           # VordurChecker
+        cove: Optional[Any] = None,             # CovePipeline
+        dead_letter_store: Optional[Any] = None,  # _DeadLetterStore
+        ethics_state: Optional[Any] = None,     # ethics.EthicsState
+        trust_state: Optional[Any] = None,      # trust_engine.TrustState
+        fallback: bool = True,
+        max_vordur_retries: int = 2,
+        **kwargs: Any,
+    ) -> CompletionResponse:
+        """Full Mimir-Vordur pipeline — retrieval, CoVe, faithfulness guard.
+
+        Five stages, all individually fallback-safe:
+
+          1. Routing detection — classify complexity + coding intent,
+             pick chosen_tier. Same tier used for CoVe Steps 1 + 4.
+
+          2. Huginn retrieval — retrieve Ground Truth context from MimirWell.
+             FALLBACK: skip retrieval (proceed without Ground Truth).
+
+          3. CovePipeline — draft -> question -> answer -> revise.
+             FALLBACK: direct self.complete() call (bypass CoVe).
+
+          4. VordurChecker — extract claims, score faithfulness (0.0-1.0).
+             FALLBACK: skip scoring, treat as marginal (score=0.5).
+
+          5. Retry loop (max_vordur_retries):
+             - score < 0.5 (needs_retry) -> expand n_initial x2, repeat 2+3+4.
+             - Retries exhausted -> write DeadLetterStore + return canned response.
+
+        Entire method is wrapped in one outer try/except. Any unexpected error
+        that escapes all inner guards falls back to plain smart_complete() —
+        the existing baseline behavior. Never crashes, never returns None.
+
+        Norse framing: Odin drinks from Mimisbrunnr, sends both ravens, and
+        speaks only when the Well has confirmed the truth. If the threads are
+        tangled after three attempts, he waits rather than guessing.
+        """
+        try:
+            # ── Stage 1: Routing decision ──────────────────────────────────────
+            complexity = self._complexity_detector.classify(messages)
+            self._last_complexity = complexity
+            intent_score = self._intent_detector.score(messages)
+            self._last_intent_score = intent_score
+            is_coding = intent_score >= self._coding_intent_threshold
+            chosen_tier = _select_tier(complexity, is_coding)
+
+            logger.info(
+                "smart_complete_with_cove: complexity=%s intent=%.2f tier=%s",
+                complexity, intent_score, chosen_tier,
+            )
+
+            # Extract the most recent user query for retrieval
+            query = next(
+                (m.content for m in reversed(messages) if m.role == "user"), ""
+            )
+
+            # Accumulated metadata across retry attempts
+            n_initial_scale: int = 1
+            faithfulness_score: Optional[float] = None
+            faithfulness_tier_label: str = ""
+            cove_applied: bool = False
+            cove_steps: int = 0
+            cove_fallbacks: List[str] = []
+            retrieval_domain: Optional[str] = None
+            ground_truth_chunks: int = 0
+            final_text: str = ""
+            retry_count: int = 0
+            knowledge_chunks: List[Any] = []
+
+            for attempt in range(max_vordur_retries + 1):
+                retry_count = attempt
+                knowledge_chunks = []
+                retrieval_result = None
+                context_string = ""
+
+                # ── Stage 2: Huginn retrieval ──────────────────────────────────
+                if huginn is not None:
+                    try:
+                        from scripts.huginn import RetrievalRequest  # type: ignore
+                        retrieval_result = huginn.retrieve(
+                            RetrievalRequest(
+                                query=query,
+                                n_initial=50 * n_initial_scale,
+                                include_episodic=True,
+                            )
+                        )
+                        context_string = retrieval_result.context_string or ""
+                        knowledge_chunks = retrieval_result.knowledge_chunks or []
+                        retrieval_domain = retrieval_result.domain
+                        ground_truth_chunks = len(knowledge_chunks)
+                        logger.debug(
+                            "smart_complete_with_cove: retrieved %d GT chunks (domain=%s attempt=%d)",
+                            ground_truth_chunks, retrieval_domain, attempt,
+                        )
+                    except Exception as exc:
+                        logger.warning(
+                            "smart_complete_with_cove: Huginn retrieval failed (%s)"
+                            " — proceeding without Ground Truth", exc,
+                        )
+
+                # ── Stage 3: CovePipeline ──────────────────────────────────────
+                final_text = ""
+                cove_applied = False
+                cove_steps = 0
+                cove_fallbacks = []
+
+                if cove is not None and retrieval_result is not None and context_string:
+                    try:
+                        cove_result = cove.run(
+                            query=query,
+                            context=context_string,
+                            retrieval=retrieval_result,
+                            complexity=complexity,
+                        )
+                        final_text = cove_result.final_response or ""
+                        cove_applied = cove_result.used_cove
+                        cove_steps = cove_result.steps_completed
+                        cove_fallbacks = list(cove_result.fallback_chain)
+                        logger.debug(
+                            "smart_complete_with_cove: CoVe steps=%d used=%s",
+                            cove_steps, cove_applied,
+                        )
+                    except Exception as exc:
+                        logger.warning(
+                            "smart_complete_with_cove: CoVe failed (%s)"
+                            " — falling back to direct complete", exc,
+                        )
+
+                # CoVe fallback: direct complete (also used when cove/huginn absent)
+                if not final_text:
+                    base = self.complete(
+                        messages,
+                        tier=chosen_tier,
+                        fallback=fallback,
+                        **kwargs,
+                    )
+                    final_text = base.content
+                    cove_applied = False
+
+                # ── Stage 4: VordurChecker ─────────────────────────────────────
+                faithfulness_score = None
+                faithfulness_tier_label = ""
+                needs_retry = False
+
+                if vordur is not None and final_text and knowledge_chunks:
+                    try:
+                        score_result = vordur.score(
+                            response=final_text,
+                            source_chunks=knowledge_chunks,
+                            ethics_state=ethics_state,
+                            trust_state=trust_state,
+                        )
+                        faithfulness_score = score_result.score
+                        faithfulness_tier_label = score_result.tier
+                        needs_retry = score_result.needs_retry
+                        logger.debug(
+                            "smart_complete_with_cove: Vordur score=%.2f tier=%s retry=%s",
+                            faithfulness_score, faithfulness_tier_label, needs_retry,
+                        )
+                    except Exception as exc:
+                        logger.warning(
+                            "smart_complete_with_cove: Vordur scoring failed (%s)"
+                            " — treating as marginal", exc,
+                        )
+                        faithfulness_score = 0.5
+                        faithfulness_tier_label = "marginal"
+                        needs_retry = False
+
+                # ── Stage 5: Retry / dead-letter decision ──────────────────────
+                if needs_retry and attempt < max_vordur_retries:
+                    n_initial_scale *= 2
+                    logger.warning(
+                        "smart_complete_with_cove: hallucination (score=%.2f)"
+                        " — retry %d/%d with n_initial x%d",
+                        faithfulness_score or 0.0,
+                        attempt + 1, max_vordur_retries, n_initial_scale,
+                    )
+                    continue
+
+                if needs_retry and attempt >= max_vordur_retries:
+                    # All retries exhausted — write dead letter, return canned response
+                    if dead_letter_store is not None:
+                        try:
+                            from scripts.mimir_well import DeadLetterEntry  # type: ignore
+                            dl_entry = DeadLetterEntry(
+                                entry_id=str(uuid.uuid4()),
+                                timestamp=datetime.now(timezone.utc).isoformat(),
+                                component="smart_complete_with_cove",
+                                query=query,
+                                response=final_text,
+                                faithfulness_score=faithfulness_score or 0.0,
+                                error_type="HallucinationExhausted",
+                                retry_count=attempt,
+                                trace="",
+                                context_chunks=[
+                                    getattr(c, "chunk_id", str(i))
+                                    for i, c in enumerate(knowledge_chunks[:5])
+                                ],
+                            )
+                            dead_letter_store.append(dl_entry)
+                        except Exception as exc:
+                            logger.warning(
+                                "smart_complete_with_cove: dead letter append failed: %s", exc
+                            )
+
+                    logger.error(
+                        "smart_complete_with_cove: max retries (%d) exhausted"
+                        " (final score=%.2f) — canned response",
+                        max_vordur_retries, faithfulness_score or 0.0,
+                    )
+                    final_text = _CANNED_RESPONSE
+                    faithfulness_tier_label = "hallucination"
+
+                # ── Assemble final CompletionResponse ──────────────────────────
+                return CompletionResponse(
+                    content=final_text,
+                    model=chosen_tier,
+                    tier=chosen_tier,
+                    usage={},
+                    finish_reason="stop",
+                    degraded=(faithfulness_tier_label == "hallucination"),
+                    faithfulness_score=faithfulness_score,
+                    faithfulness_tier=faithfulness_tier_label,
+                    cove_applied=cove_applied,
+                    cove_steps_completed=cove_steps,
+                    retrieval_domain=retrieval_domain,
+                    retry_count=retry_count,
+                    ground_truth_chunks=ground_truth_chunks,
+                    fallback_chain=cove_fallbacks,
+                )
+
+            # Should not be reached, but guard just in case
+            return self.smart_complete(messages, fallback=fallback, **kwargs)
+
+        except Exception as exc:
+            # Outer safety net — any uncaught error → plain smart_complete()
+            logger.error(
+                "smart_complete_with_cove: unexpected error (%s) — plain smart_complete fallback",
+                exc,
+            )
+            return self.smart_complete(messages, fallback=fallback, **kwargs)
 
     def complete(
         self,
