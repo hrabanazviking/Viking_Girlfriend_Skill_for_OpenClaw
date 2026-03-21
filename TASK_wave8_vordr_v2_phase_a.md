@@ -95,15 +95,15 @@ foundation. All land in `vordur.py` except E-35 which also touches `model_router
 
 ## Progress Tracker
 
-- [ ] TASK file committed
-- [ ] E-32 Async parallel verification + LRU cache implemented
-- [ ] E-33 Claim typing + ClaimExtractor implemented
-- [ ] E-34 Evidence bundling + VerificationRecord implemented
-- [ ] E-35 RepairEngine + TruthProfile + model_router_client.py update
-- [ ] All 4 test files written (75 tests)
-- [ ] Tests passing (full suite)
-- [ ] STATUS + memory updated
-- [ ] Committed and pushed
+- [x] TASK file committed
+- [x] E-32 Async parallel verification + LRU cache implemented
+- [x] E-33 Claim typing + ClaimExtractor implemented
+- [x] E-34 Evidence bundling + VerificationRecord implemented
+- [x] E-35 RepairEngine + TruthProfile + model_router_client.py update
+- [x] All 4 test files written (81 tests)
+- [x] Tests passing (380 total, 0 failures in Wave 8 files)
+- [x] STATUS + memory updated
+- [x] Committed and pushed
 
 ---
 
