@@ -798,16 +798,16 @@ Specialized truth-checking per knowledge domain.
 
 | Step | Name | Module(s) | Status |
 |------|------|-----------|--------|
-| E-01 | Prompt Injection Sentinel | `security.py` | ⏳ PENDING |
-| E-02 | Sensitive Data Masking | `comprehensive_logging.py` | ⏳ PENDING |
-| E-03 | Vörðr Unicode Regex | `vordur.py` | ⏳ PENDING |
-| E-04 | StateBus Backpressure Warning | `state_bus.py` | ⏳ PENDING |
-| E-05 | WyrdMatrix Exponential Decay | `wyrd_matrix.py` | ⏳ PENDING |
-| E-06 | CPU Temp Fallback Windows | `metabolism.py` | ⏳ PENDING |
-| E-07 | Metabolism ↔ Wyrd Vitality Link | `metabolism.py`, `wyrd_matrix.py` | ⏳ PENDING |
-| E-08 | Honor-Driven Energy Reserve | `wyrd_matrix.py`, `metabolism.py` | ⏳ PENDING |
-| E-09 | Ethical Scarring | `ethics.py` | ⏳ PENDING |
-| E-10 | Value-Conflict Mediation | `ethics.py` | ⏳ PENDING |
+| E-01 | Prompt Injection Sentinel | `security.py` | ✅ DONE |
+| E-02 | Sensitive Data Masking | `comprehensive_logging.py` | ✅ DONE |
+| E-03 | Vörðr Unicode Regex | `vordur.py` | ✅ DONE |
+| E-04 | StateBus Backpressure Warning | `state_bus.py` | ✅ DONE |
+| E-05 | WyrdMatrix Exponential Decay | `wyrd_matrix.py` | ✅ DONE |
+| E-06 | CPU Temp Fallback Windows | `metabolism.py` | ✅ DONE |
+| E-07 | Metabolism ↔ Wyrd Vitality Link | `metabolism.py`, `wyrd_matrix.py` | ✅ DONE |
+| E-08 | Honor-Driven Energy Reserve | `wyrd_matrix.py`, `metabolism.py` | ✅ DONE |
+| E-09 | Ethical Scarring | `ethics.py` | ✅ DONE |
+| E-10 | Value-Conflict Mediation | `ethics.py` | ✅ DONE |
 | E-11 | Bio Stochastic Variance | `bio_engine.py` | ⏳ PENDING |
 | E-12 | Variable Cycle Length | `bio_engine.py` | ⏳ PENDING |
 | E-13 | Heartbeat Sentinel | `scheduler.py` | ⏳ PENDING |
