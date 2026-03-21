@@ -46,6 +46,10 @@ logger = logging.getLogger("sigrid.main")
 # ─── Turn counter (cross-turn state) ──────────────────────────────────────────
 _turn_count: int = 0
 
+# ─── Mimir-Vordur singletons — set during _init_all_modules() ─────────────────
+_dead_letter_store: Optional[Any] = None
+_health_monitor: Optional[Any] = None
+
 
 # ─── Skill-root resolution ────────────────────────────────────────────────────
 
@@ -148,6 +152,53 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
             "timeout": 30,
             "retries": 2,
         },
+
+        # ── Mimir-Vordur: knowledge store ─────────────────────────────────────
+        "mimir_well": {
+            "collection_name": "mimir_well",
+            "persist_dir": str(Path(skill_root) / "data" / "chromadb_mimir"),
+            "chunk_size_tokens": 512,
+            "chunk_overlap_tokens": 64,
+            "n_retrieve": 50,
+            "n_final": 3,
+            "auto_ingest": True,
+            "force_reindex": False,
+        },
+
+        # ── Mimir-Vordur: retrieval (Huginn's Ara) ────────────────────────────
+        "huginn": {
+            "n_initial": 50,
+            "n_final": 3,
+            "domain_detection": True,
+            "include_episodic": True,
+        },
+
+        # ── Mimir-Vordur: faithfulness guard (Vordur) ─────────────────────────
+        "vordur": {
+            "enabled": True,
+            "high_threshold": 0.80,
+            "marginal_threshold": 0.50,
+            "persona_check": True,
+            "judge_tier": "subconscious",
+            "max_claims": 10,
+            "verification_timeout_s": 8.0,
+        },
+
+        # ── Mimir-Vordur: chain-of-verification pipeline ──────────────────────
+        "cove": {
+            "min_complexity": "medium",
+            "n_verification_questions": 3,
+            "step_timeout_s": 15.0,
+            "checkpoint_dir": str(Path(skill_root) / "session" / "cove_checkpoints"),
+        },
+
+        # ── Mimir-Vordur: health monitor ──────────────────────────────────────
+        "health_monitor": {
+            "check_interval_s": 60,
+            "diagnostics_interval_s": 600,
+            "dead_letter_alert_threshold": 5,
+            "auto_reindex_on_corruption": True,
+        },
     }
 
 
@@ -189,7 +240,87 @@ def _init_all_modules(config: Dict[str, Any]) -> None:
     _safe_init("prompt_synthesizer", lambda: init_prompt_synthesizer_from_config(config))
     _safe_init("model_router",       lambda: init_model_router_from_config(config))
 
-    logger.info("All Ørlög modules initialised.")
+    # ── Mimir-Vordur pipeline (depends on model_router and memory_store) ──────
+    from scripts.mimir_well import (
+        init_mimir_well_from_config,
+        get_mimir_well,
+        _DeadLetterStore,
+        MimirHealthMonitor,
+    )
+    from scripts.huginn import init_huginn_from_config, get_huginn
+    from scripts.vordur import init_vordur_from_config, get_vordur
+    from scripts.cove_pipeline import init_cove_from_config
+    from scripts.memory_store import get_memory_store
+    from scripts.model_router_client import get_model_router
+    from pathlib import Path as _Path
+
+    _safe_init("mimir_well", lambda: init_mimir_well_from_config(config))
+
+    def _init_huginn():
+        mw = get_mimir_well()
+        ms = None
+        try:
+            ms = get_memory_store()
+        except Exception:
+            pass
+        return init_huginn_from_config(config, mw, ms)
+
+    _safe_init("huginn", _init_huginn)
+
+    def _init_vordur():
+        router = None
+        try:
+            router = get_model_router()
+        except Exception:
+            pass
+        return init_vordur_from_config(config, router)
+
+    _safe_init("vordur", _init_vordur)
+
+    def _init_cove():
+        mw = get_mimir_well()
+        router = get_model_router()
+        vd = get_vordur()
+        return init_cove_from_config(config, mw, router, vd)
+
+    _safe_init("cove", _init_cove)
+
+    # Dead-letter store — append-only JSONL, no init function needed
+    global _dead_letter_store, _health_monitor
+    try:
+        skill_root_path = _Path(config.get("skill_root", "."))
+        dl_path = skill_root_path / "session" / "dead_letters.jsonl"
+        _dead_letter_store = _DeadLetterStore(dl_path)
+        logger.info("  ok dead_letter_store (%s)", dl_path)
+    except Exception as exc:
+        logger.warning("  FAIL dead_letter_store: %s", exc)
+
+    # Health monitor — daemon thread, started after all components ready
+    def _init_health_monitor():
+        from scripts.runtime_kernel import get_kernel
+        hm_cfg = config.get("health_monitor", {}) or {}
+        hm = MimirHealthMonitor(
+            mimir_well=get_mimir_well(),
+            vordur=get_vordur(),
+            huginn=get_huginn(),
+            cove=None,          # cove singleton loaded separately — safe to pass None
+            dead_letter_store=_dead_letter_store,
+            bus=get_kernel().bus,
+            check_interval_s=float(hm_cfg.get("check_interval_s", 60)),
+            diagnostics_interval_s=float(hm_cfg.get("diagnostics_interval_s", 600)),
+            dead_letter_alert_threshold=int(hm_cfg.get("dead_letter_alert_threshold", 5)),
+            auto_reindex_on_corruption=bool(hm_cfg.get("auto_reindex_on_corruption", True)),
+        )
+        hm.start()
+        return hm
+
+    try:
+        _health_monitor = _init_health_monitor()
+        logger.info("  ok health_monitor")
+    except Exception as exc:
+        logger.warning("  FAIL health_monitor: %s", exc)
+
+    logger.info("All Orlög modules initialised.")
 
 
 def _safe_init(name: str, init_fn) -> None:
@@ -259,10 +390,19 @@ def _register_scheduler_jobs(bus) -> None:
         except Exception:
             pass
 
-    svc.register_job("metabolism_poll",  _tick_metabolism,   interval_s=30.0)
-    svc.register_job("wyrd_tick",        _tick_wyrd,         interval_s=60.0)
-    svc.register_job("dream_tick",       _tick_dream,        interval_s=120.0)
+    def _tick_mimir_health():
+        """Publish Mimir-Vordur health state to StateBus on each scheduler tick."""
+        try:
+            if _health_monitor is not None:
+                _health_monitor.publish(bus)
+        except Exception as exc:
+            logger.debug("mimir health tick error: %s", exc)
+
+    svc.register_job("metabolism_poll",  _tick_metabolism,    interval_s=30.0)
+    svc.register_job("wyrd_tick",        _tick_wyrd,          interval_s=60.0)
+    svc.register_job("dream_tick",       _tick_dream,         interval_s=120.0)
     svc.register_job("state_broadcast",  _tick_state_modules, interval_s=60.0)
+    svc.register_job("mimir_health",     _tick_mimir_health,  interval_s=60.0)
 
     svc.start()
     logger.info("Scheduler started (%d jobs).", len(svc._jobs))
@@ -429,44 +569,86 @@ async def _handle_turn(
         sigrid_response = ethics_recommendation
         logger.info("Turn %d: ethics refusal (no model call).", turn_n)
     else:
-        # ── 10. Route to model ─────────────────────────────────────────────────
+        # ── 10. Route through Mimir-Vordur pipeline ────────────────────────────
         sigrid_response = ""
         try:
             from scripts.model_router_client import get_model_router, Message
+            from scripts.huginn import get_huginn
+            from scripts.vordur import get_vordur
+            from scripts.cove_pipeline import get_cove
             router = get_model_router()
             typed_messages = [
                 Message(role=m["role"], content=m["content"]) for m in messages
             ]
-            result = router.smart_complete(typed_messages, fallback=True)
-            sigrid_response = result.content
-            
-            # ── 10b. Verification check (Vörðr) ───────────────────────────────
+
+            # Gather optional component singletons — each may be None if not inited
+            _huginn = None
+            _vordur = None
+            _cove = None
             try:
-                from scripts.vordur import get_vordur
-                # Retrieve fresh chunks for scoring using the mode's required tier
-                fresh_chunks = []
-                try:
-                    from scripts.mimir_well import get_mimir_well
-                    fresh_chunks = get_mimir_well().retrieve(
-                        user_text, n=5, min_tier=TruthTier.TRUNK if mode in (VerificationMode.GUARDED, VerificationMode.IRONSWORN) else TruthTier.BRANCH
-                    )
-                except Exception:
-                    pass
-                
-                score = get_vordur().score(
-                    sigrid_response, 
-                    source_chunks=fresh_chunks,
-                    mode=mode
+                _huginn = get_huginn()
+            except Exception:
+                pass
+            try:
+                _vordur = get_vordur()
+            except Exception:
+                pass
+            try:
+                _cove = get_cove()
+            except Exception:
+                pass
+
+            # Pull ethics/trust states for Vordur persona check
+            _ethics_state = None
+            _trust_state = None
+            try:
+                from scripts.ethics import get_ethics
+                _ethics_state = get_ethics().get_state()
+            except Exception:
+                pass
+            try:
+                from scripts.trust_engine import get_trust_engine
+                _trust_state = get_trust_engine().get_state()
+            except Exception:
+                pass
+
+            result = router.smart_complete_with_cove(
+                typed_messages,
+                huginn=_huginn,
+                vordur=_vordur,
+                cove=_cove,
+                dead_letter_store=_dead_letter_store,
+                ethics_state=_ethics_state,
+                trust_state=_trust_state,
+                fallback=True,
+            )
+            sigrid_response = result.content
+
+            if result.faithfulness_tier == "hallucination":
+                logger.warning(
+                    "Turn %d: canned response returned "
+                    "(faithfulness=%.2f, retries=%d, domain=%s)",
+                    turn_n,
+                    result.faithfulness_score or 0.0,
+                    result.retry_count,
+                    result.retrieval_domain or "unknown",
                 )
-                
-                if score.needs_retry:
-                    logger.warning("Turn %d: Vordur rejected response (score=%.2f) — issuing retry.", turn_n, score.score)
-                    # Simple retry logic — call model again with higher temperature or different tier
-                    result = router.smart_complete(typed_messages, fallback=True, temperature=0.9)
-                    sigrid_response = result.content
-            except Exception as exc:
-                logger.debug("Vordur scoring skipped: %s", exc)
-                
+            elif result.faithfulness_tier == "marginal":
+                logger.info(
+                    "Turn %d: marginal faithfulness (score=%.2f, domain=%s)",
+                    turn_n,
+                    result.faithfulness_score or 0.0,
+                    result.retrieval_domain or "unknown",
+                )
+            elif result.faithfulness_tier == "high":
+                logger.debug(
+                    "Turn %d: high faithfulness (score=%.2f, cove=%s, gt_chunks=%d)",
+                    turn_n,
+                    result.faithfulness_score or 0.0,
+                    result.cove_applied,
+                    result.ground_truth_chunks,
+                )
+
         except Exception as exc:
             logger.warning("Model routing failed: %s", exc)
             sigrid_response = (
@@ -622,6 +804,12 @@ async def _run(skill_root: str, logs_dir: str, mode: str) -> None:
         logger.critical("Fatal error: %s", exc, exc_info=True)
         raise
     finally:
+        # Stop the health monitor daemon thread
+        try:
+            if _health_monitor is not None:
+                _health_monitor.stop()
+        except Exception:
+            pass
         # Stop the scheduler gracefully
         try:
             from scripts.scheduler import get_scheduler

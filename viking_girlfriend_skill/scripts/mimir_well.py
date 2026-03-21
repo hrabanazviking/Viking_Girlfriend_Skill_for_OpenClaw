@@ -1566,6 +1566,316 @@ class MimirWell:
         return self._collection_name
 
 
+# ─── Mímir Health Monitor ─────────────────────────────────────────────────────
+
+
+@dataclass
+class ComponentHealth:
+    """Health snapshot for one Mímir-Vörðr component."""
+
+    name: str
+    status: str                  # "healthy" | "degraded" | "down"
+    circuit_breaker_state: str
+    last_success_at: Optional[str]
+    last_failure_at: Optional[str]
+    failure_rate_5m: float       # failures/minute over last 5 min
+    dead_letters_5m: int         # dead-letter entries in last 5 min
+
+
+@dataclass
+class MimirHealthState:
+    """Overall health snapshot published to StateBus."""
+
+    overall: str                             # "healthy" | "degraded" | "critical"
+    components: Dict[str, ComponentHealth]
+    dead_letters_total: int
+    last_reindex_at: Optional[str]
+    reindex_count: int
+    checked_at: str                          # ISO-8601
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "overall": self.overall,
+            "dead_letters_total": self.dead_letters_total,
+            "last_reindex_at": self.last_reindex_at,
+            "reindex_count": self.reindex_count,
+            "checked_at": self.checked_at,
+            "components": {
+                k: {
+                    "name": v.name,
+                    "status": v.status,
+                    "circuit_breaker_state": v.circuit_breaker_state,
+                    "last_success_at": v.last_success_at,
+                    "last_failure_at": v.last_failure_at,
+                    "failure_rate_5m": v.failure_rate_5m,
+                    "dead_letters_5m": v.dead_letters_5m,
+                }
+                for k, v in self.components.items()
+            },
+        }
+
+
+class MimirHealthMonitor:
+    """
+    Daemon-thread background watchdog for all Mímir-Vörðr subsystems.
+
+    Runs _health_check() every check_interval_s (default 60 s).
+    Runs _full_diagnostics() every diagnostics_interval_s (default 600 s).
+
+    Health checks:
+      - MimirWell:  attempt get_state() to confirm singleton alive
+      - HuginnRetriever: get_state() alive check
+      - VordurChecker:   get_state() alive check
+      - CovePipeline:    get_state() alive check
+      - Dead-letter rate: if >dead_letter_alert_threshold in 5 min -> WARNING
+      - Collection integrity: if doc_count == 0 and auto_reindex -> trigger reindex
+
+    Self-healing:
+      - If doc_count == 0: trigger MimirWell.reindex()
+      - If dead_letters_5m > 10: CRITICAL log + StateBus alert
+    Never raises. All exceptions are caught and logged.
+    """
+
+    def __init__(
+        self,
+        mimir_well: MimirWell,
+        vordur: Any,
+        huginn: Any,
+        cove: Any,
+        dead_letter_store: Optional["_DeadLetterStore"],
+        bus: Any,
+        scheduler: Any = None,
+        check_interval_s: float = 60.0,
+        diagnostics_interval_s: float = 600.0,
+        dead_letter_alert_threshold: int = 5,
+        auto_reindex_on_corruption: bool = True,
+    ) -> None:
+        self._mimir_well = mimir_well
+        self._vordur = vordur
+        self._huginn = huginn
+        self._cove = cove
+        self._dead_letters = dead_letter_store
+        self._bus = bus
+        self._check_interval_s = check_interval_s
+        self._diagnostics_interval_s = diagnostics_interval_s
+        self._dead_letter_alert_threshold = dead_letter_alert_threshold
+        self._auto_reindex = auto_reindex_on_corruption
+        self._reindex_count: int = 0
+        self._last_reindex_at: Optional[str] = None
+        self._lock = threading.Lock()
+        self._stop_event = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+        self._state = MimirHealthState(
+            overall="healthy",
+            components={},
+            dead_letters_total=0,
+            last_reindex_at=None,
+            reindex_count=0,
+            checked_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+    # ── Lifecycle ──────────────────────────────────────────────────────────────
+
+    def start(self) -> None:
+        """Start the background daemon thread. Idempotent."""
+        if self._thread and self._thread.is_alive():
+            return
+        self._stop_event.clear()
+        self._thread = threading.Thread(
+            target=self._run_loop, daemon=True, name="MimirHealthMonitor"
+        )
+        self._thread.start()
+        logger.info("MimirHealthMonitor started (interval=%.0fs).", self._check_interval_s)
+
+    def stop(self) -> None:
+        """Signal the daemon thread to stop and join it (up to 5 s)."""
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=5.0)
+        logger.info("MimirHealthMonitor stopped.")
+
+    # ── Internal loop ─────────────────────────────────────────────────────────
+
+    def _run_loop(self) -> None:
+        diagnostics_ticks = 0
+        ticks_per_diagnostics = max(
+            1, int(self._diagnostics_interval_s / max(1, self._check_interval_s))
+        )
+        while not self._stop_event.wait(self._check_interval_s):
+            self._health_check()
+            diagnostics_ticks += 1
+            if diagnostics_ticks >= ticks_per_diagnostics:
+                self._full_diagnostics()
+                diagnostics_ticks = 0
+
+    def _health_check(self) -> None:
+        """Run one health check pass over all components."""
+        components: Dict[str, ComponentHealth] = {}
+
+        components["mimir_well"] = self._check_component(
+            "mimir_well", self._mimir_well, "_read_cb", "_write_cb"
+        )
+        components["huginn"] = self._check_component("huginn", self._huginn)
+        components["vordur"] = self._check_component("vordur", self._vordur)
+        components["cove"] = self._check_component("cove", self._cove)
+
+        # Dead-letter rate
+        dl_5m = 0
+        try:
+            if self._dead_letters is not None:
+                dl_5m = self._dead_letters.count_recent(300.0)
+        except Exception:
+            pass
+
+        if dl_5m > self._dead_letter_alert_threshold:
+            logger.warning(
+                "MimirHealthMonitor: dead-letter rate HIGH (%d entries in last 5 min).", dl_5m
+            )
+        if dl_5m > 10:
+            logger.critical(
+                "MimirHealthMonitor: CRITICAL — %d dead letters in 5 min. "
+                "Hallucination storm possible.",
+                dl_5m,
+            )
+            self._publish_alert("HEALTH_CRITICAL", {"dead_letters_5m": dl_5m})
+
+        # MimirWell collection integrity check
+        if self._auto_reindex:
+            try:
+                mw_state = self._mimir_well.get_state()
+                if mw_state.document_count == 0:
+                    logger.warning(
+                        "MimirHealthMonitor: collection empty — triggering auto-reindex."
+                    )
+                    self.trigger_reindex()
+            except Exception:
+                pass
+
+        # Overall status
+        statuses = [c.status for c in components.values()]
+        if "down" in statuses or dl_5m > 10:
+            overall = "critical"
+        elif "degraded" in statuses or dl_5m > self._dead_letter_alert_threshold:
+            overall = "degraded"
+        else:
+            overall = "healthy"
+
+        with self._lock:
+            self._state = MimirHealthState(
+                overall=overall,
+                components=components,
+                dead_letters_total=self._reindex_count,
+                last_reindex_at=self._last_reindex_at,
+                reindex_count=self._reindex_count,
+                checked_at=datetime.now(timezone.utc).isoformat(),
+            )
+
+        logger.debug("MimirHealthMonitor: check complete — overall=%s.", overall)
+
+    def _check_component(
+        self, name: str, obj: Any, *cb_attrs: str
+    ) -> ComponentHealth:
+        """Generic component health check — call get_state() to verify alive."""
+        status = "healthy"
+        cb_state = "unknown"
+        try:
+            if obj is None:
+                status = "down"
+            else:
+                # Attempt a cheap state snapshot
+                if hasattr(obj, "get_state"):
+                    obj.get_state()
+                status = "healthy"
+                # Try to read circuit breaker state from known attribute names
+                for attr in cb_attrs:
+                    if hasattr(obj, attr):
+                        cb = getattr(obj, attr, None)
+                        if cb is not None and hasattr(cb, "state"):
+                            cb_state = cb.state.value
+                        break
+        except Exception as exc:
+            status = "degraded"
+            logger.debug("MimirHealthMonitor: %s check failed: %s", name, exc)
+
+        return ComponentHealth(
+            name=name,
+            status=status,
+            circuit_breaker_state=cb_state,
+            last_success_at=None,
+            last_failure_at=None,
+            failure_rate_5m=0.0,
+            dead_letters_5m=0,
+        )
+
+    def _full_diagnostics(self) -> None:
+        """Deeper diagnostics pass (runs every ~10 min)."""
+        try:
+            mw_state = self._mimir_well.get_state()
+            logger.info(
+                "MimirHealthMonitor diagnostics: docs=%d, chroma=%s, fallback=%s",
+                mw_state.document_count,
+                mw_state.chromadb_status,
+                mw_state.fallback_mode,
+            )
+        except Exception as exc:
+            logger.debug("MimirHealthMonitor full_diagnostics failed: %s", exc)
+
+    def _publish_alert(self, event_type: str, payload: Dict[str, Any]) -> None:
+        """Publish a health alert to StateBus, sync-safe."""
+        try:
+            from scripts.state_bus import StateEvent
+            event = StateEvent(
+                source_module="mimir_health_monitor",
+                event_type=event_type,
+                payload=payload,
+            )
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self._bus.publish_state(event, nowait=True))
+            else:
+                loop.run_until_complete(self._bus.publish_state(event, nowait=True))
+        except Exception:
+            pass
+
+    # ── Public API ────────────────────────────────────────────────────────────
+
+    def get_state(self) -> MimirHealthState:
+        """Return the most recent health state snapshot. Thread-safe."""
+        with self._lock:
+            return self._state
+
+    def publish(self, bus: Any) -> None:
+        """Publish the current health state to StateBus. Never raises."""
+        try:
+            from scripts.state_bus import StateEvent
+            state = self.get_state()
+            event = StateEvent(
+                source_module="mimir_health_monitor",
+                event_type="mimir_health_state",
+                payload=state.to_dict(),
+            )
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(bus.publish_state(event, nowait=True))
+            else:
+                loop.run_until_complete(bus.publish_state(event, nowait=True))
+        except Exception as exc:
+            logger.debug("MimirHealthMonitor.publish: failed: %s", exc)
+
+    def trigger_reindex(self) -> None:
+        """Manually trigger a MimirWell reindex. Thread-safe. Never raises."""
+        try:
+            logger.info("MimirHealthMonitor: triggering MimirWell reindex.")
+            self._mimir_well.reindex()
+            self._reindex_count += 1
+            self._last_reindex_at = datetime.now(timezone.utc).isoformat()
+            logger.info(
+                "MimirHealthMonitor: reindex complete (#%d).", self._reindex_count
+            )
+        except Exception as exc:
+            logger.warning("MimirHealthMonitor.trigger_reindex failed: %s", exc)
+
+
 # ─── Singleton ────────────────────────────────────────────────────────────────
 
 _MIMIR_WELL: Optional[MimirWell] = None
