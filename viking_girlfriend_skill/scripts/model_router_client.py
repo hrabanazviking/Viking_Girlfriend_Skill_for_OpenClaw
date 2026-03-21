@@ -139,6 +139,7 @@ class CompletionResponse:
     retry_count: int = 0                            # Vordur retries issued
     ground_truth_chunks: int = 0                    # number of GT chunks injected
     fallback_chain: List[str] = field(default_factory=list)  # CoVe / retrieval fallbacks used
+    truth_profile: Optional[Any] = None             # E-35: TruthProfile if score_and_repair ran
 
     @property
     def text(self) -> str:
