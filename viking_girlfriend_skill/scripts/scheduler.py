@@ -278,6 +278,7 @@ class SchedulerService:
 
         self._jobs[name] = {
             "func": func,
+            "trigger": "interval",
             "interval_s": interval_s,
             "job_id": f"sigrid_{name}",
         }
@@ -287,6 +288,58 @@ class SchedulerService:
 
         logger.info("SchedulerService: job '%s' registered (interval=%.1fs).", name, interval_s)
         return True
+
+    def register_cron_job(
+        self,
+        name: str,
+        func: Callable[[], None],
+        hour: int,
+        minute: int,
+        replace_existing: bool = True,
+    ) -> bool:
+        """E-19: Register a named daily cron job to run at HH:MM local time.
+
+        Returns True if the job was registered.
+        ``func`` must be a zero-argument callable.
+        """
+        if name in self._jobs and not replace_existing:
+            logger.debug("SchedulerService: cron job '%s' already registered.", name)
+            return False
+
+        self._jobs[name] = {
+            "func": func,
+            "trigger": "cron",
+            "hour": hour,
+            "minute": minute,
+            "job_id": f"sigrid_{name}",
+        }
+
+        if self._running and self._scheduler is not None:
+            self._add_apscheduler_job(name)
+
+        logger.info(
+            "SchedulerService: cron job '%s' registered (daily at %02d:%02d).",
+            name, hour, minute,
+        )
+        return True
+
+    def register_consolidation_job(
+        self,
+        consolidator: Any,
+        bus: Any,
+    ) -> bool:
+        """E-19: Register the nightly memory consolidation job at 03:30 local time.
+
+        ``consolidator`` must be a MemoryConsolidator instance.
+        ``bus`` must be a StateBus instance.
+        """
+        def _consolidation_job() -> None:
+            try:
+                consolidator.run(bus=bus)
+            except Exception as exc:
+                logger.warning("SchedulerService: consolidation job failed: %s", exc)
+
+        return self.register_cron_job("memory_consolidation", _consolidation_job, hour=3, minute=30)
 
     def remove_job(self, name: str) -> bool:
         """Remove a named job. Returns True if it existed."""
@@ -456,14 +509,25 @@ class SchedulerService:
         if self._scheduler is None:
             return
         job_cfg = self._jobs[name]
+        trigger = job_cfg.get("trigger", "interval")
         try:
-            self._scheduler.add_job(
-                func=job_cfg["func"],
-                trigger="interval",
-                seconds=job_cfg["interval_s"],
-                id=job_cfg["job_id"],
-                replace_existing=True,
-            )
+            if trigger == "cron":
+                self._scheduler.add_job(
+                    func=job_cfg["func"],
+                    trigger="cron",
+                    hour=job_cfg["hour"],
+                    minute=job_cfg["minute"],
+                    id=job_cfg["job_id"],
+                    replace_existing=True,
+                )
+            else:
+                self._scheduler.add_job(
+                    func=job_cfg["func"],
+                    trigger="interval",
+                    seconds=job_cfg["interval_s"],
+                    id=job_cfg["job_id"],
+                    replace_existing=True,
+                )
         except Exception as exc:
             logger.warning("SchedulerService: failed to add job '%s': %s", name, exc)
 

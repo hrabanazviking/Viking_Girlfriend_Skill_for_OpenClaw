@@ -71,6 +71,27 @@ MEMORY_TYPES: Tuple[str, ...] = (
 )
 
 
+# ─── MemoryLink ────────────────────────────────────────────────────────────────
+
+
+@dataclass
+class MemoryLink:
+    """E-16: Associative link between two related episodic memories.
+
+    Created when a new memory is stored and related existing memories are
+    found via semantic or keyword overlap. Links live in session/memory_links.json
+    (append-only) and are consulted during retrieval to surface related context.
+    """
+
+    source_id: str      # newly stored entry_id
+    target_id: str      # related existing entry_id
+    similarity: float   # cosine similarity [0,1] or keyword overlap ratio
+    created_at: str     # ISO-8601 UTC timestamp
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
 # ─── Data structures ──────────────────────────────────────────────────────────
 
 
@@ -103,6 +124,10 @@ class MemoryEntry:
     importance: int = 3                 # 1 (trivial) → 5 (critical)
     tags: List[str] = field(default_factory=list)
     context_hint: str = ""             # short hint for prompt injection
+    # E-17: emotional significance at time of storage
+    pad_arousal: float = 0.0           # WyrdState.pad_arousal at store time [0,1]
+    pad_pleasure: float = 0.0          # WyrdState.pad_pleasure at store time [-1,1]
+    emotional_weight_applied: bool = False  # True when arousal was read from WyrdMatrix
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -118,10 +143,17 @@ class MemoryEntry:
             importance=int(data.get("importance", 3)),
             tags=list(data.get("tags", [])),
             context_hint=data.get("context_hint", ""),
+            pad_arousal=float(data.get("pad_arousal", 0.0)),
+            pad_pleasure=float(data.get("pad_pleasure", 0.0)),
+            emotional_weight_applied=bool(data.get("emotional_weight_applied", False)),
         )
 
     def relevance_score(self, query_words: set) -> float:
-        """Keyword-based relevance score against a set of query words."""
+        """Keyword-based relevance score against a set of query words.
+
+        E-18: query_words may be pre-expanded with synonyms by EpisodicStore.
+        E-17: applies emotional arousal weight — high-arousal memories score higher.
+        """
         content_words = set(self.content.lower().split())
         tag_words = set(t.lower() for t in self.tags)
         all_words = content_words | tag_words
@@ -136,7 +168,9 @@ class MemoryEntry:
         if query_str in self.content.lower():
             base += 2.0
         # Importance multiplier
-        return base * (1.0 + self.importance * 0.1)
+        base = base * (1.0 + self.importance * 0.1)
+        # E-17: emotional significance boost (up to +30% for max arousal)
+        return base * (1.0 + self.pad_arousal * 0.3)
 
 
 # ─── ConversationBuffer ───────────────────────────────────────────────────────
@@ -255,6 +289,15 @@ class EpisodicStore:
         self._file = self._root / "episodic.json"
         self._entries: List[MemoryEntry] = []
         self._load()
+        # E-18: synonym map for query expansion
+        self._synonym_file = Path(data_root) / "synonym_map.json"
+        self._synonym_map: Dict[str, List[str]] = {}
+        self._load_synonyms()
+        # E-16: associative link store (session-scoped, append-only)
+        self._links_file = Path(data_root) / "session" / "memory_links.json"
+        self._links_file.parent.mkdir(parents=True, exist_ok=True)
+        self._links: List[MemoryLink] = []
+        self._load_links()
 
     def add(self, entry: MemoryEntry) -> None:
         """Append a memory entry and persist immediately."""
@@ -272,8 +315,12 @@ class EpisodicStore:
         min_importance: int = 1,
         memory_type: Optional[str] = None,
     ) -> List[MemoryEntry]:
-        """Return up to n entries most relevant to query using keyword scoring."""
-        query_words = set(query.lower().split())
+        """Return up to n entries most relevant to query using keyword scoring.
+
+        E-18: query is expanded with synonyms before scoring.
+        """
+        # E-18: expand query words with synonyms
+        query_words = self._expand_query(query)
         if not query_words:
             # No query — return most important recent entries
             filtered = [e for e in self._entries if e.importance >= min_importance]
@@ -328,6 +375,83 @@ class EpisodicStore:
             )
         except Exception as exc:
             logger.warning("EpisodicStore: failed to save %s: %s", self._file, exc)
+
+    # ── E-18: Synonym expansion ───────────────────────────────────────────────
+
+    def _load_synonyms(self) -> None:
+        """Load synonym_map.json from data_root. Silently skips if absent."""
+        if not self._synonym_file.exists():
+            return
+        try:
+            raw = json.loads(self._synonym_file.read_text(encoding="utf-8"))
+            self._synonym_map = {k.lower(): [v.lower() for v in vals] for k, vals in raw.items()}
+            logger.info("EpisodicStore: loaded %d synonym entries.", len(self._synonym_map))
+        except Exception as exc:
+            logger.warning("EpisodicStore: failed to load synonym_map.json: %s", exc)
+
+    def reload_synonyms(self) -> None:
+        """Hot-reload synonym_map.json without restarting."""
+        self._synonym_map = {}
+        self._load_synonyms()
+
+    def _expand_query(self, query: str) -> set:
+        """Return the set of query words plus any known synonyms (E-18).
+
+        OR logic: a memory matches if it contains the original term OR any synonym.
+        Returns an empty set for an empty query.
+        """
+        base_words = set(query.lower().split())
+        if not base_words:
+            return base_words
+        expanded = set(base_words)
+        for word in base_words:
+            if word in self._synonym_map:
+                for syn in self._synonym_map[word]:
+                    expanded.update(syn.split())
+        return expanded
+
+    # ── E-16: Associative links ───────────────────────────────────────────────
+
+    def _load_links(self) -> None:
+        """Load existing memory links from session/memory_links.json."""
+        if not self._links_file.exists():
+            return
+        try:
+            raw = json.loads(self._links_file.read_text(encoding="utf-8"))
+            self._links = [
+                MemoryLink(
+                    source_id=d["source_id"],
+                    target_id=d["target_id"],
+                    similarity=float(d.get("similarity", 0.0)),
+                    created_at=d.get("created_at", ""),
+                )
+                for d in raw.get("links", [])
+            ]
+            logger.info("EpisodicStore: loaded %d memory links.", len(self._links))
+        except Exception as exc:
+            logger.warning("EpisodicStore: failed to load memory_links.json: %s", exc)
+
+    def append_link(self, link: MemoryLink) -> None:
+        """Append a MemoryLink to the in-memory list and persist (append-only)."""
+        self._links.append(link)
+        try:
+            payload = {"links": [lk.to_dict() for lk in self._links]}
+            self._links_file.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except Exception as exc:
+            logger.warning("EpisodicStore: failed to persist memory link: %s", exc)
+
+    def get_links_for(self, entry_id: str) -> List[MemoryLink]:
+        """Return all links where entry_id is the source."""
+        return [lk for lk in self._links if lk.source_id == entry_id]
+
+    def get_entries_by_ids(self, ids: List[str]) -> List[MemoryEntry]:
+        """Fetch entries by a list of entry_ids (preserves order, skips missing)."""
+        id_set = set(ids)
+        by_id = {e.entry_id: e for e in self._entries if e.entry_id in id_set}
+        return [by_id[i] for i in ids if i in by_id]
 
 
 # ─── SemanticLayer ────────────────────────────────────────────────────────────
@@ -391,6 +515,16 @@ class SemanticLayer:
 
     def search(self, query: str, n: int = _CONTEXT_EPISODIC_HITS) -> List[str]:
         """Return a list of entry_ids most semantically similar to query."""
+        return [eid for eid, _ in self.search_with_scores(query, n=n)]
+
+    def search_with_scores(
+        self, query: str, n: int = _CONTEXT_EPISODIC_HITS
+    ) -> List[Tuple[str, float]]:
+        """Return (entry_id, similarity) pairs for the n most similar entries.
+
+        Similarity is in [0, 1] — computed as 1 - cosine_distance.
+        Returns empty list if ChromaDB is unavailable.
+        """
         if not self._available or self._collection is None:
             return []
         try:
@@ -398,9 +532,14 @@ class SemanticLayer:
                 query_texts=[query],
                 n_results=min(n, max(1, self._collection.count())),
             )
-            return results["ids"][0] if results and results.get("ids") else []
+            ids = results["ids"][0] if results.get("ids") else []
+            dists = results["distances"][0] if results.get("distances") else []
+            pairs: List[Tuple[str, float]] = []
+            for eid, dist in zip(ids, dists):
+                pairs.append((eid, max(0.0, 1.0 - float(dist))))
+            return pairs
         except Exception as exc:
-            logger.warning("SemanticLayer.search failed: %s", exc)
+            logger.warning("SemanticLayer.search_with_scores failed: %s", exc)
             return []
 
 
@@ -558,10 +697,24 @@ class MemoryStore:
 
         ``memory_type`` should be one of: conversation, fact, emotion,
         milestone, preference, boundary.
+
+        E-17: reads current WyrdState.pad_arousal to weight retrieval priority.
+        E-16: links to 3 related existing memories after storing.
         """
         if memory_type not in MEMORY_TYPES:
             logger.warning("MemoryStore: unknown memory_type '%s' — defaulting to 'fact'.", memory_type)
             memory_type = "fact"
+
+        # E-17: read emotional arousal at store time
+        pad_arousal, pad_pleasure, emotional_weight_applied = 0.5, 0.0, False
+        try:
+            from scripts.wyrd_matrix import get_wyrd_matrix  # type: ignore
+            wyrd_state = get_wyrd_matrix().get_state()
+            pad_arousal = float(wyrd_state.pad_arousal)
+            pad_pleasure = float(getattr(wyrd_state, "pad_pleasure", 0.0))
+            emotional_weight_applied = True
+        except Exception:
+            pass  # WyrdMatrix not yet initialised — use fallback 0.5
 
         entry = MemoryEntry(
             entry_id=str(uuid.uuid4()),
@@ -572,13 +725,19 @@ class MemoryStore:
             importance=importance,
             tags=tags or [],
             context_hint=context_hint,
+            pad_arousal=pad_arousal,
+            pad_pleasure=pad_pleasure,
+            emotional_weight_applied=emotional_weight_applied,
         )
         self._episodic.add(entry)
         self._semantic.upsert(entry)
 
+        # E-16: find and store associative links to related memories
+        self._find_related(entry)
+
         logger.debug(
-            "MemoryStore: added %s memory (importance=%d): %s",
-            memory_type, importance, content[:80],
+            "MemoryStore: added %s memory (importance=%d, arousal=%.2f): %s",
+            memory_type, importance, pad_arousal, content[:80],
         )
         return entry
 
@@ -838,17 +997,82 @@ class MemoryStore:
         query: str,
         n: int = _CONTEXT_EPISODIC_HITS,
     ) -> List[MemoryEntry]:
-        """Retrieve relevant episodic entries — semantic first, keyword fallback."""
+        """Retrieve relevant episodic entries — semantic first, keyword fallback.
+
+        E-16: primary results are expanded with their associated linked memories
+        (deduplicated, capped at n + 3 total).
+        """
+        primary: List[MemoryEntry] = []
+
         if self._semantic.available and query:
             ids = self._semantic.search(query, n=n)
             if ids:
-                id_set = set(ids)
-                matched = [e for e in self._episodic._entries if e.entry_id in id_set]
+                matched = self._episodic.get_entries_by_ids(ids)
                 if matched:
-                    return matched[:n]
+                    primary = matched
 
-        # Keyword fallback
-        return self._episodic.keyword_search(query, n=n)
+        if not primary:
+            primary = self._episodic.keyword_search(query, n=n)
+
+        # E-16: expand with linked memories
+        seen_ids: set = {e.entry_id for e in primary}
+        linked_ids: List[str] = []
+        for entry in primary:
+            for link in self._episodic.get_links_for(entry.entry_id):
+                if link.target_id not in seen_ids:
+                    linked_ids.append(link.target_id)
+                    seen_ids.add(link.target_id)
+
+        if linked_ids:
+            linked_entries = self._episodic.get_entries_by_ids(linked_ids[:3])
+            return primary + linked_entries
+
+        return primary
+
+    def _find_related(self, entry: MemoryEntry, n: int = 3) -> None:
+        """E-16: Find n most related existing memories and store MemoryLink records.
+
+        Uses ChromaDB similarity if available; keyword overlap ratio as fallback.
+        Called after a new entry is stored so self._episodic already contains it.
+        """
+        links: List[Tuple[str, float]] = []  # (target_id, similarity)
+
+        if self._semantic.available:
+            pairs = self._semantic.search_with_scores(entry.content, n=n + 1)
+            for eid, sim in pairs:
+                if eid != entry.entry_id:
+                    links.append((eid, sim))
+                    if len(links) >= n:
+                        break
+        else:
+            # Keyword overlap fallback
+            query_words = set(entry.content.lower().split())
+            scored: List[Tuple[float, str]] = []
+            for e in self._episodic._entries:
+                if e.entry_id == entry.entry_id:
+                    continue
+                e_words = set(e.content.lower().split())
+                overlap = len(query_words & e_words)
+                if overlap > 0:
+                    ratio = overlap / max(len(query_words), 1)
+                    scored.append((ratio, e.entry_id))
+            scored.sort(reverse=True)
+            links = [(eid, sim) for sim, eid in scored[:n]]
+
+        now = datetime.now(timezone.utc).isoformat()
+        for target_id, similarity in links:
+            link = MemoryLink(
+                source_id=entry.entry_id,
+                target_id=target_id,
+                similarity=round(similarity, 4),
+                created_at=now,
+            )
+            self._episodic.append_link(link)
+
+        if links:
+            logger.debug(
+                "MemoryStore: linked %s → %d related memories.", entry.entry_id[:8], len(links)
+            )
 
     def _build_prompt_hint(self, turn_count: int) -> str:
         """One-line memory status summary for prompt injection."""
@@ -883,6 +1107,125 @@ class MemoryStore:
             collection_name=str(cfg.get("collection_name", _DEFAULT_COLLECTION)),
             persist_directory=str(cfg.get("persist_directory", _DEFAULT_PERSIST_DIR)),
         )
+
+
+# ─── MemoryConsolidator ───────────────────────────────────────────────────────
+
+
+class MemoryConsolidator:
+    """E-19: Nightly memory consolidation — Muninn's distillation at deep night.
+
+    During the 03:30 job, medium-term conversation buffer entries from the past
+    24 hours are batched and sent to the subconscious (Ollama) model for
+    summarization. The result is stored as a single EpisodicEntry tagged
+    "consolidation", and the raw entries are cleared from the buffer.
+
+    Graceful fallback: if the model is unavailable, raw entries are archived
+    without summarization and still cleared so the buffer does not bloat.
+    """
+
+    _CONSOLIDATION_PROMPT = (
+        "You are Sigrid's subconscious memory. Summarize the following conversation "
+        "notes into 2-3 dense factual sentences capturing what Sigrid and Volmarr "
+        "discussed, felt, or decided. Be specific and concise. No preamble."
+    )
+
+    def __init__(
+        self,
+        buffer: ConversationBuffer,
+        episodic: EpisodicStore,
+        session_id: str,
+    ) -> None:
+        self._buffer = buffer
+        self._episodic = episodic
+        self._session_id = session_id
+
+    def run(self, bus: Optional[Any] = None) -> bool:
+        """Run consolidation. Returns True on success (including graceful fallback)."""
+        entries = list(self._buffer._medium_term)
+        entry_count = len(entries)
+
+        if not entries:
+            logger.info("MemoryConsolidator: nothing to consolidate.")
+            return True
+
+        summary = self._summarize(entries)
+
+        if summary:
+            episodic_entry = MemoryEntry(
+                entry_id=str(uuid.uuid4()),
+                session_id=self._session_id,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                memory_type="conversation",
+                content=summary,
+                importance=2,
+                tags=["consolidation"],
+                context_hint="nightly consolidation",
+            )
+        else:
+            # Graceful fallback: archive raw (capped at 500 chars)
+            raw = " | ".join(entries)[:500]
+            episodic_entry = MemoryEntry(
+                entry_id=str(uuid.uuid4()),
+                session_id=self._session_id,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                memory_type="conversation",
+                content=raw,
+                importance=1,
+                tags=["consolidation", "raw"],
+                context_hint="raw archive (no model)",
+            )
+
+        self._episodic.add(episodic_entry)
+        self._buffer._medium_term.clear()
+        logger.info(
+            "MemoryConsolidator: %d entries consolidated%s.",
+            entry_count,
+            " (summarized)" if summary else " (raw fallback)",
+        )
+
+        if bus is not None:
+            try:
+                from scripts.state_bus import StateEvent  # already imported at top level
+                event = StateEvent(
+                    source_module="memory_store",
+                    event_type="memory.consolidation_complete",
+                    payload={
+                        "entries_consolidated": entry_count,
+                        "summarized": bool(summary),
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+                bus.publish_state(event, nowait=True)
+            except Exception as exc:
+                logger.warning("MemoryConsolidator: publish failed: %s", exc)
+
+        return True
+
+    def _summarize(self, entries: List[str]) -> str:
+        """Try to summarize medium-term entries via the subconscious model.
+
+        Returns the summary string on success, empty string on any failure.
+        """
+        try:
+            from scripts.model_router_client import (  # type: ignore
+                get_model_router,
+                Message,
+                TIER_SUBCONSCIOUS,
+            )
+            router = get_model_router()
+            content = "\n".join(entries[:30])  # cap at 30 entries
+            messages = [
+                Message(role="system", content=self._CONSOLIDATION_PROMPT),
+                Message(role="user", content=content),
+            ]
+            resp = router.complete(messages, tier=TIER_SUBCONSCIOUS)
+            if resp.degraded or not resp.content.strip():
+                return ""
+            return resp.content.strip()
+        except Exception as exc:
+            logger.warning("MemoryConsolidator._summarize failed: %s", exc)
+            return ""
 
 
 # ─── Singleton ────────────────────────────────────────────────────────────────
