@@ -646,9 +646,16 @@ class _Chunker:
         path: Path,
         source_rel: str,
         domain: str,
-        level: int,
+        realm: "DataRealm" = None,   # type: ignore[assignment]
+        tier: "TruthTier" = None,    # type: ignore[assignment]
+        level: int = 1,
     ) -> List[KnowledgeChunk]:
         """Dispatch to the correct chunking strategy based on extension."""
+        # Provide safe defaults if realm/tier not supplied (legacy callers)
+        if realm is None:
+            realm = DataRealm.MIDGARD
+        if tier is None:
+            tier = TruthTier.BRANCH
         ext = path.suffix.lower()
         try:
             raw = path.read_text(encoding="utf-8")
@@ -663,17 +670,17 @@ class _Chunker:
             return []
 
         if ext in (".md", ".txt"):
-            return self._chunk_markdown(raw, source_rel, domain, level, path.name)
+            return self._chunk_markdown(raw, source_rel, domain, realm, tier, level, path.name)
         if ext == ".json":
-            return self._chunk_json(raw, source_rel, domain, level, path.name)
+            return self._chunk_json(raw, source_rel, domain, realm, tier, level, path.name)
         if ext == ".jsonl":
-            return self._chunk_jsonl(raw, source_rel, domain, level, path.name)
+            return self._chunk_jsonl(raw, source_rel, domain, realm, tier, level, path.name)
         if ext in (".yaml", ".yml"):
-            return self._chunk_yaml(raw, source_rel, domain, level, path.name)
+            return self._chunk_yaml(raw, source_rel, domain, realm, tier, level, path.name)
         if ext == ".csv":
-            return self._chunk_csv(raw, source_rel, domain, level, path.name)
+            return self._chunk_csv(raw, source_rel, domain, realm, tier, level, path.name)
         # Unknown format — treat as plain text
-        return self._chunk_text_blocks(raw, source_rel, domain, level, path.name, heading="")
+        return self._chunk_text_blocks(raw, source_rel, domain, realm, tier, level, path.name, heading="")
 
     # ── Format-specific chunkers ──────────────────────────────────────────────
 
@@ -682,6 +689,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
     ) -> List[KnowledgeChunk]:
@@ -697,7 +706,7 @@ class _Chunker:
                 if buffer.strip():
                     chunks.extend(
                         self._split_text(
-                            buffer.strip(), source_rel, domain, level, filename, current_heading
+                            buffer.strip(), source_rel, domain, realm, tier, level, filename, current_heading
                         )
                     )
                 current_heading = part.strip().lstrip("#").strip()
@@ -708,7 +717,7 @@ class _Chunker:
         if buffer.strip():
             chunks.extend(
                 self._split_text(
-                    buffer.strip(), source_rel, domain, level, filename, current_heading
+                    buffer.strip(), source_rel, domain, realm, tier, level, filename, current_heading
                 )
             )
 
@@ -719,6 +728,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
     ) -> List[KnowledgeChunk]:
@@ -731,7 +742,7 @@ class _Chunker:
                 data = json.loads(raw.lstrip("\ufeff"))
             except Exception:
                 logger.warning("_Chunker: cannot parse JSON: %s", filename)
-                return self._chunk_text_blocks(raw, source_rel, domain, level, filename, "")
+                return self._chunk_text_blocks(raw, source_rel, domain, realm, tier, level, filename, "")
 
         chunks: List[KnowledgeChunk] = []
         if isinstance(data, dict):
@@ -748,8 +759,8 @@ class _Chunker:
         for key, val_str in items:
             entry = f'"{key}": {val_str}\n'
             if len(buffer) + len(entry) > self._max_chars and buffer:
-                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level, filename,
-                                               buffer_heading, pos))
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                               level, filename, buffer_heading, pos))
                 pos += 1
                 buffer = entry
                 buffer_heading = key
@@ -759,8 +770,8 @@ class _Chunker:
                 buffer += entry
 
         if buffer.strip():
-            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level, filename,
-                                           buffer_heading, pos))
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                           level, filename, buffer_heading, pos))
         return chunks
 
     def _chunk_jsonl(
@@ -768,6 +779,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
     ) -> List[KnowledgeChunk]:
@@ -784,8 +797,8 @@ class _Chunker:
                 break
 
             if len(buffer) + len(line) + 1 > self._max_chars and buffer:
-                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
-                                               filename, f"item_{pos}", pos))
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                               level, filename, f"item_{pos}", pos))
                 pos += 1
                 buffer = line + "\n"
                 if len(chunks) >= _MAX_JSONL_ITEMS_PER_FILE:
@@ -794,8 +807,8 @@ class _Chunker:
                 buffer += line + "\n"
 
         if buffer.strip() and len(chunks) < _MAX_JSONL_ITEMS_PER_FILE:
-            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
-                                           filename, f"item_{pos}", pos))
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                           level, filename, f"item_{pos}", pos))
         return chunks
 
     def _chunk_yaml(
@@ -803,6 +816,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
     ) -> List[KnowledgeChunk]:
@@ -810,10 +825,10 @@ class _Chunker:
         try:
             data = yaml.safe_load(raw)
         except yaml.YAMLError:
-            return self._chunk_text_blocks(raw, source_rel, domain, level, filename, "")
+            return self._chunk_text_blocks(raw, source_rel, domain, realm, tier, level, filename, "")
 
         if not isinstance(data, dict):
-            return self._chunk_text_blocks(str(data), source_rel, domain, level, filename, "")
+            return self._chunk_text_blocks(str(data), source_rel, domain, realm, tier, level, filename, "")
 
         chunks: List[KnowledgeChunk] = []
         buffer = ""
@@ -823,8 +838,8 @@ class _Chunker:
         for key, val in data.items():
             entry = f"{key}:\n{yaml.dump(val, allow_unicode=True, default_flow_style=False)}\n"
             if len(buffer) + len(entry) > self._max_chars and buffer:
-                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
-                                               filename, buffer_heading, pos))
+                chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                               level, filename, buffer_heading, pos))
                 pos += 1
                 buffer = entry
                 buffer_heading = str(key)
@@ -834,8 +849,8 @@ class _Chunker:
                 buffer += entry
 
         if buffer.strip():
-            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, level,
-                                           filename, buffer_heading, pos))
+            chunks.append(self._make_chunk(buffer.strip(), source_rel, domain, realm, tier,
+                                           level, filename, buffer_heading, pos))
         return chunks
 
     def _chunk_csv(
@@ -843,6 +858,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
     ) -> List[KnowledgeChunk]:
@@ -858,8 +875,8 @@ class _Chunker:
         for i in range(0, len(rows), _MAX_CSV_ROWS_PER_CHUNK):
             batch = rows[i: i + _MAX_CSV_ROWS_PER_CHUNK]
             text = header + "\n" + "\n".join(batch)
-            chunks.append(self._make_chunk(text.strip(), source_rel, domain, level,
-                                           filename, f"rows_{i}", pos))
+            chunks.append(self._make_chunk(text.strip(), source_rel, domain, realm, tier,
+                                           level, filename, f"rows_{i}", pos))
             pos += 1
 
         return chunks
@@ -869,6 +886,8 @@ class _Chunker:
         raw: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
         heading: str,
@@ -882,7 +901,7 @@ class _Chunker:
         for para in paragraphs:
             if len(buffer) + len(para) + 2 > self._max_chars and buffer:
                 chunks.extend(
-                    self._split_text(buffer.strip(), source_rel, domain, level, filename, heading)
+                    self._split_text(buffer.strip(), source_rel, domain, realm, tier, level, filename, heading)
                 )
                 pos += len(chunks)
                 buffer = para + "\n\n"
@@ -891,7 +910,7 @@ class _Chunker:
 
         if buffer.strip():
             chunks.extend(
-                self._split_text(buffer.strip(), source_rel, domain, level, filename, heading)
+                self._split_text(buffer.strip(), source_rel, domain, realm, tier, level, filename, heading)
             )
 
         return chunks
@@ -903,6 +922,8 @@ class _Chunker:
         text: str,
         source_rel: str,
         domain: str,
+        realm: DataRealm,
+        tier: TruthTier,
         level: int,
         filename: str,
         heading: str,
@@ -912,7 +933,7 @@ class _Chunker:
             return []
 
         if len(text) <= self._max_chars:
-            return [self._make_chunk(text, source_rel, domain, level, filename, heading, 0)]
+            return [self._make_chunk(text, source_rel, domain, realm, tier, level, filename, heading, 0)]
 
         chunks: List[KnowledgeChunk] = []
         start = 0
@@ -922,7 +943,7 @@ class _Chunker:
             chunk_text = text[start:end].strip()
             if chunk_text:
                 chunks.append(
-                    self._make_chunk(chunk_text, source_rel, domain, level, filename, heading, pos)
+                    self._make_chunk(chunk_text, source_rel, domain, realm, tier, level, filename, heading, pos)
                 )
                 pos += 1
             start = end - self._overlap_chars if end < len(text) else end
