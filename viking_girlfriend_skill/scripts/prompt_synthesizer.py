@@ -42,6 +42,8 @@ to carry meaning across the void.
 from __future__ import annotations
 
 import logging
+import threading
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -75,6 +77,18 @@ _HINT_SECTION_ORDER: tuple = (
     "project_generator",
     "ethics",
 )
+
+
+# ─── SectionPriority (E-28) ───────────────────────────────────────────────────
+
+
+@dataclass
+class SectionPriority:
+    """E-28: Tracks per-section ordering (base vs. context-adjusted)."""
+
+    name: str
+    base_order: int
+    current_order: int
 
 
 # ─── SynthesizerState ─────────────────────────────────────────────────────────
@@ -140,6 +154,8 @@ class PromptSynthesizer:
         max_system_chars: int = _DEFAULT_MAX_SYSTEM_CHARS,
         max_hint_chars: int = _DEFAULT_MAX_HINT_CHARS,
         include_sensory: bool = True,
+        skaldic_injection: bool = True,      # E-29
+        skaldic_vocab_file: str = "skaldic_vocabulary.json",  # E-29
     ) -> None:
         self._root = Path(data_root)
         self._identity_chars = identity_chars
@@ -154,6 +170,20 @@ class PromptSynthesizer:
         self._last_system_chars: int = 0
         self._last_user_chars: int = 0
 
+        # E-29: skaldic vocabulary
+        self._skaldic_injection: bool = skaldic_injection
+        self._skaldic_vocab: List[Dict[str, Any]] = self._load_skaldic_vocab(skaldic_vocab_file)
+        self._turn_counter: int = 0
+
+        # E-30: token counting (lazy — litellm may not be installed)
+        self._token_count_fallback: bool = False
+
+        # E-31: identity hot-reload
+        self._identity_file: str = identity_file
+        self._soul_file: str = soul_file
+        self._reload_lock: threading.Lock = threading.Lock()
+        self._watcher: Optional["_IdentityFileWatcher"] = None
+
         self._identity_text: str = self._load_text(identity_file, identity_chars)
         self._soul_text: str = self._load_text(soul_file, soul_chars)
 
@@ -165,23 +195,32 @@ class PromptSynthesizer:
         state_hints: Optional[Dict[str, str]] = None,
         memory_context: Optional[str] = None,
         sensory_hints: Optional[Dict[str, str]] = None,
+        emotional_state: Optional[Dict[str, float]] = None,  # E-28: pad_arousal, pad_pleasure
     ) -> Tuple[List[Dict[str, str]], VerificationMode]:
         """Assemble a messages list and determine the appropriate verification mode.
 
         Parameters
         ----------
-        user_text:      The human turn text.
-        state_hints:    Dict mapping module name → prompt_hint string.
-        memory_context: Optional episodic/semantic context from MemoryStore.
-        sensory_hints:  E-21: Optional sensory channel dict from EnvironmentMapper.
+        user_text:       The human turn text.
+        state_hints:     Dict mapping module name → prompt_hint string.
+        memory_context:  Optional episodic/semantic context from MemoryStore.
+        sensory_hints:   E-21: Optional sensory channel dict from EnvironmentMapper.
+        emotional_state: E-28: Optional PAD values — {"pad_arousal": 0.8, "pad_pleasure": -0.6}.
 
         Returns
         -------
         Tuple of (List of role/content dicts, selected VerificationMode).
         """
         hints = state_hints or {}
-        system_content = self._build_system(hints, memory_context or "", sensory_hints or {})
-        
+        self._turn_counter += 1   # E-29: track turn for seeded skaldic selection
+
+        system_content = self._build_system(
+            hints,
+            memory_context or "",
+            sensory_hints or {},
+            emotional_state,
+        )
+
         # Determine verification mode based on context
         mode = self.select_verification_mode(user_text, hints)
 
@@ -189,14 +228,17 @@ class PromptSynthesizer:
         self._last_hint_keys = list(hints.keys())
         self._last_system_chars = len(system_content)
         self._last_user_chars = len(user_text)
-        
+
+        # E-30: log estimated token count
+        estimated_tokens = self._count_tokens(system_content)
         logger.debug(
-            "PromptSynthesizer: built messages #%d (system=%d, mode=%s).",
+            "PromptSynthesizer: built messages #%d (system=%d chars ~%d tokens, mode=%s).",
             self._build_count,
             self._last_system_chars,
+            estimated_tokens,
             mode.value,
         )
-        
+
         messages = [
             {"role": "system", "content": system_content},
             {"role": "user", "content": user_text},
@@ -248,6 +290,42 @@ class PromptSynthesizer:
             degraded=self._degraded,
         )
 
+    # E-31: hot-reload public API ─────────────────────────────────────────────
+
+    def reload_identity(self) -> None:
+        """E-31: Thread-safe reload of core_identity.md and SOUL.md.
+
+        Called by the file watcher or manually. Never raises.
+        """
+        with self._reload_lock:
+            try:
+                new_identity = self._load_text(self._identity_file, self._identity_chars)
+                new_soul = self._load_text(self._soul_file, self._soul_chars)
+                self._identity_text = new_identity
+                self._soul_text = new_soul
+                logger.info(
+                    "PromptSynthesizer: identity hot-reload complete "
+                    "(identity=%d chars, soul=%d chars).",
+                    len(self._identity_text), len(self._soul_text),
+                )
+            except Exception as exc:
+                logger.warning("PromptSynthesizer.reload_identity failed: %s", exc)
+
+    def start_watcher(self, bus: Optional[StateBus] = None) -> None:
+        """E-31: Start the polling file watcher for identity hot-reload."""
+        if self._watcher is not None:
+            return  # already running
+        self._watcher = _IdentityFileWatcher(self, bus)
+        self._watcher.start()
+        logger.info("PromptSynthesizer: identity file watcher started.")
+
+    def stop_watcher(self) -> None:
+        """E-31: Stop the polling file watcher."""
+        if self._watcher is not None:
+            self._watcher.stop()
+            self._watcher = None
+            logger.info("PromptSynthesizer: identity file watcher stopped.")
+
     def publish(self, bus: StateBus) -> None:
         """Emit a ``synthesizer_tick`` StateEvent to the state bus."""
         try:
@@ -268,26 +346,25 @@ class PromptSynthesizer:
         hints: Dict[str, str],
         memory_context: str,
         sensory_hints: Optional[Dict[str, str]] = None,
+        emotional_state: Optional[Dict[str, float]] = None,  # E-28
     ) -> str:
         """Assemble the system prompt string from all sections."""
         sections: List[str] = []
 
         # 1. Identity anchor (highest priority — always first)
-        if self._identity_text:
-            sections.append(self._identity_text)
+        with self._reload_lock:
+            identity = self._identity_text
+            soul = self._soul_text
+
+        if identity:
+            sections.append(identity)
 
         # 2. Soul / values anchor
-        if self._soul_text:
-            sections.append(self._soul_text)
+        if soul:
+            sections.append(soul)
 
-        # 3. Module state hints in priority order, then any leftover keys
-        ordered_keys: List[str] = []
-        for key in _HINT_SECTION_ORDER:
-            if key in hints:
-                ordered_keys.append(key)
-        for key in hints:
-            if key not in ordered_keys:
-                ordered_keys.append(key)
+        # 3. E-28: dynamic section reordering based on emotional state
+        ordered_keys = self._reorder_sections(list(hints.keys()), emotional_state)
 
         if ordered_keys:
             hint_lines: List[str] = []
@@ -301,6 +378,12 @@ class PromptSynthesizer:
         env_block = self._build_environment_block(sensory_hints or {})
         if env_block:
             sections.append(env_block)
+
+        # 3c. E-29: skaldic vocabulary injection
+        if self._skaldic_injection and self._skaldic_vocab:
+            skaldic_line = self._inject_skaldic_flavor(self._turn_counter, hints)
+            if skaldic_line:
+                sections.append(skaldic_line)
 
         # 4. Memory context
         if memory_context:
@@ -319,6 +402,65 @@ class PromptSynthesizer:
 
         return combined
 
+    def _reorder_sections(
+        self,
+        hint_keys: List[str],
+        emotional_state: Optional[Dict[str, float]],
+    ) -> List[str]:
+        """E-28: Produce a context-sensitive ordering of hint keys.
+
+        Default ordering follows _HINT_SECTION_ORDER. Overrides:
+          - pad_arousal > 0.7 → wyrd_matrix (emotional state) moves to position 0
+          - pad_pleasure < -0.5 → ethics block elevated to position 0
+          - Normal: default ordering
+        Logs section priorities at DEBUG.
+        """
+        # Build base ordering (same logic as before)
+        ordered: List[str] = []
+        for key in _HINT_SECTION_ORDER:
+            if key in hint_keys:
+                ordered.append(key)
+        for key in hint_keys:
+            if key not in ordered:
+                ordered.append(key)
+
+        if not emotional_state or not ordered:
+            return ordered
+
+        pad_arousal = emotional_state.get("pad_arousal", 0.0)
+        pad_pleasure = emotional_state.get("pad_pleasure", 0.0)
+
+        if pad_arousal > 0.7 and "wyrd_matrix" in ordered:
+            # High arousal: surface emotional state first
+            ordered = ["wyrd_matrix"] + [k for k in ordered if k != "wyrd_matrix"]
+            logger.debug(
+                "PromptSynthesizer: high arousal (%.2f) — wyrd_matrix elevated to position 0.",
+                pad_arousal,
+            )
+        elif pad_pleasure < -0.5 and "ethics" in ordered:
+            # Low pleasure / distress: surface ethics/values first
+            ordered = ["ethics"] + [k for k in ordered if k != "ethics"]
+            logger.debug(
+                "PromptSynthesizer: low pleasure (%.2f) — ethics elevated to position 0.",
+                pad_pleasure,
+            )
+
+        # Log the final priority assignments
+        priorities = [
+            SectionPriority(
+                name=k,
+                base_order=list(_HINT_SECTION_ORDER).index(k)
+                    if k in _HINT_SECTION_ORDER else len(_HINT_SECTION_ORDER),
+                current_order=i,
+            )
+            for i, k in enumerate(ordered)
+        ]
+        logger.debug(
+            "PromptSynthesizer: section order this turn: %s",
+            [(p.name, p.current_order) for p in priorities],
+        )
+        return ordered
+
     def _build_environment_block(self, sensory_hints: Dict[str, str]) -> str:
         """E-21: Format selected sensory channels as a 2-line Sensory Layer block.
 
@@ -331,6 +473,96 @@ class PromptSynthesizer:
         for channel, description in sensory_hints.items():
             lines.append(f"  {channel.title()}: {description}")
         return "\n".join(lines)
+
+    # E-29: Skaldic vocabulary ─────────────────────────────────────────────────
+
+    def _load_skaldic_vocab(self, filename: str) -> List[Dict[str, Any]]:
+        """Load skaldic_vocabulary.json from the data root. Empty list on failure."""
+        path = self._root / filename
+        try:
+            raw = path.read_text(encoding="utf-8")
+            import json as _json
+            vocab = _json.loads(raw)
+            if isinstance(vocab, list):
+                logger.info(
+                    "PromptSynthesizer: loaded %d skaldic vocabulary entries.", len(vocab)
+                )
+                return vocab
+        except FileNotFoundError:
+            logger.debug("PromptSynthesizer: skaldic_vocabulary.json not found — injection off.")
+        except Exception as exc:
+            logger.warning("PromptSynthesizer: failed to load skaldic vocab: %s", exc)
+        return []
+
+    def _inject_skaldic_flavor(
+        self, turn_id: int, hints: Dict[str, str]
+    ) -> str:
+        """E-29: Deterministically select 2 contextually relevant skaldic words.
+
+        Selection is seeded from turn_id % len(vocab) to avoid full randomness.
+        Context tags are inferred from active hint keys.
+        Returns a formatted injection line, or empty string if vocab is empty.
+        """
+        if not self._skaldic_vocab:
+            return ""
+
+        # Infer context tags from active modules
+        active_tags: set = set()
+        if "wyrd_matrix" in hints:
+            active_tags.update({"emotion", "spirit", "fate"})
+        if "scheduler" in hints:
+            active_tags.update({"time", "nature"})
+        if "environment_mapper" in hints:
+            active_tags.update({"nature", "hearth"})
+        if "oracle" in hints:
+            active_tags.update({"mystery", "fate", "spirit"})
+        if "ethics" in hints:
+            active_tags.update({"honor", "duty"})
+        if not active_tags:
+            active_tags = {"general"}
+
+        # Prefer contextually matched entries, fall back to any
+        matched = [
+            entry for entry in self._skaldic_vocab
+            if set(entry.get("context_tags", [])) & active_tags
+        ]
+        pool = matched if matched else self._skaldic_vocab
+
+        # Seeded selection — deterministic per turn
+        n = len(pool)
+        idx1 = (turn_id * 7) % n
+        idx2 = (turn_id * 13 + 5) % n
+        selected = [pool[idx1]]
+        if idx2 != idx1 and len(pool) > 1:
+            selected.append(pool[idx2])
+
+        words = ", ".join(
+            f"{e['word']} ({e['meaning']})" for e in selected
+        )
+        return f"[Skaldic Voice] Weave these into your voice today: {words}"
+
+    # E-30: Token counting ─────────────────────────────────────────────────────
+
+    def _count_tokens(self, text: str) -> int:
+        """E-30: Estimate token count using litellm.token_counter() if available.
+
+        Falls back to len(text)//4 (rough 4-chars-per-token approximation)
+        when litellm is unavailable or raises. Logs DEBUG on fallback mode.
+        """
+        try:
+            import litellm  # type: ignore
+            count = litellm.token_counter(model="gpt-3.5-turbo", text=text)
+            if self._token_count_fallback:
+                self._token_count_fallback = False
+            return int(count)
+        except Exception:
+            if not self._token_count_fallback:
+                logger.debug(
+                    "PromptSynthesizer: litellm token_counter unavailable — "
+                    "using char estimate (len//4)."
+                )
+                self._token_count_fallback = True
+            return len(text) // 4
 
     def _load_text(self, filename: str, max_chars: int) -> str:
         """Load and trim a text file from the data root."""
@@ -364,14 +596,17 @@ class PromptSynthesizer:
 
         Reads keys under ``prompt_synthesizer``::
 
-          data_root        (str,  default "data")
-          identity_file    (str,  default "core_identity.md")
-          soul_file        (str,  default "SOUL.md")
-          identity_chars   (int,  default 2000)
-          soul_chars       (int,  default 400)
-          memory_chars     (int,  default 800)
-          max_system_chars (int,  default 6000)
-          max_hint_chars   (int,  default 200)
+          data_root            (str,  default "data")
+          identity_file        (str,  default "core_identity.md")
+          soul_file            (str,  default "SOUL.md")
+          identity_chars       (int,  default 2000)
+          soul_chars           (int,  default 400)
+          memory_chars         (int,  default 800)
+          max_system_chars     (int,  default 6000)
+          max_hint_chars       (int,  default 200)
+          include_sensory      (bool, default True)
+          skaldic_injection    (bool, default True)   E-29
+          skaldic_vocab_file   (str,  default "skaldic_vocabulary.json")  E-29
         """
         cfg: Dict[str, Any] = config.get("prompt_synthesizer", {})
         return cls(
@@ -384,7 +619,107 @@ class PromptSynthesizer:
             max_system_chars=int(cfg.get("max_system_chars", _DEFAULT_MAX_SYSTEM_CHARS)),
             max_hint_chars=int(cfg.get("max_hint_chars", _DEFAULT_MAX_HINT_CHARS)),
             include_sensory=bool(cfg.get("include_sensory", True)),
+            skaldic_injection=bool(cfg.get("skaldic_injection", True)),      # E-29
+            skaldic_vocab_file=str(cfg.get("skaldic_vocab_file", "skaldic_vocabulary.json")),  # E-29
         )
+
+
+# ─── E-31: Identity File Watcher ─────────────────────────────────────────────
+
+
+class _IdentityFileWatcher:
+    """E-31: Polling-based file watcher for core_identity.md and SOUL.md.
+
+    Windows-compatible (no inotify/watchdog dependency).
+    Polls every poll_interval_s; on mtime change calls synth.reload_identity()
+    and publishes persona.identity_reloaded to the StateBus.
+    """
+
+    _DEFAULT_POLL_INTERVAL_S: float = 5.0
+
+    def __init__(
+        self,
+        synth: PromptSynthesizer,
+        bus: Optional[StateBus] = None,
+        poll_interval_s: float = _DEFAULT_POLL_INTERVAL_S,
+    ) -> None:
+        self._synth = synth
+        self._bus = bus
+        self._poll_interval = poll_interval_s
+        self._mtimes: Dict[str, float] = {}
+        self._stop_event = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+        # Snapshot initial mtimes
+        self._snapshot_mtimes()
+
+    def start(self) -> None:
+        """Start the polling daemon thread. Idempotent."""
+        if self._thread and self._thread.is_alive():
+            return
+        self._stop_event.clear()
+        self._thread = threading.Thread(
+            target=self._run_loop, daemon=True, name="IdentityFileWatcher"
+        )
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Signal the daemon thread to stop."""
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=self._poll_interval + 1.0)
+
+    def _run_loop(self) -> None:
+        while not self._stop_event.wait(self._poll_interval):
+            self._check_files()
+
+    def _check_files(self) -> None:
+        """Check identity files for mtime changes; reload if changed."""
+        root = self._synth._root
+        targets = {
+            self._synth._identity_file: root / self._synth._identity_file,
+            self._synth._soul_file: root / self._synth._soul_file,
+        }
+        changed_files: List[str] = []
+        for name, path in targets.items():
+            try:
+                mtime = path.stat().st_mtime
+            except FileNotFoundError:
+                continue
+            old_mtime = self._mtimes.get(name, 0.0)
+            if mtime != old_mtime:
+                self._mtimes[name] = mtime
+                changed_files.append(name)
+
+        if changed_files:
+            logger.info(
+                "PromptSynthesizer: identity file(s) changed — reloading: %s",
+                changed_files,
+            )
+            self._synth.reload_identity()
+            self._publish_reload(changed_files)
+
+    def _snapshot_mtimes(self) -> None:
+        root = self._synth._root
+        for name in [self._synth._identity_file, self._synth._soul_file]:
+            path = root / name
+            try:
+                self._mtimes[name] = path.stat().st_mtime
+            except FileNotFoundError:
+                self._mtimes[name] = 0.0
+
+    def _publish_reload(self, changed_files: List[str]) -> None:
+        """Publish persona.identity_reloaded StateEvent to the bus if available."""
+        if self._bus is None:
+            return
+        try:
+            event = StateEvent(
+                source_module="prompt_synthesizer",
+                event_type="persona.identity_reloaded",
+                payload={"changed_files": changed_files},
+            )
+            self._bus.publish_state(event, nowait=True)
+        except Exception as exc:
+            logger.warning("_IdentityFileWatcher._publish_reload failed: %s", exc)
 
 
 # ─── Singleton ────────────────────────────────────────────────────────────────

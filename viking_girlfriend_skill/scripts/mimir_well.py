@@ -367,9 +367,10 @@ class MimirState:
     ingest_count: int
     is_healthy: bool
     chromadb_status: str        # "ok" | "degraded" | "down"
-    fallback_mode: str          # "chromadb" | "bm25" | "empty"
+    fallback_mode: str          # "chromadb" | "bm25_fast" | "bm25" | "bm25_fallback" | "empty"
     circuit_breaker_read: str
     circuit_breaker_write: str
+    bm25_shortcircuit_rate: float = 0.0  # E-26: fraction of queries served by BM25 fast-path
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -578,12 +579,26 @@ class _FlatIndex:
         n: int = 50,
     ) -> List[KnowledgeChunk]:
         """Return top-n chunks by BM25-style keyword score."""
+        results, _ = self.search_with_top_score(query, chunks_by_id, n)
+        return results
+
+    def search_with_top_score(
+        self,
+        query: str,
+        chunks_by_id: Dict[str, KnowledgeChunk],
+        n: int = 50,
+    ) -> Tuple[List[KnowledgeChunk], float]:
+        """E-26: Return (top-n chunks, top BM25 score) for shortcircuit detection.
+
+        top_score of 0.0 means no results. Normalised to the first result's score
+        — useful as a confidence signal but not a probability.
+        """
         if not self._entries:
-            return []
+            return [], 0.0
 
         query_words = re.findall(r"[a-zA-Z0-9\u00C0-\u024F]+", query.lower())
         if not query_words:
-            return []
+            return [], 0.0
 
         with self._lock:
             entries = list(self._entries)
@@ -609,13 +624,18 @@ class _FlatIndex:
             if score > 0.0:
                 scored.append((score, chunk_id))
 
+        if not scored:
+            return [], 0.0
+
         scored.sort(key=lambda x: x[0], reverse=True)
+        top_score = scored[0][0]
+
         result: List[KnowledgeChunk] = []
         for _, cid in scored[:n]:
             chunk = chunks_by_id.get(cid)
             if chunk is not None:
                 result.append(chunk)
-        return result
+        return result, top_score
 
     @property
     def size(self) -> int:
@@ -1003,11 +1023,24 @@ class MimirWell:
         chunk_overlap_tokens: int = _DEFAULT_OVERLAP_TOKENS,
         n_retrieve: int = _DEFAULT_N_RETRIEVE,
         n_final: int = _DEFAULT_N_FINAL,
+        bm25_shortcircuit_threshold: float = 0.75,   # E-26
+        session_dir: str = "session",                # E-27
     ) -> None:
         self._collection_name = collection_name
         self._persist_dir = Path(persist_dir).resolve()
         self._n_retrieve = n_retrieve
         self._n_final = n_final
+
+        # E-26: BM25 shortcircuit settings + counters
+        self._bm25_shortcircuit_threshold: float = bm25_shortcircuit_threshold
+        self._bm25_shortcircuit_hits: int = 0
+        self._bm25_total_queries: int = 0
+
+        # E-27: axiom integrity
+        self._session_dir: Path = Path(session_dir)
+        self._axiom_hashes_file: Path = self._session_dir / "axiom_hashes.json"
+        self._axiom_hashes: Dict[str, str] = {}
+        self._load_axiom_hashes()
 
         # Infrastructure
         self._chunker = _Chunker(chunk_size_tokens, chunk_overlap_tokens)
@@ -1219,6 +1252,14 @@ class MimirWell:
         self._ingest_count += 1
         report.duration_s = time.monotonic() - t0
 
+        # E-27: compute and persist axiom hashes after ingest
+        self._axiom_hashes = self._compute_axiom_hashes()
+        self._save_axiom_hashes()
+        logger.debug(
+            "MimirWell: axiom hashes computed (%d DEEP_ROOT/ASGARD chunks).",
+            len(self._axiom_hashes),
+        )
+
         logger.info(
             "MimirWell: ingest complete — %d files, %d chunks, %d errors in %.1fs.",
             report.files_processed,
@@ -1297,12 +1338,32 @@ class MimirWell:
     ) -> List[KnowledgeChunk]:
         """Semantic search over the Well. Never raises — always returns a list.
 
-        Primary: ChromaDB semantic search (with optional domain metadata filter).
+        E-26: BM25 pre-filter runs first. If top BM25 score exceeds
+        bm25_shortcircuit_threshold, returns BM25 results immediately without
+        hitting ChromaDB (path="bm25_fast"). Otherwise falls through to ChromaDB
+        then BM25 fallback as before.
+
+        Primary: BM25 pre-check → ChromaDB semantic search.
         Fallback A: in-memory BM25 keyword search.
         Fallback B: empty list (logged as warning).
         """
         if not query.strip():
             return []
+
+        self._bm25_total_queries += 1
+
+        # E-26: BM25 pre-filter — compute score first, shortcircuit if confident
+        bm25_results, bm25_top = self._bm25_retrieve_with_score(query, n, domain, min_tier)
+
+        if bm25_top > self._bm25_shortcircuit_threshold and bm25_results:
+            self._bm25_shortcircuit_hits += 1
+            self._fallback_mode = "bm25_fast"
+            logger.debug(
+                "MimirWell: BM25 shortcircuit (score=%.4f > threshold=%.2f) — "
+                "skipping ChromaDB for query=%.60s",
+                bm25_top, self._bm25_shortcircuit_threshold, query,
+            )
+            return self._tag_retrieval_path(bm25_results, "bm25_fast")
 
         # Try ChromaDB primary path
         if self._chromadb_available and self._collection is not None:
@@ -1313,7 +1374,7 @@ class MimirWell:
                 )
                 self._cb_read.on_success()
                 self._fallback_mode = "chromadb"
-                return results
+                return self._tag_retrieval_path(results, "chromadb")
             except CircuitBreakerOpenError as exc:
                 logger.debug(
                     "MimirWell: ChromaDB read circuit breaker open (%s) — using BM25 fallback.",
@@ -1325,14 +1386,14 @@ class MimirWell:
                     "MimirWell: ChromaDB retrieve failed (%s) — using BM25 fallback.", exc
                 )
 
-        # Fallback A: BM25 keyword search
-        results = self._bm25_retrieve(query, n, domain, min_tier)
-        if results:
+        # Fallback A: BM25 keyword search (already computed above)
+        if bm25_results:
             self._fallback_mode = "bm25"
             logger.debug(
-                "MimirWell: BM25 fallback returned %d results for query=%.60s", len(results), query
+                "MimirWell: BM25 fallback returned %d results for query=%.60s",
+                len(bm25_results), query,
             )
-            return results
+            return self._tag_retrieval_path(bm25_results, "bm25_fallback")
 
         # Fallback B: empty
         self._fallback_mode = "empty"
@@ -1404,19 +1465,46 @@ class MimirWell:
         Fallback A — no ChromaDB required. Always safe to call.
         Returns up to n results (domain and tier filtered).
         """
-        if self._flat_index.size == 0:
-            return []
+        results, _ = self._bm25_retrieve_with_score(query, n, domain, min_tier)
+        return results
 
-        results = self._flat_index.search(query, self._chunks_by_id, n=n * 5)
+    def _bm25_retrieve_with_score(
+        self,
+        query: str,
+        n: int = _DEFAULT_N_RETRIEVE,
+        domain: Optional[str] = None,
+        min_tier: TruthTier = TruthTier.BRANCH,
+    ) -> Tuple[List[KnowledgeChunk], float]:
+        """E-26: BM25 search returning (results, top_score) for shortcircuit decisions."""
+        if self._flat_index.size == 0:
+            return [], 0.0
+
+        results, top_score = self._flat_index.search_with_top_score(
+            query, self._chunks_by_id, n=n * 5
+        )
 
         # Apply filters
         if domain:
             results = [c for c in results if c.domain == domain]
-        
+
         # Enforce tier hierarchy
         results = [c for c in results if c.tier <= min_tier]
 
-        return results[:n]
+        return results[:n], top_score
+
+    def _tag_retrieval_path(
+        self, chunks: List[KnowledgeChunk], path: str
+    ) -> List[KnowledgeChunk]:
+        """E-26: Return copies of chunks with retrieval_path set in metadata.
+
+        Uses dataclasses.replace() to avoid mutating the cached chunk objects.
+        path values: "bm25_fast" | "chromadb" | "bm25_fallback"
+        """
+        from dataclasses import replace as dc_replace
+        return [
+            dc_replace(c, metadata={**c.metadata, "retrieval_path": path})
+            for c in chunks
+        ]
 
     # ─── Reranking ────────────────────────────────────────────────────────────
 
@@ -1624,6 +1712,10 @@ class MimirWell:
             doc_count = self._flat_index.size
             chroma_status = "down"
 
+        sc_rate = (
+            self._bm25_shortcircuit_hits / self._bm25_total_queries
+            if self._bm25_total_queries > 0 else 0.0
+        )
         return MimirState(
             collection_name=self._collection_name,
             document_count=doc_count,
@@ -1635,6 +1727,7 @@ class MimirWell:
             fallback_mode=self._fallback_mode,
             circuit_breaker_read=self._cb_read.get_state_label(),
             circuit_breaker_write=self._cb_write.get_state_label(),
+            bm25_shortcircuit_rate=round(sc_rate, 4),  # E-26
         )
 
     def publish(self, bus: StateBus) -> None:
@@ -1656,6 +1749,79 @@ class MimirWell:
                 asyncio.run(bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.debug("MimirWell.publish: failed to publish state: %s", exc)
+
+    # ─── E-27: Axiom Integrity ────────────────────────────────────────────────
+
+    def check_axiom_integrity(self) -> bool:
+        """E-27: Verify that all DEEP_ROOT/ASGARD chunks match their stored hashes.
+
+        Returns True if all hashes match (or if no hashes are stored yet).
+        Logs CRITICAL and returns False on any mismatch or missing chunk.
+        Never raises.
+        """
+        if not self._axiom_hashes:
+            return True  # no baseline yet — integrity trivially holds
+        try:
+            current = self._compute_axiom_hashes()
+            for cid, expected in self._axiom_hashes.items():
+                actual = current.get(cid)
+                if actual is None:
+                    logger.critical(
+                        "MimirWell: Axiom integrity violation — chunk '%s' is missing!", cid
+                    )
+                    return False
+                if actual != expected:
+                    logger.critical(
+                        "MimirWell: Axiom integrity violation — chunk '%s' hash mismatch "
+                        "(expected=%s, got=%s)!",
+                        cid, expected[:16], actual[:16],
+                    )
+                    return False
+            return True
+        except Exception as exc:
+            logger.warning("MimirWell.check_axiom_integrity failed: %s", exc)
+            return False
+
+    def _compute_axiom_hashes(self) -> Dict[str, str]:
+        """Compute sha256 hashes for all DEEP_ROOT + ASGARD chunks."""
+        import hashlib
+        result: Dict[str, str] = {}
+        for cid, chunk in self._chunks_by_id.items():
+            if chunk.tier == TruthTier.DEEP_ROOT and chunk.realm == DataRealm.ASGARD:
+                result[cid] = hashlib.sha256(
+                    chunk.text.encode("utf-8")
+                ).hexdigest()
+        return result
+
+    def _save_axiom_hashes(self) -> None:
+        """Persist axiom hashes to session/axiom_hashes.json."""
+        try:
+            self._axiom_hashes_file.parent.mkdir(parents=True, exist_ok=True)
+            self._axiom_hashes_file.write_text(
+                json.dumps(self._axiom_hashes, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            logger.debug(
+                "MimirWell: saved %d axiom hashes to %s.",
+                len(self._axiom_hashes), self._axiom_hashes_file,
+            )
+        except Exception as exc:
+            logger.warning("MimirWell._save_axiom_hashes failed: %s", exc)
+
+    def _load_axiom_hashes(self) -> None:
+        """Load axiom hashes from session/axiom_hashes.json if present."""
+        if not self._axiom_hashes_file.exists():
+            return
+        try:
+            raw = json.loads(self._axiom_hashes_file.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                self._axiom_hashes = raw
+            logger.debug(
+                "MimirWell: loaded %d axiom hashes from %s.",
+                len(self._axiom_hashes), self._axiom_hashes_file,
+            )
+        except Exception as exc:
+            logger.warning("MimirWell._load_axiom_hashes failed: %s", exc)
 
     # ─── Convenience properties ───────────────────────────────────────────────
 
@@ -1698,6 +1864,7 @@ class MimirHealthState:
     last_reindex_at: Optional[str]
     reindex_count: int
     checked_at: str                          # ISO-8601
+    axiom_integrity: bool = True             # E-27: False if any axiom hash mismatch
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -1706,6 +1873,7 @@ class MimirHealthState:
             "last_reindex_at": self.last_reindex_at,
             "reindex_count": self.reindex_count,
             "checked_at": self.checked_at,
+            "axiom_integrity": self.axiom_integrity,  # E-27
             "components": {
                 k: {
                     "name": v.name,
@@ -1771,6 +1939,7 @@ class MimirHealthMonitor:
         self._lock = threading.Lock()
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
+        self._axiom_integrity: bool = True  # E-27: tracks last axiom check result
         self._state = MimirHealthState(
             overall="healthy",
             components={},
@@ -1778,6 +1947,7 @@ class MimirHealthMonitor:
             last_reindex_at=None,
             reindex_count=0,
             checked_at=datetime.now(timezone.utc).isoformat(),
+            axiom_integrity=True,  # E-27
         )
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -1857,6 +2027,20 @@ class MimirHealthMonitor:
             except Exception:
                 pass
 
+        # E-27: axiom integrity check
+        axiom_ok = True
+        try:
+            axiom_ok = self._mimir_well.check_axiom_integrity()
+            if not axiom_ok:
+                logger.critical(
+                    "MimirHealthMonitor: Axiom integrity violation detected — "
+                    "triggering emergency reindex!"
+                )
+                self.trigger_reindex()
+        except Exception as exc:
+            logger.warning("MimirHealthMonitor: axiom integrity check error: %s", exc)
+        self._axiom_integrity = axiom_ok
+
         # Overall status
         statuses = [c.status for c in components.values()]
         if "down" in statuses or dl_5m > 10:
@@ -1874,6 +2058,7 @@ class MimirHealthMonitor:
                 last_reindex_at=self._last_reindex_at,
                 reindex_count=self._reindex_count,
                 checked_at=datetime.now(timezone.utc).isoformat(),
+                axiom_integrity=self._axiom_integrity,  # E-27
             )
 
         logger.debug("MimirHealthMonitor: check complete — overall=%s.", overall)
@@ -2033,6 +2218,8 @@ def init_mimir_well_from_config(
         chunk_overlap_tokens=int(mw_cfg.get("chunk_overlap_tokens", _DEFAULT_OVERLAP_TOKENS)),
         n_retrieve=int(mw_cfg.get("n_retrieve", _DEFAULT_N_RETRIEVE)),
         n_final=int(mw_cfg.get("n_final", _DEFAULT_N_FINAL)),
+        bm25_shortcircuit_threshold=float(mw_cfg.get("bm25_shortcircuit_threshold", 0.75)),  # E-26
+        session_dir=str(mw_cfg.get("session_dir", "session")),  # E-27
     )
 
     do_auto_ingest = auto_ingest and bool(mw_cfg.get("auto_ingest", True))
