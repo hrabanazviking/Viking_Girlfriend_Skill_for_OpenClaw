@@ -139,6 +139,7 @@ class PromptSynthesizer:
         memory_chars: int = _DEFAULT_MEMORY_CHARS,
         max_system_chars: int = _DEFAULT_MAX_SYSTEM_CHARS,
         max_hint_chars: int = _DEFAULT_MAX_HINT_CHARS,
+        include_sensory: bool = True,
     ) -> None:
         self._root = Path(data_root)
         self._identity_chars = identity_chars
@@ -146,6 +147,7 @@ class PromptSynthesizer:
         self._memory_chars = memory_chars
         self._max_system_chars = max_system_chars
         self._max_hint_chars = max_hint_chars
+        self._include_sensory: bool = include_sensory
         self._degraded: bool = False
         self._build_count: int = 0
         self._last_hint_keys: List[str] = []
@@ -162,6 +164,7 @@ class PromptSynthesizer:
         user_text: str,
         state_hints: Optional[Dict[str, str]] = None,
         memory_context: Optional[str] = None,
+        sensory_hints: Optional[Dict[str, str]] = None,
     ) -> Tuple[List[Dict[str, str]], VerificationMode]:
         """Assemble a messages list and determine the appropriate verification mode.
 
@@ -170,13 +173,14 @@ class PromptSynthesizer:
         user_text:      The human turn text.
         state_hints:    Dict mapping module name → prompt_hint string.
         memory_context: Optional episodic/semantic context from MemoryStore.
+        sensory_hints:  E-21: Optional sensory channel dict from EnvironmentMapper.
 
         Returns
         -------
         Tuple of (List of role/content dicts, selected VerificationMode).
         """
         hints = state_hints or {}
-        system_content = self._build_system(hints, memory_context or "")
+        system_content = self._build_system(hints, memory_context or "", sensory_hints or {})
         
         # Determine verification mode based on context
         mode = self.select_verification_mode(user_text, hints)
@@ -263,6 +267,7 @@ class PromptSynthesizer:
         self,
         hints: Dict[str, str],
         memory_context: str,
+        sensory_hints: Optional[Dict[str, str]] = None,
     ) -> str:
         """Assemble the system prompt string from all sections."""
         sections: List[str] = []
@@ -292,6 +297,11 @@ class PromptSynthesizer:
                 hint_lines.append(line)
             sections.append("\n".join(hint_lines))
 
+        # 3b. E-21: sensory layer injected after environment hints
+        env_block = self._build_environment_block(sensory_hints or {})
+        if env_block:
+            sections.append(env_block)
+
         # 4. Memory context
         if memory_context:
             trimmed_mem = memory_context[: self._memory_chars]
@@ -308,6 +318,19 @@ class PromptSynthesizer:
             )
 
         return combined
+
+    def _build_environment_block(self, sensory_hints: Dict[str, str]) -> str:
+        """E-21: Format selected sensory channels as a 2-line Sensory Layer block.
+
+        Only injected when include_sensory is True and hints are non-empty.
+        Each channel appears on its own line: "  Channel: description".
+        """
+        if not self._include_sensory or not sensory_hints:
+            return ""
+        lines = ["[Sensory Layer]"]
+        for channel, description in sensory_hints.items():
+            lines.append(f"  {channel.title()}: {description}")
+        return "\n".join(lines)
 
     def _load_text(self, filename: str, max_chars: int) -> str:
         """Load and trim a text file from the data root."""
@@ -360,6 +383,7 @@ class PromptSynthesizer:
             memory_chars=int(cfg.get("memory_chars", _DEFAULT_MEMORY_CHARS)),
             max_system_chars=int(cfg.get("max_system_chars", _DEFAULT_MAX_SYSTEM_CHARS)),
             max_hint_chars=int(cfg.get("max_hint_chars", _DEFAULT_MAX_HINT_CHARS)),
+            include_sensory=bool(cfg.get("include_sensory", True)),
         )
 
 
