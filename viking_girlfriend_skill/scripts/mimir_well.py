@@ -371,6 +371,7 @@ class MimirState:
     circuit_breaker_read: str
     circuit_breaker_write: str
     bm25_shortcircuit_rate: float = 0.0  # E-26: fraction of queries served by BM25 fast-path
+    rag_chunks_blocked: int = 0          # S-01: RAG chunks filtered by injection scan
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -1025,6 +1026,7 @@ class MimirWell:
         n_final: int = _DEFAULT_N_FINAL,
         bm25_shortcircuit_threshold: float = 0.75,   # E-26
         session_dir: str = "session",                # E-27
+        rag_injection_scan_enabled: bool = True,     # S-01
     ) -> None:
         self._collection_name = collection_name
         self._persist_dir = Path(persist_dir).resolve()
@@ -1035,6 +1037,11 @@ class MimirWell:
         self._bm25_shortcircuit_threshold: float = bm25_shortcircuit_threshold
         self._bm25_shortcircuit_hits: int = 0
         self._bm25_total_queries: int = 0
+
+        # S-01: RAG injection scan
+        self._rag_injection_scan_enabled: bool = rag_injection_scan_enabled
+        self._rag_chunks_blocked: int = 0
+        self._rag_scanner: Optional[Any] = None  # lazily initialised
 
         # E-27: axiom integrity
         self._session_dir: Path = Path(session_dir)
@@ -1327,6 +1334,68 @@ class MimirWell:
 
         return ingested, errors
 
+    # ─── S-01: RAG injection scan ─────────────────────────────────────────────
+
+    def _get_rag_scanner(self) -> Optional[Any]:
+        """Lazily initialise InjectionScanner for RAG chunk scanning.
+
+        Uses a lazy import to avoid circular-import issues at module load.
+        Returns None if the scanner cannot be initialised (graceful degrade).
+        """
+        if self._rag_scanner is None and self._rag_injection_scan_enabled:
+            try:
+                from scripts.security import InjectionScanner  # type: ignore
+                self._rag_scanner = InjectionScanner()
+            except Exception as exc:
+                logger.warning(
+                    "MimirWell: could not initialise RAG injection scanner: %s — "
+                    "RAG scan disabled.", exc,
+                )
+                self._rag_injection_scan_enabled = False
+        return self._rag_scanner
+
+    def _scan_and_filter_chunks(
+        self, chunks: List["KnowledgeChunk"]
+    ) -> List["KnowledgeChunk"]:
+        """S-01: Filter retrieved chunks through InjectionScanner.
+
+        Any chunk whose text triggers a 'block'-severity injection pattern is
+        dropped. Warns are logged but the chunk is kept (lower risk).
+        Counters are updated; never raises.
+
+        Thurisaz guard at the Well's mouth — no hostile rune-form shall pass
+        from the knowledge base into Sigrid's voice.
+        """
+        if not self._rag_injection_scan_enabled:
+            return chunks
+
+        scanner = self._get_rag_scanner()
+        if scanner is None:
+            return chunks
+
+        clean: List["KnowledgeChunk"] = []
+        for chunk in chunks:
+            try:
+                result = scanner.scan(chunk.text)
+                if result.detected:
+                    if result.severity == "block":
+                        self._rag_chunks_blocked += 1
+                        logger.warning(
+                            "MimirWell: RAG chunk blocked (id=%s pattern=%r severity=block) "
+                            "— injection pattern detected in knowledge source.",
+                            chunk.chunk_id, result.pattern_name,
+                        )
+                        continue  # drop this chunk
+                    else:
+                        logger.debug(
+                            "MimirWell: RAG chunk warn-flagged (id=%s pattern=%r) — kept.",
+                            chunk.chunk_id, result.pattern_name,
+                        )
+            except Exception as exc:
+                logger.debug("MimirWell: RAG scan error for chunk %s: %s — chunk kept.", chunk.chunk_id, exc)
+            clean.append(chunk)
+        return clean
+
     # ─── Retrieval ────────────────────────────────────────────────────────────
 
     def retrieve(
@@ -1363,7 +1432,9 @@ class MimirWell:
                 "skipping ChromaDB for query=%.60s",
                 bm25_top, self._bm25_shortcircuit_threshold, query,
             )
-            return self._tag_retrieval_path(bm25_results, "bm25_fast")
+            return self._scan_and_filter_chunks(
+                self._tag_retrieval_path(bm25_results, "bm25_fast")
+            )
 
         # Try ChromaDB primary path
         if self._chromadb_available and self._collection is not None:
@@ -1374,7 +1445,9 @@ class MimirWell:
                 )
                 self._cb_read.on_success()
                 self._fallback_mode = "chromadb"
-                return self._tag_retrieval_path(results, "chromadb")
+                return self._scan_and_filter_chunks(
+                    self._tag_retrieval_path(results, "chromadb")
+                )
             except CircuitBreakerOpenError as exc:
                 logger.debug(
                     "MimirWell: ChromaDB read circuit breaker open (%s) — using BM25 fallback.",
@@ -1393,7 +1466,9 @@ class MimirWell:
                 "MimirWell: BM25 fallback returned %d results for query=%.60s",
                 len(bm25_results), query,
             )
-            return self._tag_retrieval_path(bm25_results, "bm25_fallback")
+            return self._scan_and_filter_chunks(
+                self._tag_retrieval_path(bm25_results, "bm25_fallback")
+            )
 
         # Fallback B: empty
         self._fallback_mode = "empty"
@@ -1728,6 +1803,7 @@ class MimirWell:
             circuit_breaker_read=self._cb_read.get_state_label(),
             circuit_breaker_write=self._cb_write.get_state_label(),
             bm25_shortcircuit_rate=round(sc_rate, 4),  # E-26
+            rag_chunks_blocked=self._rag_chunks_blocked,  # S-01
         )
 
     def publish(self, bus: StateBus) -> None:

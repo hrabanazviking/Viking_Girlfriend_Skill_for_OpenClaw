@@ -58,6 +58,22 @@ _MAX_EPISODIC: int = 500                 # max entries in episodic JSON store
 _CONTEXT_RECENT_TURNS: int = 5          # turns included in get_context() output
 _CONTEXT_EPISODIC_HITS: int = 6         # episodic entries included in context
 _CHARS_PER_TOKEN: int = 4               # rough chars-per-token estimate for budget truncation
+
+
+# ─── S-03: Precise token counter ─────────────────────────────────────────────
+
+
+def _precise_token_count(text: str) -> int:
+    """Estimate token count using litellm.token_counter() when available.
+
+    Falls back to len(text) // _CHARS_PER_TOKEN on failure.
+    Mirrors the E-30 pattern in prompt_synthesizer.py for consistency.
+    """
+    try:
+        import litellm  # type: ignore
+        return int(litellm.token_counter(model="gpt-3.5-turbo", text=text))
+    except Exception:
+        return len(text) // _CHARS_PER_TOKEN
 _FEDERATED_FETCH_TIMEOUT_S: float = 10.0  # per-future timeout in parallel fetch
 
 # Valid memory types
@@ -923,9 +939,10 @@ class MemoryStore:
         ep_char_limit = request.max_episodic_tokens * _CHARS_PER_TOKEN
         kn_char_limit = request.max_knowledge_tokens * _CHARS_PER_TOKEN
 
-        if episodic_context and len(episodic_context) > ep_char_limit:
+        # S-03: use precise token count for budget check; char-slice for actual truncation
+        if episodic_context and _precise_token_count(episodic_context) > request.max_episodic_tokens:
             episodic_context = episodic_context[:ep_char_limit] + "\n[...truncated]"
-        if knowledge_context and len(knowledge_context) > kn_char_limit:
+        if knowledge_context and _precise_token_count(knowledge_context) > request.max_knowledge_tokens:
             knowledge_context = knowledge_context[:kn_char_limit] + "\n[...truncated]"
 
         # ── Assemble result ────────────────────────────────────────────────

@@ -54,5 +54,20 @@
         "agent_network_access": false,
         "allow_outbound_connections": ["google_api", "openrouter_api", "weather_api"],
         "block_inbound_ports": ["all_except_4000"]
+    },
+    "context_resilience": {
+        "rag_injection_scan_enabled": true,
+        "rag_injection_min_threat_level": "block",
+        "max_context_tokens": 104858,
+        "overflow_threshold_ratio": 0.80,
+        "soul_anchor_enabled": true,
+        "session_integrity_check_enabled": true,
+        "session_integrity_text_files_only": true,
+        "response_caps_by_tier": {
+            "subconscious": 512,
+            "conscious-mind": 1024,
+            "code-mind": 1500,
+            "deep-mind": 2048
+        }
     }
 }

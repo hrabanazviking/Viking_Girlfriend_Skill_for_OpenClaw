@@ -120,6 +120,15 @@ class RuntimeKernel:
             self.bus = init_bus()
             logger.info("State bus ready")
 
+            # S-06: Heimdallr's watch — session file integrity manifest
+            try:
+                from scripts.security import SessionFileGuard  # type: ignore
+                session_path = self.skill_root / "viking_girlfriend_skill" / "session"
+                session_guard = SessionFileGuard(session_dir=session_path)
+                session_guard.init_session()
+            except Exception as _sg_exc:
+                logger.warning("SessionFileGuard init skipped: %s", _sg_exc)
+
             # Register OS signal handlers for graceful shutdown
             self._register_signal_handlers()
 

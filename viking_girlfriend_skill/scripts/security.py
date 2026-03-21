@@ -24,7 +24,9 @@ call passes through the Bifrost gate. Only worthy signals cross.
 
 from __future__ import annotations
 
+import hashlib
 import hmac
+import json
 import logging
 import random
 import re
@@ -32,7 +34,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar
 
 from scripts.crash_reporting import get_crash_reporter
 from scripts.state_bus import StateBus, StateEvent
@@ -584,3 +586,175 @@ def get_security() -> SecurityLayer:
             "SecurityLayer not initialised — call init_security_from_config() first."
         )
     return _SECURITY_LAYER
+
+
+# ─── S-06: Session File Integrity Guard ───────────────────────────────────────
+
+
+class SessionFileGuard:
+    """S-06: SHA-256 integrity verification for session files that feed into prompts.
+
+    Session files like last_dream.json and association_cache.json are read back
+    and injected into Sigrid's prompts. If any were tampered with (or written by
+    a rogue process) they could carry injection payloads. This guard hashes them
+    at session start and verifies on every read.
+
+    Only ``_TEXT_INJECTABLE_FILES`` are monitored — purely structural session
+    files (heartbeat counters, milestones) carry no prompt-injectable text and
+    are excluded to keep overhead low.
+
+    Norse framing: Heimdallr at Bifröst — each file that crosses the threshold
+    must carry the mark it was given at first crossing. Unknown marks are turned
+    aside with a warning, not a crash.
+    """
+
+    # Session files whose content enters the prompt (text-injectable)
+    _TEXT_INJECTABLE_FILES: Set[str] = frozenset({
+        "last_dream.json",
+        "association_cache.json",
+        "object_states.json",
+    })
+
+    _MANIFEST_FILENAME: str = ".integrity_manifest.json"
+
+    def __init__(
+        self,
+        session_dir: Path,
+        enabled: bool = True,
+        text_only: bool = True,
+    ) -> None:
+        """Construct the guard.
+
+        session_dir:  Path to the session/ directory.
+        enabled:      If False, all operations are no-ops (config kill-switch).
+        text_only:    If True (default), only monitor _TEXT_INJECTABLE_FILES.
+                      If False, monitor all *.json files in session_dir.
+        """
+        self._session_dir: Path = Path(session_dir)
+        self._enabled: bool = enabled
+        self._text_only: bool = text_only
+        self._manifest_path: Path = self._session_dir / self._MANIFEST_FILENAME
+        self._manifest: Dict[str, str] = {}   # filename → sha256 hex
+
+    # ── Public API ────────────────────────────────────────────────────────────
+
+    def init_session(self) -> None:
+        """Hash all monitored session files and write the integrity manifest.
+
+        Called once at session startup (from runtime_kernel). If a manifest
+        already exists from a previous run, it is overwritten with fresh hashes.
+        Never raises.
+        """
+        if not self._enabled:
+            return
+        try:
+            self._session_dir.mkdir(parents=True, exist_ok=True)
+            self._manifest = {}
+            for path in self._session_dir.iterdir():
+                if path.name == self._MANIFEST_FILENAME:
+                    continue
+                if self._should_monitor(path):
+                    try:
+                        h = self._sha256(path)
+                        self._manifest[path.name] = h
+                        logger.debug(
+                            "SessionFileGuard: hashed %s → %s", path.name, h[:12]
+                        )
+                    except Exception as exc:
+                        logger.debug(
+                            "SessionFileGuard: could not hash %s: %s", path.name, exc
+                        )
+            self._write_manifest()
+            logger.info(
+                "SessionFileGuard: session integrity manifest written (%d files).",
+                len(self._manifest),
+            )
+        except Exception as exc:
+            logger.warning("SessionFileGuard.init_session failed: %s", exc)
+
+    def verify_file(self, path: Path) -> bool:
+        """Verify *path* hash against the manifest.
+
+        Returns True if:
+          - Guard is disabled
+          - File is not monitored
+          - File matches its recorded hash
+        Returns False (and logs WARNING) if hash mismatches or file is missing.
+        """
+        if not self._enabled:
+            return True
+        path = Path(path)
+        if not self._should_monitor(path):
+            return True
+        if path.name not in self._manifest:
+            # Not yet in manifest — first time we see this file; record and allow
+            try:
+                self._manifest[path.name] = self._sha256(path)
+                self._write_manifest()
+            except Exception:
+                pass
+            return True
+        try:
+            current = self._sha256(path)
+            if current == self._manifest[path.name]:
+                return True
+            logger.warning(
+                "SessionFileGuard: INTEGRITY MISMATCH for %s — "
+                "expected %s, got %s. File may have been tampered with.",
+                path.name,
+                self._manifest[path.name][:12],
+                current[:12],
+            )
+            return False
+        except FileNotFoundError:
+            logger.warning("SessionFileGuard: monitored file %s is missing.", path.name)
+            return False
+        except Exception as exc:
+            logger.warning("SessionFileGuard.verify_file failed for %s: %s", path.name, exc)
+            return True  # fail open — don't break the session on guard errors
+
+    def update_manifest(self, path: Path) -> None:
+        """Update the manifest entry for *path* after a legitimate write.
+
+        Call this after any intentional write to a monitored session file so
+        the next verify_file() call does not raise a false-positive alert.
+        Never raises.
+        """
+        if not self._enabled:
+            return
+        path = Path(path)
+        if not self._should_monitor(path):
+            return
+        try:
+            self._manifest[path.name] = self._sha256(path)
+            self._write_manifest()
+        except Exception as exc:
+            logger.debug("SessionFileGuard.update_manifest failed for %s: %s", path.name, exc)
+
+    # ── Internals ─────────────────────────────────────────────────────────────
+
+    def _should_monitor(self, path: Path) -> bool:
+        """Return True if this path should be integrity-checked."""
+        if not path.suffix == ".json":
+            return False
+        if self._text_only:
+            return path.name in self._TEXT_INJECTABLE_FILES
+        return True
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        """Return hex SHA-256 of the file at *path*."""
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for block in iter(lambda: fh.read(65536), b""):
+                h.update(block)
+        return h.hexdigest()
+
+    def _write_manifest(self) -> None:
+        """Persist the manifest to disk. Never raises."""
+        try:
+            self._manifest_path.write_text(
+                json.dumps(self._manifest, indent=2), encoding="utf-8"
+            )
+        except Exception as exc:
+            logger.debug("SessionFileGuard: could not write manifest: %s", exc)

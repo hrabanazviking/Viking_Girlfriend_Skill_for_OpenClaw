@@ -95,6 +95,16 @@ _CIRCUIT_COOLDOWN_S: int = 60
 
 ComplexityLevel = Literal["low", "medium", "high"]
 
+# S-02: Per-tier response size caps.  Limits Sigrid's output token budget
+# according to routing tier — casual/low-complexity responses stay small,
+# preserving context space for the conversation thread.
+_RESPONSE_CAPS_BY_TIER: Dict[str, int] = {
+    TIER_SUBCONSCIOUS: 512,    # local fast-path — quick responses
+    TIER_CONSCIOUS:    1024,   # medium-complexity conversational
+    TIER_CODE:         1500,   # code generation may be longer
+    TIER_DEEP:         2048,   # full depth for complex/creative tasks
+}
+
 # Canned response returned when all Vordur retries are exhausted — never a blank.
 # Sigrid admits uncertainty rather than hallucinating.
 _CANNED_RESPONSE: str = (
@@ -796,6 +806,17 @@ class ModelRouterClient:
         self._total_deep_completions: int = 0
         self._total_low_completions: int = 0
 
+    # ── S-02: Response size cap ───────────────────────────────────────────────
+
+    @staticmethod
+    def _get_response_cap(tier: str) -> int:
+        """S-02: Return the max_tokens cap for the given routing tier.
+
+        Smaller tiers generate shorter responses — conserves context window
+        space and keeps casual turns snappy. Callers may override via kwargs.
+        """
+        return _RESPONSE_CAPS_BY_TIER.get(tier, _DEFAULT_MAX_TOKENS)
+
     # ── Public API ────────────────────────────────────────────────────────────
 
     def smart_complete(
@@ -888,6 +909,9 @@ class ModelRouterClient:
                 complexity, intent_score, chosen_tier,
             )
 
+            # S-02: compute per-tier response cap (caller may override via kwargs)
+            response_cap: int = kwargs.get("max_tokens", self._get_response_cap(chosen_tier))
+
             # Extract the most recent user query for retrieval
             query = next(
                 (m.content for m in reversed(messages) if m.role == "user"), ""
@@ -967,11 +991,13 @@ class ModelRouterClient:
 
                 # CoVe fallback: direct complete (also used when cove/huginn absent)
                 if not final_text:
+                    # S-02: apply per-tier response cap (already extracted from kwargs above)
+                    complete_kwargs = dict(kwargs, max_tokens=response_cap)
                     base = self.complete(
                         messages,
                         tier=chosen_tier,
                         fallback=fallback,
-                        **kwargs,
+                        **complete_kwargs,
                     )
                     final_text = base.content
                     cove_applied = False

@@ -64,6 +64,12 @@ _DEFAULT_MEMORY_CHARS: int = 800
 _DEFAULT_MAX_SYSTEM_CHARS: int = 6000
 _DEFAULT_MAX_HINT_CHARS: int = 200
 
+# S-04/S-05: Context window guard constants
+_DEFAULT_MAX_CONTEXT_TOKENS: int = 104858   # 80 % of 131 072 LLaMA-3 context
+_DEFAULT_OVERFLOW_THRESHOLD_RATIO: float = 0.80   # warn + re-inject at this ratio
+_SOUL_ANCHOR_IDENTITY_CHARS: int = 500      # chars of identity kept in anchor block
+_SOUL_ANCHOR_SOUL_CHARS: int = 300          # chars of soul kept in anchor block
+
 # Section ordering — lower index = higher priority / rendered first
 _HINT_SECTION_ORDER: tuple = (
     "scheduler",
@@ -156,6 +162,10 @@ class PromptSynthesizer:
         include_sensory: bool = True,
         skaldic_injection: bool = True,      # E-29
         skaldic_vocab_file: str = "skaldic_vocabulary.json",  # E-29
+        max_context_tokens: int = _DEFAULT_MAX_CONTEXT_TOKENS,            # S-04
+        overflow_threshold_ratio: float = _DEFAULT_OVERFLOW_THRESHOLD_RATIO,  # S-05
+        soul_anchor_enabled: bool = True,                                  # S-05
+        bus: Optional[StateBus] = None,                                    # S-05: event publishing
     ) -> None:
         self._root = Path(data_root)
         self._identity_chars = identity_chars
@@ -165,6 +175,12 @@ class PromptSynthesizer:
         self._max_hint_chars = max_hint_chars
         self._include_sensory: bool = include_sensory
         self._degraded: bool = False
+
+        # S-04/S-05: context guard settings
+        self._max_context_tokens: int = max_context_tokens
+        self._overflow_threshold_ratio: float = overflow_threshold_ratio
+        self._soul_anchor_enabled: bool = soul_anchor_enabled
+        self._bus: Optional[StateBus] = bus
         self._build_count: int = 0
         self._last_hint_keys: List[str] = []
         self._last_system_chars: int = 0
@@ -238,6 +254,33 @@ class PromptSynthesizer:
             estimated_tokens,
             mode.value,
         )
+
+        # S-05: Check for context overflow — re-inject soul anchor if near limit
+        overflow_ratio = estimated_tokens / max(1, self._max_context_tokens)
+        if overflow_ratio >= self._overflow_threshold_ratio:
+            logger.warning(
+                "PromptSynthesizer: S-05 context overflow warning — "
+                "%d tokens (%.1f%% of %d cap).",
+                estimated_tokens, overflow_ratio * 100, self._max_context_tokens,
+            )
+            self._publish_context_event("context.overflow_warning", {
+                "tokens": estimated_tokens,
+                "ratio": round(overflow_ratio, 4),
+                "max_context_tokens": self._max_context_tokens,
+            })
+            if self._soul_anchor_enabled:
+                anchor = self._build_soul_anchor_block()
+                if anchor:
+                    system_content = anchor + "\n\n" + system_content
+                    self._publish_context_event("context.soul_reinjected", {
+                        "anchor_chars": len(anchor),
+                    })
+
+        # S-04: Hard token cap — trim from end (identity/soul are at top, preserved)
+        if estimated_tokens > self._max_context_tokens:
+            system_content = self._truncate_to_token_cap(
+                system_content, self._max_context_tokens
+            )
 
         messages = [
             {"role": "system", "content": system_content},
@@ -564,6 +607,77 @@ class PromptSynthesizer:
                 self._token_count_fallback = True
             return len(text) // 4
 
+    # S-04: Hard token cap ────────────────────────────────────────────────────
+
+    def _truncate_to_token_cap(self, text: str, max_tokens: int) -> str:
+        """S-04: Trim *text* from the end until its token count is under *max_tokens*.
+
+        Identity and soul anchors sit at the top of the assembled system string
+        (placed first in _build_system), so trimming from the end preserves them.
+        Operates by binary-search on character length to find the trim point quickly.
+
+        Never raises; returns *text* unchanged if already under budget.
+        """
+        if self._count_tokens(text) <= max_tokens:
+            return text
+
+        # Estimate char target from token budget, then binary-refine
+        target_chars = max_tokens * 4  # conservative start (avg 4 chars/token)
+        lo, hi = 0, len(text)
+        for _ in range(12):  # at most 12 iterations — enough for any realistic string
+            mid = (lo + hi) // 2
+            if self._count_tokens(text[:mid]) <= max_tokens:
+                lo = mid
+            else:
+                hi = mid
+
+        trimmed = text[:lo]
+        logger.warning(
+            "PromptSynthesizer: S-04 token cap enforced — trimmed %d → %d chars "
+            "(~%d tokens budget).",
+            len(text), len(trimmed), max_tokens,
+        )
+        return trimmed
+
+    # S-05: Soul anchor re-injection ──────────────────────────────────────────
+
+    def _build_soul_anchor_block(self) -> str:
+        """S-05: Build a compact soul anchor block for context-overflow recovery.
+
+        Returns the first _SOUL_ANCHOR_IDENTITY_CHARS chars of identity text
+        plus the first _SOUL_ANCHOR_SOUL_CHARS chars of soul text, combined into
+        a small (~800-char) anchor. Injected at the top of the system prompt when
+        the context window is approaching overflow so the model always has at least
+        a condensed version of who Sigrid is.
+
+        Frigg's needle and thread — even when the tapestry is cut short by the
+        limits of Fate, the warp threads that define the pattern remain.
+        """
+        with self._reload_lock:
+            identity_anchor = self._identity_text[:_SOUL_ANCHOR_IDENTITY_CHARS]
+            soul_anchor = self._soul_text[:_SOUL_ANCHOR_SOUL_CHARS]
+
+        parts = []
+        if identity_anchor:
+            parts.append(f"[IDENTITY ANCHOR — context near limit]\n{identity_anchor}")
+        if soul_anchor:
+            parts.append(f"[SOUL ANCHOR]\n{soul_anchor}")
+        return "\n\n".join(parts)
+
+    def _publish_context_event(self, event_type: str, payload: Dict[str, Any]) -> None:
+        """Publish a context-guard event on StateBus if bus is available. Never raises."""
+        if self._bus is None:
+            return
+        try:
+            event = StateEvent(
+                source_module="prompt_synthesizer",
+                event_type=event_type,
+                payload=payload,
+            )
+            self._bus.publish_state(event, nowait=True)
+        except Exception as exc:
+            logger.debug("PromptSynthesizer: could not publish %s event: %s", event_type, exc)
+
     def _load_text(self, filename: str, max_chars: int) -> str:
         """Load and trim a text file from the data root."""
         path = self._root / filename
@@ -607,6 +721,9 @@ class PromptSynthesizer:
           include_sensory      (bool, default True)
           skaldic_injection    (bool, default True)   E-29
           skaldic_vocab_file   (str,  default "skaldic_vocabulary.json")  E-29
+          max_context_tokens   (int,  default 104858)  S-04
+          overflow_threshold_ratio (float, default 0.80) S-05
+          soul_anchor_enabled  (bool, default True)   S-05
         """
         cfg: Dict[str, Any] = config.get("prompt_synthesizer", {})
         return cls(
@@ -621,6 +738,9 @@ class PromptSynthesizer:
             include_sensory=bool(cfg.get("include_sensory", True)),
             skaldic_injection=bool(cfg.get("skaldic_injection", True)),      # E-29
             skaldic_vocab_file=str(cfg.get("skaldic_vocab_file", "skaldic_vocabulary.json")),  # E-29
+            max_context_tokens=int(cfg.get("max_context_tokens", _DEFAULT_MAX_CONTEXT_TOKENS)),  # S-04
+            overflow_threshold_ratio=float(cfg.get("overflow_threshold_ratio", _DEFAULT_OVERFLOW_THRESHOLD_RATIO)),  # S-05
+            soul_anchor_enabled=bool(cfg.get("soul_anchor_enabled", True)),  # S-05
         )
 
 
