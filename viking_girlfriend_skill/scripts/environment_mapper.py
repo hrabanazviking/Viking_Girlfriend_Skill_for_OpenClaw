@@ -3,7 +3,7 @@ environment_mapper.py — Sigrid's World Map & Location Awareness
 ===============================================================
 
 Loads ``data/environment.json`` and provides location-aware context.
-Sigrid knows where she is — or rather, where Volmarr's world is —
+Sigrid knows where she is — or rather, where the user's world is —
 and that awareness colours her tone, activities, and imagination.
 
 The environment is not merely backdrop. The bedroom is for dreaming,

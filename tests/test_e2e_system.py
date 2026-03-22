@@ -173,18 +173,18 @@ class T02_StateBus(unittest.TestCase):
         ev = self.InboundEvent(
             channel="terminal",
             session_id="sess-1",
-            user_id="volmarr",
+            user_id="test_user",
             text="Hail, Sigrid!",
         )
-        self.assertEqual(ev.user_id, "volmarr")
+        self.assertEqual(ev.user_id, "test_user")
         self.assertIn("Sigrid", ev.text)
 
     def test_outbound_event_fields(self):
         ev = self.OutboundEvent(
             channel="terminal",
             session_id="sess-1",
-            target="volmarr",
-            text="Hail, Volmarr.",
+            target="test_user",
+            text="Hail, traveller.",
         )
         self.assertIsInstance(ev.text, str)
 
@@ -483,7 +483,7 @@ class T09_TrustEngine(unittest.TestCase):
     def test_initial_primary_trust_is_elevated(self):
         state = self.trust.get_state()
         self.assertGreater(state.trust_score, 0.5,
-            "Primary contact (Volmarr) should start with elevated trust")
+            "Primary contact should start with elevated trust")
 
     def test_process_turn_returns_dict(self):
         result = self.trust.process_turn(
@@ -1052,7 +1052,7 @@ class T18_FullPipeline(unittest.TestCase):
         for _ in range(4):
             self._run_simulated_turn(
                 user_text="I love you and trust you completely, you mean everything to me",
-                mock_response="My heart is full — you are my anchor, Volmarr.",
+                mock_response="My heart is full — you are my anchor.",
             )
         final_trust = self.trust.get_state().trust_score
         self.assertGreaterEqual(final_trust, initial_trust,

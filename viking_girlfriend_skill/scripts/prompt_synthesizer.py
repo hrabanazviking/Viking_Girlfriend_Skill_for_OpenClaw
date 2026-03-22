@@ -146,7 +146,7 @@ class PromptSynthesizer:
                 "environment_mapper":"[Environment: Living Room — cosy hearth]",
                 "wyrd_matrix":       "[Mood: content 0.62]",
             },
-            memory_context="Volmarr asked about the Eddas last Tuesday.",
+            memory_context="The user asked about the Eddas last Tuesday.",
         )
         # messages is List[Dict[str,str]] → pass to model_router_client.complete()
     """

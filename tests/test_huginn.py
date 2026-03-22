@@ -200,7 +200,7 @@ print("\n[8] episodic memory integration")
 
 class MockMemoryStore:
     def get_context(self, query, **kwargs):
-        return f"[Episodic] Sigrid remembers speaking about runes with Volmarr."
+        return f"[Episodic] Sigrid remembers speaking about runes with the user."
 
 huginn.set_memory_store(MockMemoryStore())
 check("set_memory_store works", huginn.has_memory_store)

@@ -25,11 +25,11 @@ class TestMilestoneDataclass:
             description="A gift was exchanged.",
             occurred_at="2026-03-21T00:00:00+00:00",
             trust_anchor=0.03,
-            contact_id="volmarr",
+            contact_id="test_user",
         )
         assert m.milestone_id == "first_gift"
         assert m.trust_anchor == 0.03
-        assert m.contact_id == "volmarr"
+        assert m.contact_id == "test_user"
 
     def test_to_dict_roundtrip(self):
         m = Milestone(
@@ -38,7 +38,7 @@ class TestMilestoneDataclass:
             description="desc",
             occurred_at="ts",
             trust_anchor=0.02,
-            contact_id="volmarr",
+            contact_id="test_user",
         )
         d = m.to_dict()
         restored = Milestone.from_dict(d)
@@ -54,40 +54,40 @@ class TestMilestoneDetection:
     def test_gift_event_triggers_first_gift_milestone(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
         before = len(engine._milestones)
-        engine.process_turn("gave you this gift", "", "volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
         assert len(engine._milestones) >= before + 1
         ids = [m.milestone_id for m in engine._milestones]
         assert "first_gift" in ids
 
     def test_first_conflict_milestone_detected(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("i disagree with you on this", "", "volmarr")
+        engine.process_turn("i disagree with you on this", "", "test_user")
         ids = [m.milestone_id for m in engine._milestones]
         assert "first_conflict" in ids
 
     def test_first_apology_milestone_detected(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("sorry i was wrong about that", "", "volmarr")
+        engine.process_turn("sorry i was wrong about that", "", "test_user")
         ids = [m.milestone_id for m in engine._milestones]
         assert "first_apology" in ids
 
     def test_milestone_not_triggered_twice(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr")
-        engine.process_turn("gave you another gift", "", "volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
+        engine.process_turn("gave you another gift", "", "test_user")
         gift_milestones = [m for m in engine._milestones if m.milestone_id == "first_gift"]
         assert len(gift_milestones) == 1
 
     def test_milestone_occurred_at_is_populated(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
         m = next(m for m in engine._milestones if m.milestone_id == "first_gift")
         assert m.occurred_at != ""
 
     def test_multiple_milestones_from_single_turn(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
         # "thank" triggers warmth_shown (→ first_support) and "i trust" triggers trust_affirmed
-        engine.process_turn("i trust you and i appreciate everything", "", "volmarr")
+        engine.process_turn("i trust you and i appreciate everything", "", "test_user")
         ids = {m.milestone_id for m in engine._milestones}
         # At least one milestone should fire
         assert len(ids) >= 1
@@ -99,8 +99,8 @@ class TestAnchorFloor:
 
     def test_anchor_floor_set_after_milestone(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr")
-        ledger = engine.get_ledger("volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
+        ledger = engine.get_ledger("test_user")
         assert ledger.anchor_floor > 0.0
 
     def test_trust_score_never_below_anchor_floor(self, tmp_path):
@@ -109,8 +109,8 @@ class TestAnchorFloor:
             session_dir=str(tmp_path),
         )
         # Trigger a milestone to set an anchor
-        engine.process_turn("gave you this gift", "", "volmarr")
-        ledger = engine.get_ledger("volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
+        ledger = engine.get_ledger("test_user")
         floor = ledger.anchor_floor
 
         # Hammer the ledger with negative events to try to drive trust below floor
@@ -123,9 +123,9 @@ class TestAnchorFloor:
 
     def test_multiple_milestones_stack_anchor(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr")
-        engine.process_turn("sorry i was wrong", "", "volmarr")
-        ledger = engine.get_ledger("volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
+        engine.process_turn("sorry i was wrong", "", "test_user")
+        ledger = engine.get_ledger("test_user")
         # Both first_gift (0.03) and first_apology (0.02) should contribute
         assert ledger.anchor_floor >= 0.03 + 0.02 - 1e-9
 
@@ -136,13 +136,13 @@ class TestMilestonePersistence:
 
     def test_milestone_saved_to_file(self, tmp_path):
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr")
+        engine.process_turn("gave you this gift", "", "test_user")
         mfile = tmp_path / "milestones.json"
         assert mfile.exists()
 
     def test_milestone_loaded_on_new_engine(self, tmp_path):
         engine1 = TrustEngine(session_dir=str(tmp_path))
-        engine1.process_turn("gave you this gift", "", "volmarr")
+        engine1.process_turn("gave you this gift", "", "test_user")
 
         engine2 = TrustEngine(session_dir=str(tmp_path))
         ids = [m.milestone_id for m in engine2._milestones]
@@ -150,10 +150,10 @@ class TestMilestonePersistence:
 
     def test_anchor_floor_restored_from_file(self, tmp_path):
         engine1 = TrustEngine(session_dir=str(tmp_path))
-        engine1.process_turn("gave you this gift", "", "volmarr")
+        engine1.process_turn("gave you this gift", "", "test_user")
 
         engine2 = TrustEngine(session_dir=str(tmp_path))
-        ledger = engine2.get_ledger("volmarr")
+        ledger = engine2.get_ledger("test_user")
         assert ledger.anchor_floor > 0.0
 
 
@@ -165,7 +165,7 @@ class TestMilestoneBusPublication:
         from scripts.state_bus import StateBus
         bus = MagicMock(spec=StateBus)
         engine = TrustEngine(session_dir=str(tmp_path))
-        engine.process_turn("gave you this gift", "", "volmarr", bus=bus)
+        engine.process_turn("gave you this gift", "", "test_user", bus=bus)
         bus.publish_state.assert_called()
         # Find the milestone event among calls
         calls = bus.publish_state.call_args_list

@@ -12,8 +12,8 @@ scores and a timestamped event log. Events are inferred from conversation
 text or recorded explicitly. Scores shift slowly — trust is earned across
 many turns, not granted in one exchange.
 
-Primary contact is Volmarr (the partner). He begins with elevated initial
-trust (configured). Guests and strangers begin at a neutral baseline.
+The primary contact begins with elevated initial trust (configured via
+primary_contact_initial_trust). Guests and strangers begin at a neutral baseline.
 
 Published to the state bus as a ``trust_tick`` event so prompt_synthesizer
 can colour Sigrid's relational tone appropriately.
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-_DEFAULT_PRIMARY_CONTACT: str = "volmarr"
+_DEFAULT_PRIMARY_CONTACT: str = "user"
 _DEFAULT_PRIMARY_TRUST: float = 0.75     # pre-existing deep bond
 _DEFAULT_STRANGER_TRUST: float = 0.30    # cautious openness to new contacts
 _DEFAULT_SESSION_DIR: str = "session"
@@ -428,7 +428,7 @@ class TrustEngine:
 
     Maintains one TrustLedger per contact_id. Events are inferred from
     conversation text or recorded explicitly. Scores shift gradually;
-    friction decays across turns. The primary contact (Volmarr) begins
+    friction decays across turns. The primary contact begins
     with elevated trust reflecting their pre-existing bond.
 
     E-23: Trust is now three-faceted (competence/benevolence/integrity).
@@ -772,7 +772,7 @@ class TrustEngine:
         """Construct from a config dict.
 
         Reads keys under ``trust_engine``:
-          primary_contact_id            (str,   default "volmarr")
+          primary_contact_id            (str,   default "user")
           primary_contact_initial_trust (float, default 0.75)
           stranger_initial_trust        (float, default 0.30)
           session_dir                   (str,   default "session")  E-24
