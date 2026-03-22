@@ -209,7 +209,7 @@ class PromptSynthesizer:
         self._identity_text: str = self._load_text(identity_file, identity_chars)
         self._soul_text: str = self._load_text(soul_file, soul_chars)
         # S-06: compressed first-person identity anchor — appended to END of every prompt
-        self._soul_anchor_text: str = self._load_text(soul_anchor_file, max_chars=4000)
+        self._soul_anchor_text: str = self._load_text(soul_anchor_file, max_chars=20000)
         if not self._soul_anchor_text:
             logger.warning(
                 "PromptSynthesizer: soul_anchor.md not loaded — "
