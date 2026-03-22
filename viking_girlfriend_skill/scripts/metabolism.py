@@ -323,8 +323,8 @@ class MetabolismAdapter:
                 net_io.bytes_recv if net_io else 0,
                 now_ts,
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("metabolism: network IO stats unavailable: %s", exc)
 
         # ── Somatic mapping ───────────────────────────────────────────────────
         mental_load = _threshold_label(cpu_percent, _CPU_LOAD_THRESHOLDS)

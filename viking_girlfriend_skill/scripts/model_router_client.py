@@ -459,7 +459,7 @@ def _with_retries(operation, attempts: int = 3) -> Any:
             last_error = exc
             if attempt >= attempts:
                 break
-            delay = min(1.5 * attempt, 6.0) + random.uniform(0, 0.4)
+            delay = min(1.5 * attempt, 6.0) + random.uniform(0, 0.4)  # nosec B311 - jitter, not cryptographic
             logger.debug("Retry %d/%d after %.1fs: %s", attempt, attempts, delay, exc)
             time.sleep(delay)
     if last_error:

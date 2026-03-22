@@ -857,7 +857,7 @@ class Oracle:
         seed_str = f"{date_str}:{self._session_seed}:{extra_salt}"
         digest = hashlib.sha256(seed_str.encode("utf-8")).hexdigest()
         seed_int = int(digest, 16) % (2 ** 31)
-        return random.Random(seed_int)
+        return random.Random(seed_int)  # nosec B311 - deterministic oracle seed, not cryptographic
 
     def _draw_rune(self, rng: random.Random) -> Dict[str, Any]:
         """Select one rune and determine upright/reversed status."""

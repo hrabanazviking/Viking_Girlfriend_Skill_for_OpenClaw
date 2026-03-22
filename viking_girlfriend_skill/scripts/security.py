@@ -435,7 +435,7 @@ class SecurityLayer:
                 )
 
                 if attempt < attempts:
-                    sleep_s = min(0.35 * attempt + random.random() * 0.2, 1.5)
+                    sleep_s = min(0.35 * attempt + random.random() * 0.2, 1.5)  # nosec B311 - jitter, not cryptographic
                     time.sleep(sleep_s)
 
         if last_exc:
@@ -691,8 +691,8 @@ class SessionFileGuard:
             try:
                 self._manifest[path.name] = self._sha256(path)
                 self._write_manifest()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("SessionFileGuard.verify_file: manifest update failed for %s: %s", path.name, exc)
             return True
         try:
             current = self._sha256(path)

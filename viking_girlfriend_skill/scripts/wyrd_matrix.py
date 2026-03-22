@@ -1084,7 +1084,7 @@ class WyrdMatrix:
         all exceptions are caught and logged as WARN.
         """
         try:
-            rng = random.Random(self._turn)
+            rng = random.Random(self._turn)  # nosec B311 - deterministic wyrd seed, not cryptographic
             emotions = self.soul.hugr.emotions
             if not emotions:
                 logger.debug("WyrdMatrix.handle_dream_tick: no active emotions — skipping.")

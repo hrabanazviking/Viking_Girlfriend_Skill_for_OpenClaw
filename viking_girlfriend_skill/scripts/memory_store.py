@@ -729,8 +729,8 @@ class MemoryStore:
             pad_arousal = float(wyrd_state.pad_arousal)
             pad_pleasure = float(getattr(wyrd_state, "pad_pleasure", 0.0))
             emotional_weight_applied = True
-        except Exception:
-            pass  # WyrdMatrix not yet initialised — use fallback 0.5
+        except Exception as exc:
+            logger.debug("memory_store: wyrd state unavailable, using fallback: %s", exc)
 
         entry = MemoryEntry(
             entry_id=str(uuid.uuid4()),
@@ -927,12 +927,12 @@ class MemoryStore:
             )
             try:
                 episodic_context, episodic_sources = _fetch_episodic()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("memory_store.get_context: episodic fetch failed: %s", exc)
             try:
                 knowledge_context = _fetch_knowledge()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("memory_store.get_context: knowledge fetch failed: %s", exc)
 
         # ── Token-budget truncation ────────────────────────────────────────
 

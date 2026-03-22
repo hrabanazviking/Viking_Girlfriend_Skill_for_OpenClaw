@@ -299,7 +299,7 @@ class _RetryEngine:
                         self._cfg.max_delay_s,
                     )
                     if self._cfg.jitter:
-                        delay *= 0.8 + random.random() * 0.4
+                        delay *= 0.8 + random.random() * 0.4  # nosec B311 - jitter, not cryptographic
                     logger.debug(
                         "RetryEngine: attempt %d/%d failed (%s) — retrying in %.2fs",
                         attempt,
@@ -411,8 +411,8 @@ class _DeadLetterStore:
         self._lock = threading.Lock()
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("_DeadLetterStore: could not create directory %s: %s", self._path.parent, exc)
 
     def append(self, entry: DeadLetterEntry) -> None:
         """Write one entry to the JSONL log, thread-safely.  Never raises."""
@@ -443,8 +443,8 @@ class _DeadLetterStore:
                             ts = datetime.fromisoformat(obj.get("timestamp", "")).timestamp()
                             if ts >= cutoff:
                                 count += 1
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.debug("_DeadLetterStore.count_recent: malformed entry skipped: %s", exc)
         except Exception as exc:
             logger.warning("_DeadLetterStore.count_recent failed: %s", exc)
         return count
@@ -468,8 +468,8 @@ class _DeadLetterStore:
                     entries.append(DeadLetterEntry(**obj))
                     if len(entries) >= n:
                         break
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("_DeadLetterStore.get_last_n: malformed entry skipped: %s", exc)
         except Exception as exc:
             logger.warning("_DeadLetterStore.get_last_n failed: %s", exc)
         return entries
@@ -1173,8 +1173,8 @@ class MimirWell:
                     self._last_ingest_at = datetime.now(timezone.utc).isoformat()
                     report.duration_s = time.monotonic() - t0
                     return report
-            except Exception:
-                pass  # Can't check count — proceed with ingest
+            except Exception as exc:
+                logger.debug("MimirWell.ingest: count check failed, proceeding: %s", exc)
 
         # Force rebuild: drop collection
         if force and self._chromadb_available and self._collection is not None:
@@ -2078,8 +2078,8 @@ class MimirHealthMonitor:
         try:
             if self._dead_letters is not None:
                 dl_5m = self._dead_letters.count_recent(300.0)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("MimirHealthMonitor: dead letter count failed: %s", exc)
 
         if dl_5m > self._dead_letter_alert_threshold:
             logger.warning(
@@ -2102,8 +2102,8 @@ class MimirHealthMonitor:
                         "MimirHealthMonitor: collection empty — triggering auto-reindex."
                     )
                     self.trigger_reindex()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("MimirHealthMonitor: collection check failed: %s", exc)
 
         # E-27: axiom integrity check
         axiom_ok = True
@@ -2203,8 +2203,8 @@ class MimirHealthMonitor:
                 loop.create_task(self._bus.publish_state(event, nowait=True))
             else:
                 loop.run_until_complete(self._bus.publish_state(event, nowait=True))
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("MimirWell: state bus publish failed: %s", exc)
 
     # ── Public API ────────────────────────────────────────────────────────────
 

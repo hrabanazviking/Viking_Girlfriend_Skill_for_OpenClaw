@@ -348,8 +348,8 @@ class SchedulerService:
         if self._scheduler is not None:
             try:
                 self._scheduler.remove_job(f"sigrid_{name}")
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("SchedulerService.remove_job: APScheduler remove failed (job may not exist): %s", exc)
         del self._jobs[name]
         logger.info("SchedulerService: job '%s' removed.", name)
         return True

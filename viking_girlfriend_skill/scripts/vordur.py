@@ -438,8 +438,8 @@ class _LRUVerdictCache:
 
     def _make_key(self, claim_text: str, chunk_text: str) -> Tuple[str, str]:
         return (
-            hashlib.md5(claim_text.encode("utf-8")).hexdigest(),
-            hashlib.md5(chunk_text.encode("utf-8")).hexdigest(),
+            hashlib.md5(claim_text.encode("utf-8"), usedforsecurity=False).hexdigest(),  # nosec B324
+            hashlib.md5(chunk_text.encode("utf-8"), usedforsecurity=False).hexdigest(),  # nosec B324
         )
 
     def get(self, claim_text: str, chunk_text: str) -> Optional[ClaimVerification]:

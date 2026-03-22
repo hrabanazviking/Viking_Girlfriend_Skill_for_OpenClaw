@@ -606,7 +606,7 @@ class BioEngine:
         if self._chaos_factor <= 0.0 or not multipliers:
             return multipliers, 0.0
 
-        rng = random.Random(cycle_day + self._session_seed)
+        rng = random.Random(cycle_day + self._session_seed)  # nosec B311 - deterministic cycle seed, not cryptographic
         jittered: Dict[str, float] = {}
         total_abs_jitter = 0.0
 

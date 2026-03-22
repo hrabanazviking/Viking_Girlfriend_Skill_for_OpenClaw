@@ -261,8 +261,8 @@ def _init_all_modules(config: Dict[str, Any]) -> None:
         ms = None
         try:
             ms = get_memory_store()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("main._init_huginn: memory store unavailable: %s", exc)
         return init_huginn_from_config(config, mw, ms)
 
     _safe_init("huginn", _init_huginn)
@@ -271,8 +271,8 @@ def _init_all_modules(config: Dict[str, Any]) -> None:
         router = None
         try:
             router = get_model_router()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("main._init_vordur: model router unavailable: %s", exc)
         return init_vordur_from_config(config, router)
 
     _safe_init("vordur", _init_vordur)
@@ -371,24 +371,24 @@ def _register_scheduler_jobs(bus) -> None:
         """Publish state snapshots from all modules that support sync publish."""
         try:
             get_bio_engine().publish(bus)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("main._publish_states: bio_engine publish failed: %s", exc)
         try:
             get_oracle().publish(bus)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("main._publish_states: oracle publish failed: %s", exc)
         try:
             get_environment_mapper().publish(bus)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("main._publish_states: environment_mapper publish failed: %s", exc)
         try:
             get_project_generator().publish(bus)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("main._publish_states: project_generator publish failed: %s", exc)
         try:
             get_trust_engine().publish(bus)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("main._publish_states: trust_engine publish failed: %s", exc)
 
     def _tick_mimir_health():
         """Publish Mimir-Vordur health state to StateBus on each scheduler tick."""
@@ -613,16 +613,16 @@ async def _handle_turn(
             _cove = None
             try:
                 _huginn = get_huginn()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("main._handle_turn: huginn unavailable: %s", exc)
             try:
                 _vordur = get_vordur()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("main._handle_turn: vordur unavailable: %s", exc)
             try:
                 _cove = get_cove()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("main._handle_turn: cove unavailable: %s", exc)
 
             # Pull ethics/trust states for Vordur persona check
             _ethics_state = None
@@ -630,13 +630,13 @@ async def _handle_turn(
             try:
                 from scripts.ethics import get_ethics
                 _ethics_state = get_ethics().get_state()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("main._handle_turn: ethics state unavailable: %s", exc)
             try:
                 from scripts.trust_engine import get_trust_engine
                 _trust_state = get_trust_engine().get_state()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("main._handle_turn: trust state unavailable: %s", exc)
 
             result = router.smart_complete_with_cove(
                 typed_messages,
@@ -857,14 +857,14 @@ async def _run(skill_root: str, logs_dir: str, mode: str) -> None:
         try:
             if _health_monitor is not None:
                 _health_monitor.stop()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("main.shutdown: health monitor stop failed: %s", exc)
         # Stop the scheduler gracefully
         try:
             from scripts.scheduler import get_scheduler
             get_scheduler().stop()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("main.shutdown: scheduler stop failed: %s", exc)
         await kernel.shutdown(reason="main_loop_exit")
 
 

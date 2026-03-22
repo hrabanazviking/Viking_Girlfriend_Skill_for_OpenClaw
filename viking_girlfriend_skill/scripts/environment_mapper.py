@@ -134,7 +134,7 @@ class EnvironmentMapper:
         self._degraded: bool = False
         self._load()
         # E-21: session RNG for stochastic sensory hint selection
-        self._rng: random.Random = random.Random()
+        self._rng: random.Random = random.Random()  # nosec B311 - stochastic sensory selection, not cryptographic
         # E-22: object state store keyed by "room_id:object_id"
         self._object_states_file = Path(data_root) / "session" / "object_states.json"
         self._object_states_file.parent.mkdir(parents=True, exist_ok=True)

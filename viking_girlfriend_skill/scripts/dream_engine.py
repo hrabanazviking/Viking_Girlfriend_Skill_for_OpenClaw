@@ -419,7 +419,7 @@ class DreamEngine:
         """
         seed_str = f"{turn_count}:{'|'.join(sorted(seed_hints))}"
         seed_int = int(hashlib.sha256(seed_str.encode()).hexdigest(), 16) % (2**32)
-        rng = random.Random(seed_int)
+        rng = random.Random(seed_int)  # nosec B311 - deterministic dream seed, not cryptographic
 
         category = self._select_category(seed_hints, rng)
         symbol = rng.choice(_ALL_SYMBOLS[category])

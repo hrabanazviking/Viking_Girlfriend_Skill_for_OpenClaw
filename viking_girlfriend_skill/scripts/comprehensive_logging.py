@@ -60,7 +60,7 @@ def _mask_secrets(text: str) -> str:
                 text = pattern.sub(r"\1[REDACTED]", text)
             else:
                 text = pattern.sub("[REDACTED]", text)
-    except Exception:
+    except Exception:  # nosec B110 - calling logger here causes infinite recursion in _mask_secrets
         pass
     return text
 
@@ -87,8 +87,8 @@ class _SecretMaskingFilter(logging.Filter):
                         k: _mask_secrets(v) if isinstance(v, str) else v
                         for k, v in record.args.items()
                     }
-        except Exception:
-            pass  # Never crash the logging subsystem
+        except Exception:  # nosec B110 - cannot call logger inside SecretsMaskingFilter (infinite recursion)
+            pass
         return True  # Always allow the record through after masking
 
 
