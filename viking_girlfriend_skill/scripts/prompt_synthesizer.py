@@ -59,11 +59,11 @@ _DEFAULT_IDENTITY_FILE: str = "core_identity.md"
 _DEFAULT_SOUL_FILE: str = "SOUL.md"
 _DEFAULT_SOUL_ANCHOR_FILE: str = "soul_anchor.md"
 
-_DEFAULT_IDENTITY_CHARS: int = 2000
-_DEFAULT_SOUL_CHARS: int = 400
-_DEFAULT_MEMORY_CHARS: int = 800
-_DEFAULT_MAX_SYSTEM_CHARS: int = 6000
-_DEFAULT_MAX_HINT_CHARS: int = 200
+_DEFAULT_IDENTITY_CHARS: int = 4000
+_DEFAULT_SOUL_CHARS: int = 800
+_DEFAULT_MEMORY_CHARS: int = 1600
+_DEFAULT_MAX_SYSTEM_CHARS: int = 12000
+_DEFAULT_MAX_HINT_CHARS: int = 400
 
 # S-04/S-05: Context window guard constants
 _DEFAULT_MAX_CONTEXT_TOKENS: int = 104858   # 80 % of 131 072 LLaMA-3 context
@@ -481,6 +481,13 @@ class PromptSynthesizer:
         if memory_context:
             trimmed_mem = memory_context[: self._memory_chars]
             sections.append(f"[Memory context]\n{trimmed_mem}")
+
+        # 4b. Soft response length guidance — model self-regulates; no hard editorial cut.
+        sections.append(
+            "[Response length] Match your response length to what the question genuinely needs. "
+            "There is no hard limit — prefer completeness over brevity for complex or detailed topics. "
+            "Keep casual turns naturally short; expand fully when the topic warrants it."
+        )
 
         # 5. S-06: Soul anchor — always last. The most recent content survives eviction longest.
         # Even if the top of the context is erased, Sigrid's identity persists at the bottom.

@@ -678,7 +678,7 @@ class CovePipeline:
         prompt = (
             f"You are checking this response for factual accuracy:\n\n"
             f"RESPONSE:\n{draft}\n\n"
-            f"SOURCE CONTEXT:\n{context[:1500]}\n\n"
+            f"SOURCE CONTEXT:\n{context[:3000]}\n\n"
             f"Write exactly {self._n_questions} yes/no verification questions "
             f"to check if the response is factually consistent with the source. "
             f"Output ONLY numbered questions, one per line, no preamble."
@@ -699,7 +699,7 @@ class CovePipeline:
         prompt = (
             f"Answer this question based ONLY on the source context below.\n\n"
             f"QUESTION: {question}\n\n"
-            f"SOURCE:\n{context[:1500]}\n\n"
+            f"SOURCE:\n{context[:3000]}\n\n"
             f"Answer concisely in 1-2 sentences."
         )
         messages = [Message(role="user", content=prompt)]
@@ -726,7 +726,7 @@ class CovePipeline:
             f"You are revising a response based on factual verification.\n\n"
             f"ORIGINAL RESPONSE:\n{draft}\n\n"
             f"VERIFICATION Q&A:\n{qa_text}\n\n"
-            f"GROUND TRUTH SOURCE:\n{context[:1500]}\n\n"
+            f"GROUND TRUTH SOURCE:\n{context[:3000]}\n\n"
             f"Revise the original response to correct any factual errors identified "
             f"in the verification. Maintain the same tone and character voice. "
             f"If the original is already accurate, return it unchanged."

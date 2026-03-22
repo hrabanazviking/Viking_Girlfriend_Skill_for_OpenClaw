@@ -218,8 +218,8 @@ class ConversationBuffer:
         self._turn_counter += 1
         turn = ConversationTurn(
             turn_n=self._turn_counter,
-            user_text=user_text[:1000],
-            sigrid_text=sigrid_text[:1000],
+            user_text=user_text,
+            sigrid_text=sigrid_text,
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
@@ -240,8 +240,8 @@ class ConversationBuffer:
             return ""
         lines = ["=== RECENT CONVERSATION ==="]
         for t in recent:
-            lines.append(f"[T{t.turn_n}] User: {t.user_text[:300]}")
-            lines.append(f"[T{t.turn_n}] Sigrid:  {t.sigrid_text[:300]}")
+            lines.append(f"[T{t.turn_n}] User: {t.user_text[:600]}")
+            lines.append(f"[T{t.turn_n}] Sigrid:  {t.sigrid_text[:600]}")
         return "\n".join(lines)
 
     def get_medium_term_context(self, n: int = 10) -> str:
@@ -1231,7 +1231,7 @@ class MemoryConsolidator:
                 TIER_SUBCONSCIOUS,
             )
             router = get_model_router()
-            content = "\n".join(entries[:30])  # cap at 30 entries
+            content = "\n".join(entries[:60])  # soft cap — subconscious model handles summary
             messages = [
                 Message(role="system", content=self._CONSOLIDATION_PROMPT),
                 Message(role="user", content=content),

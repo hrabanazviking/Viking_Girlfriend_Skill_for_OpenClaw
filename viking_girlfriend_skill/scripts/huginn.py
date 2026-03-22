@@ -67,8 +67,8 @@ logger = logging.getLogger(__name__)
 _DEFAULT_N_INITIAL: int = 50
 _DEFAULT_N_FINAL: int = 3
 _DOMAIN_CONFIDENCE_THRESHOLD: float = 0.05
-_MAX_EPISODIC_CHARS: int = 1200    # cap on episodic context injected
-_MAX_KNOWLEDGE_CHARS: int = 3000   # cap on knowledge context injected
+_MAX_EPISODIC_CHARS: int = 3000    # cap on episodic context injected
+_MAX_KNOWLEDGE_CHARS: int = 6000   # cap on knowledge context injected
 
 # Context section headers
 _GROUND_TRUTH_HEADER = "[GROUND TRUTH — retrieved from the Well]"
@@ -551,8 +551,8 @@ class HuginnRetriever:
                 source = chunk.metadata.get("filename", chunk.source_file.split("/")[-1])
                 # Truncate very long chunks
                 text = chunk.text
-                if len(text) > 1000:
-                    text = text[:1000] + "..."
+                if len(text) > 2500:
+                    text = text[:2500] + "..."
                 entry = f"[GT-{i}] (Source: {source}) {text}"
                 if knowledge_chars + len(entry) > _MAX_KNOWLEDGE_CHARS:
                     break

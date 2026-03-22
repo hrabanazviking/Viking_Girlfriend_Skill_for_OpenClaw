@@ -95,14 +95,15 @@ _CIRCUIT_COOLDOWN_S: int = 60
 
 ComplexityLevel = Literal["low", "medium", "high"]
 
-# S-02: Per-tier response size caps.  Limits Sigrid's output token budget
-# according to routing tier — casual/low-complexity responses stay small,
-# preserving context space for the conversation thread.
+# S-02: Per-tier response size caps — upper-bound safety rails, not editorial limits.
+# Soft guidance is injected into the system prompt (see prompt_synthesizer.py) so
+# the model self-regulates length naturally; these hard caps are a last backstop only.
+# Values raised to avoid silently cutting off complete responses on longer tasks.
 _RESPONSE_CAPS_BY_TIER: Dict[str, int] = {
-    TIER_SUBCONSCIOUS: 512,    # local fast-path — quick responses
-    TIER_CONSCIOUS:    1024,   # medium-complexity conversational
-    TIER_CODE:         1500,   # code generation may be longer
-    TIER_DEEP:         2048,   # full depth for complex/creative tasks
+    TIER_SUBCONSCIOUS: 1024,   # local fast-path — internal processing, not displayed
+    TIER_CONSCIOUS:    2048,   # conversational — most turns well under this
+    TIER_CODE:         4096,   # code generation needs room for full functions/classes
+    TIER_DEEP:         8192,   # deep reasoning and creative tasks — full depth
 }
 
 # Canned response returned when all Vordur retries are exhausted — never a blank.

@@ -56,10 +56,13 @@ def test_all_caps_positive():
         assert cap > 0, f"{tier} cap is not positive"
 
 
-def test_all_caps_under_default_max():
-    """No cap exceeds _DEFAULT_MAX_TOKENS."""
+def test_all_caps_under_context_window():
+    """All caps are within a sane upper bound (context window limit)."""
+    # Tier caps may intentionally exceed _DEFAULT_MAX_TOKENS for code/deep tiers —
+    # they are purpose-specific higher ceilings, not constrained by the global default.
+    # Guard only against unreasonably large values (> 32 768 tokens).
     for tier, cap in _RESPONSE_CAPS_BY_TIER.items():
-        assert cap <= _DEFAULT_MAX_TOKENS, f"{tier} cap {cap} exceeds default max {_DEFAULT_MAX_TOKENS}"
+        assert cap <= 32768, f"{tier} cap {cap} is unreasonably large"
 
 
 # ─── Tests: _get_response_cap() static method ─────────────────────────────────

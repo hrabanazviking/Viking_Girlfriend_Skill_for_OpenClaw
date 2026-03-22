@@ -74,9 +74,9 @@ _DEFAULT_VERIFICATION_TIMEOUT_S: float = 8.0
 _DEFAULT_JUDGE_TIER: str = "subconscious"
 
 # Claim extraction: max chars of response to send to judge model
-_MAX_RESPONSE_CHARS_FOR_EXTRACTION: int = 1200
+_MAX_RESPONSE_CHARS_FOR_EXTRACTION: int = 4000
 # NLI verification: max chars of source chunk to include in prompt
-_MAX_CHUNK_CHARS_FOR_NLI: int = 500
+_MAX_CHUNK_CHARS_FOR_NLI: int = 1200
 
 # BM25 stopwords (excluded from keyword overlap scoring)
 _STOPWORDS: frozenset = frozenset({
