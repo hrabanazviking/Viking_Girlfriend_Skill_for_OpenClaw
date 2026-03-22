@@ -495,11 +495,16 @@ class SchedulerService:
 
     def _init_apscheduler(self) -> None:
         try:
+            import os as _os
             from apscheduler.schedulers.background import BackgroundScheduler
+            # Size thread pool to the hardware — never more than one thread per
+            # logical core, never more than 4 for background jobs (keeps RPi stable).
+            _pool_size = min(max(1, (_os.cpu_count() or 1)), 4)
             self._scheduler = BackgroundScheduler(
                 job_defaults={"coalesce": True, "max_instances": 1},
+                executors={"default": {"type": "threadpool", "max_workers": _pool_size}},
             )
-            logger.info("SchedulerService: APScheduler ready.")
+            logger.info("SchedulerService: APScheduler ready (thread_pool=%d).", _pool_size)
         except ImportError:
             logger.warning("SchedulerService: APScheduler not installed — background jobs disabled.")
             self._scheduler = None

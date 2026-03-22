@@ -51,6 +51,58 @@ _dead_letter_store: Optional[Any] = None
 _health_monitor: Optional[Any] = None
 
 
+# ─── Hardware profile detection ───────────────────────────────────────────────
+
+def _detect_hardware_profile() -> Dict[str, Any]:
+    """Detect available hardware and return an adaptive config overlay.
+
+    Three profiles — Bifröst scales to the vessel it bridges:
+      low_power  — < 2 CPU cores OR < 2 GB RAM  (RPi, mobile, old hardware)
+      standard   — 2–8 cores, 2–16 GB RAM       (typical desktop/laptop)
+      high_end   — > 8 cores AND > 16 GB RAM    (powerful workstation/server)
+
+    Returns a dict of config overrides keyed by module block name.
+    Never raises — falls back to standard profile on any psutil failure.
+    """
+    try:
+        import psutil as _psu
+        cpu_cores: int = os.cpu_count() or 1
+        ram_gb: float = _psu.virtual_memory().total / (1024 ** 3)
+    except Exception:
+        cpu_cores = os.cpu_count() or 1
+        ram_gb = 4.0  # assume standard if psutil unavailable
+
+    if cpu_cores < 2 or ram_gb < 2.0:
+        profile = "low_power"
+    elif cpu_cores > 8 and ram_gb > 16.0:
+        profile = "high_end"
+    else:
+        profile = "standard"
+
+    logger.info(
+        "Hardware profile: %s (cpu_cores=%d, ram_gb=%.1f)",
+        profile, cpu_cores, ram_gb,
+    )
+
+    if profile == "low_power":
+        return {
+            "_profile": profile,
+            "model_router": {"timeout": 90, "max_tokens": 512, "retries": 1},
+            "metabolism":   {"poll_interval_s": 60, "cache_ttl_s": 60},
+            "vordur":       {"verification_timeout_s": 20.0},
+            "cove":         {"step_timeout_s": 40.0},
+        }
+    if profile == "high_end":
+        return {
+            "_profile": profile,
+            "model_router": {"timeout": 20, "max_tokens": 2048},
+            "metabolism":   {"poll_interval_s": 15, "cache_ttl_s": 15},
+            "vordur":       {"verification_timeout_s": 5.0},
+            "cove":         {"step_timeout_s": 10.0},
+        }
+    return {"_profile": profile}   # standard — defaults stand
+
+
 # ─── Skill-root resolution ────────────────────────────────────────────────────
 
 def _resolve_skill_root() -> str:
@@ -66,9 +118,15 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
     """Build the config dict from environment variables and sensible defaults.
 
     All paths are absolute so modules work regardless of cwd.
+    Hardware profile overrides are merged in so the skill adapts to the device.
     """
     data_root = str(Path(skill_root) / "data")
     session_data_root = str(Path(skill_root) / "data")
+    hw = _detect_hardware_profile()
+
+    def _hw(block: str, key: str, default: Any) -> Any:
+        """Return hardware-profile override if present, else default."""
+        return hw.get(block, {}).get(key, default)
 
     return {
         # ── Foundation ────────────────────────────────────────────────────────
@@ -91,8 +149,8 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
 
         # ── Digital metabolism ────────────────────────────────────────────────
         "metabolism": {
-            "poll_interval_s": 30,
-            "cache_ttl_s": 30,
+            "poll_interval_s": _hw("metabolism", "poll_interval_s", 30),
+            "cache_ttl_s":     _hw("metabolism", "cache_ttl_s", 30),
         },
 
         # ── Security sentinel ─────────────────────────────────────────────────
@@ -145,12 +203,12 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
         # ── Model router ──────────────────────────────────────────────────────
         "model_router": {
             "litellm_base_url": os.environ.get("LITELLM_ENDPOINT", "http://localhost:4000"),
-            "ollama_base_url": os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434"),
+            "ollama_base_url":  os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434"),
             "ollama_model": "llama3",
-            "max_tokens": 1024,
-            "temperature": 0.75,
-            "timeout": 30,
-            "retries": 2,
+            "max_tokens":   _hw("model_router", "max_tokens", 1024),
+            "temperature":  0.75,
+            "timeout":      _hw("model_router", "timeout", 30),
+            "retries":      _hw("model_router", "retries", 2),
         },
 
         # ── Mimir-Vordur: knowledge store ─────────────────────────────────────
@@ -181,14 +239,14 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
             "persona_check": True,
             "judge_tier": "subconscious",
             "max_claims": 10,
-            "verification_timeout_s": 8.0,
+            "verification_timeout_s": _hw("vordur", "verification_timeout_s", 8.0),
         },
 
         # ── Mimir-Vordur: chain-of-verification pipeline ──────────────────────
         "cove": {
             "min_complexity": "medium",
             "n_verification_questions": 3,
-            "step_timeout_s": 15.0,
+            "step_timeout_s": _hw("cove", "step_timeout_s", 15.0),
             "checkpoint_dir": str(Path(skill_root) / "session" / "cove_checkpoints"),
         },
 
