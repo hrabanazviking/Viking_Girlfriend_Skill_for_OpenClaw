@@ -22,6 +22,7 @@
 -Always use addiative methods of bug fixing, never substractive.
 -Always ask me the human, before you delete anything.
 -Never jump to conclusions. When in doubt ask me the human.
+-Read the TODO.md file every new session.
 
 
 ## Coding Standards  
