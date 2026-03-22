@@ -10,7 +10,7 @@
 
 | Category | Count | Priority |
 |---|---|---|
-| Production code — genuine stubs | 2 | High |
+| Production code — genuine stubs | ~~2~~ 0 — **RESOLVED 2026-03-22** | High |
 | Knowledge data — upstream TODO content | 1 | Low (third-party) |
 | Knowledge build planning scaffold | ~360 files | Future work |
 | Data generation scripts (non-production) | 1 | Low |
@@ -18,7 +18,7 @@
 
 ---
 
-## Section 1 — Production Code Stubs (Must Fix Before Release)
+## Section 1 — Production Code Stubs ✅ ALL RESOLVED 2026-03-22
 
 ### 1.1 `viking_girlfriend_skill/scripts/state_bus.py` — Line 344
 
@@ -30,7 +30,7 @@ async def close(self) -> None:
 
 **Issue**: `close()` is an empty method body. A graceful shutdown should cancel any running subscriber tasks, drain pending queues, and signal completion.
 **Impact**: The skill has no bus teardown path. Resources may leak on shutdown.
-**Status**: Incomplete — needs implementation.
+**Status**: ✅ RESOLVED 2026-03-22 — commit `32f396a`. Signals all session stop events, clears subscriber topic registrations, logs shutdown.
 **Suggested work**: Cancel all subscriber queue tasks, drain `_inbound_topics` and `_state_topics`, log shutdown.
 
 ---
@@ -43,7 +43,7 @@ answer_relevance=0.0,   # placeholder — requires query context
 
 **Issue**: `answer_relevance` field in `TruthProfile` is always set to `0.0` in `_compute_truth_profile()`. The actual score requires the original user query to be passed into this method, which currently only receives the generated answer.
 **Impact**: VordurChecker truth profiles always report zero answer relevance — one of the 6 scored dimensions is permanently silent.
-**Status**: Known limitation, intentionally deferred. Query context wiring is a non-trivial refactor of the Vordur → CovePipeline → MimirWell call chain.
+**Status**: ✅ RESOLVED 2026-03-22 — commit `32f396a`. Added `_jaccard_relevance()` (Jaccard token overlap via existing `_tokenize()`). Threaded `query` + `response` through `score_and_repair()` → `_build_truth_profile()`. No model call required.
 **Suggested work**: Thread the original query string through to `_compute_truth_profile()` and implement semantic similarity scoring against the answer.
 
 ---
