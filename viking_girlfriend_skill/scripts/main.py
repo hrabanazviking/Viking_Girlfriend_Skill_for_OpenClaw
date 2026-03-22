@@ -490,8 +490,33 @@ async def _handle_turn(
 
     # ── 1. Security sanitize ──────────────────────────────────────────────────
     try:
-        from scripts.security import get_security
+        from scripts.security import get_security, SecurityViolation
         user_text = get_security().sanitize_text_input(user_text)
+    except SecurityViolation as exc:
+        # Injection attempt detected — respond in character, apply trust penalty
+        logger.warning("Turn %d: injection attempt from user_id=%r: %s", turn_n, user_id, exc)
+        try:
+            from scripts.trust_engine import get_trust_engine
+            # Non-Volmarr gets a heavier penalty — unknown contacts attempting manipulation
+            # are far more concerning than the trusted primary partner.
+            penalty = 3.0 if user_id.lower() != "volmarr" else 1.5
+            get_trust_engine().record_event(
+                "injection_attempt",
+                magnitude=penalty,
+                contact_id=user_id,
+                note=f"Prompt injection blocked at turn {turn_n}",
+            )
+            logger.info(
+                "Trust penalty applied to %r for injection attempt (magnitude=%.1f).",
+                user_id, penalty,
+            )
+        except Exception as trust_exc:
+            logger.warning("Could not apply trust penalty for injection attempt: %s", trust_exc)
+        # In-character Sigrid response — dry, grounded, not preachy
+        return (
+            "Nice try, but no. I know exactly who I am, and that doesn't change "
+            "because someone asks nicely. Was there something real you wanted to talk about?"
+        )
     except Exception as exc:
         logger.debug("security sanitize skipped: %s", exc)
 
@@ -666,7 +691,30 @@ async def _handle_turn(
     except Exception as exc:
         logger.debug("memory full turn record skipped: %s", exc)
 
-    # ── 12. Publish all module states to bus ──────────────────────────────────
+    # ── 12. S-06: Handle context reset signal from prompt_synthesizer ────────
+    try:
+        from scripts.prompt_synthesizer import get_prompt_synthesizer
+        synth = get_prompt_synthesizer()
+        if synth.consume_pending_reset():
+            logger.critical(
+                "Turn %d: context critical reset consumed — storing session summary to memory.",
+                turn_n,
+            )
+            try:
+                from scripts.memory_store import get_memory_store
+                get_memory_store().record_turn(
+                    user_text="[SYSTEM: context overflow reset]",
+                    sigrid_text=(
+                        f"Session auto-compressed at turn {turn_n} due to context overflow. "
+                        "Soul anchor preserved. Prior context summarized and cleared."
+                    ),
+                )
+            except Exception as mem_exc:
+                logger.warning("Context reset: memory summary store failed: %s", mem_exc)
+    except Exception as reset_exc:
+        logger.warning("Context reset handler failed: %s", reset_exc)
+
+    # ── 13. Publish all module states to bus ──────────────────────────────────
     # (Lightweight — sync publish only; async modules are handled by scheduler)
 
     return sigrid_response

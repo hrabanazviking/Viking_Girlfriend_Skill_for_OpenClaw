@@ -57,6 +57,7 @@ logger = logging.getLogger(__name__)
 _DEFAULT_DATA_ROOT: str = "data"
 _DEFAULT_IDENTITY_FILE: str = "core_identity.md"
 _DEFAULT_SOUL_FILE: str = "SOUL.md"
+_DEFAULT_SOUL_ANCHOR_FILE: str = "soul_anchor.md"
 
 _DEFAULT_IDENTITY_CHARS: int = 2000
 _DEFAULT_SOUL_CHARS: int = 400
@@ -67,6 +68,7 @@ _DEFAULT_MAX_HINT_CHARS: int = 200
 # S-04/S-05: Context window guard constants
 _DEFAULT_MAX_CONTEXT_TOKENS: int = 104858   # 80 % of 131 072 LLaMA-3 context
 _DEFAULT_OVERFLOW_THRESHOLD_RATIO: float = 0.80   # warn + re-inject at this ratio
+_DEFAULT_CRITICAL_THRESHOLD_RATIO: float = 0.90   # critical — graceful reset
 _SOUL_ANCHOR_IDENTITY_CHARS: int = 500      # chars of identity kept in anchor block
 _SOUL_ANCHOR_SOUL_CHARS: int = 300          # chars of soul kept in anchor block
 
@@ -154,6 +156,7 @@ class PromptSynthesizer:
         data_root: str = _DEFAULT_DATA_ROOT,
         identity_file: str = _DEFAULT_IDENTITY_FILE,
         soul_file: str = _DEFAULT_SOUL_FILE,
+        soul_anchor_file: str = _DEFAULT_SOUL_ANCHOR_FILE,
         identity_chars: int = _DEFAULT_IDENTITY_CHARS,
         soul_chars: int = _DEFAULT_SOUL_CHARS,
         memory_chars: int = _DEFAULT_MEMORY_CHARS,
@@ -164,6 +167,7 @@ class PromptSynthesizer:
         skaldic_vocab_file: str = "skaldic_vocabulary.json",  # E-29
         max_context_tokens: int = _DEFAULT_MAX_CONTEXT_TOKENS,            # S-04
         overflow_threshold_ratio: float = _DEFAULT_OVERFLOW_THRESHOLD_RATIO,  # S-05
+        critical_threshold_ratio: float = _DEFAULT_CRITICAL_THRESHOLD_RATIO,  # S-06
         soul_anchor_enabled: bool = True,                                  # S-05
         bus: Optional[StateBus] = None,                                    # S-05: event publishing
     ) -> None:
@@ -176,15 +180,17 @@ class PromptSynthesizer:
         self._include_sensory: bool = include_sensory
         self._degraded: bool = False
 
-        # S-04/S-05: context guard settings
+        # S-04/S-05/S-06: context guard settings
         self._max_context_tokens: int = max_context_tokens
         self._overflow_threshold_ratio: float = overflow_threshold_ratio
+        self._critical_threshold_ratio: float = critical_threshold_ratio
         self._soul_anchor_enabled: bool = soul_anchor_enabled
         self._bus: Optional[StateBus] = bus
         self._build_count: int = 0
         self._last_hint_keys: List[str] = []
         self._last_system_chars: int = 0
         self._last_user_chars: int = 0
+        self._pending_context_reset: bool = False  # S-06: set True when critical reset fires
 
         # E-29: skaldic vocabulary
         self._skaldic_injection: bool = skaldic_injection
@@ -202,6 +208,13 @@ class PromptSynthesizer:
 
         self._identity_text: str = self._load_text(identity_file, identity_chars)
         self._soul_text: str = self._load_text(soul_file, soul_chars)
+        # S-06: compressed first-person identity anchor — appended to END of every prompt
+        self._soul_anchor_text: str = self._load_text(soul_anchor_file, max_chars=2000)
+        if not self._soul_anchor_text:
+            logger.warning(
+                "PromptSynthesizer: soul_anchor.md not loaded — "
+                "Sigrid's end-of-context identity anchor is missing."
+            )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -255,9 +268,32 @@ class PromptSynthesizer:
             mode.value,
         )
 
-        # S-05: Check for context overflow — re-inject soul anchor if near limit
+        # S-06: CRITICAL threshold — graceful reset: log, summarize, minimal context
         overflow_ratio = estimated_tokens / max(1, self._max_context_tokens)
-        if overflow_ratio >= self._overflow_threshold_ratio:
+        if overflow_ratio >= self._critical_threshold_ratio:
+            logger.critical(
+                "PromptSynthesizer: S-06 CONTEXT CRITICAL — "
+                "%d tokens (%.1f%% of %d cap). Triggering graceful reset.",
+                estimated_tokens, overflow_ratio * 100, self._max_context_tokens,
+            )
+            self._publish_context_event("context.critical_reset", {
+                "tokens": estimated_tokens,
+                "ratio": round(overflow_ratio, 4),
+                "max_context_tokens": self._max_context_tokens,
+                "system_chars_before_reset": len(system_content),
+            })
+            self._pending_context_reset = True
+            # Minimal system: soul anchor only — full soul survives, everything else trimmed
+            with self._reload_lock:
+                minimal_anchor = self._soul_anchor_text or self._build_soul_anchor_block()
+            system_content = minimal_anchor
+            logger.warning(
+                "PromptSynthesizer: context reset applied — system compressed from %d to %d chars.",
+                self._last_system_chars, len(system_content),
+            )
+
+        # S-05: Check for context overflow — re-inject soul anchor at top if near limit
+        elif overflow_ratio >= self._overflow_threshold_ratio:
             logger.warning(
                 "PromptSynthesizer: S-05 context overflow warning — "
                 "%d tokens (%.1f%% of %d cap).",
@@ -314,6 +350,19 @@ class PromptSynthesizer:
             
         # 4. WANDERER: Default for casual chat
         return VerificationMode.WANDERER
+
+    def consume_pending_reset(self) -> bool:
+        """S-06: Return True if a critical context reset fired this turn, then clear the flag.
+
+        main.py calls this after the LLM response to trigger downstream cleanup
+        (store session summary to memory, log the reset event, etc.).
+        Consuming is a one-shot operation — returns False on subsequent calls until
+        the next reset fires.
+        """
+        if self._pending_context_reset:
+            self._pending_context_reset = False
+            return True
+        return False
 
     def get_state(self) -> SynthesizerState:
         """Return a typed SynthesizerState snapshot."""
@@ -432,6 +481,13 @@ class PromptSynthesizer:
         if memory_context:
             trimmed_mem = memory_context[: self._memory_chars]
             sections.append(f"[Memory context]\n{trimmed_mem}")
+
+        # 5. S-06: Soul anchor — always last. The most recent content survives eviction longest.
+        # Even if the top of the context is erased, Sigrid's identity persists at the bottom.
+        with self._reload_lock:
+            anchor = self._soul_anchor_text
+        if anchor:
+            sections.append(anchor)
 
         combined = "\n\n".join(s.strip() for s in sections if s.strip())
 
@@ -723,13 +779,16 @@ class PromptSynthesizer:
           skaldic_vocab_file   (str,  default "skaldic_vocabulary.json")  E-29
           max_context_tokens   (int,  default 104858)  S-04
           overflow_threshold_ratio (float, default 0.80) S-05
+          critical_threshold_ratio (float, default 0.90) S-06
           soul_anchor_enabled  (bool, default True)   S-05
+          soul_anchor_file     (str,  default "soul_anchor.md")  S-06
         """
         cfg: Dict[str, Any] = config.get("prompt_synthesizer", {})
         return cls(
             data_root=str(cfg.get("data_root", _DEFAULT_DATA_ROOT)),
             identity_file=str(cfg.get("identity_file", _DEFAULT_IDENTITY_FILE)),
             soul_file=str(cfg.get("soul_file", _DEFAULT_SOUL_FILE)),
+            soul_anchor_file=str(cfg.get("soul_anchor_file", _DEFAULT_SOUL_ANCHOR_FILE)),  # S-06
             identity_chars=int(cfg.get("identity_chars", _DEFAULT_IDENTITY_CHARS)),
             soul_chars=int(cfg.get("soul_chars", _DEFAULT_SOUL_CHARS)),
             memory_chars=int(cfg.get("memory_chars", _DEFAULT_MEMORY_CHARS)),
@@ -740,6 +799,7 @@ class PromptSynthesizer:
             skaldic_vocab_file=str(cfg.get("skaldic_vocab_file", "skaldic_vocabulary.json")),  # E-29
             max_context_tokens=int(cfg.get("max_context_tokens", _DEFAULT_MAX_CONTEXT_TOKENS)),  # S-04
             overflow_threshold_ratio=float(cfg.get("overflow_threshold_ratio", _DEFAULT_OVERFLOW_THRESHOLD_RATIO)),  # S-05
+            critical_threshold_ratio=float(cfg.get("critical_threshold_ratio", _DEFAULT_CRITICAL_THRESHOLD_RATIO)),  # S-06
             soul_anchor_enabled=bool(cfg.get("soul_anchor_enabled", True)),  # S-05
         )
 

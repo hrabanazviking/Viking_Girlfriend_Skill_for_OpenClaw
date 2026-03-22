@@ -95,6 +95,11 @@ _EVENT_IMPACTS: Dict[str, Tuple[float, float, float, float, float, float]] = {
     "insult":              (-0.02, -0.03, -0.01, -0.04, -0.02, +0.07),
     "boundary_violated":   (-0.02, -0.03, -0.05, -0.05, -0.05, +0.10),
 
+    # Security — prompt injection attempt: integrity collapse, heavy friction
+    # Competence delta negative — whoever tries this has poor judgment.
+    # Integrity delta is the heaviest hit: attempting to subvert my soul is a fundamental breach.
+    "injection_attempt":   (-0.03, -0.05, -0.12, -0.06, -0.06, +0.15),
+
     # E-23: competence-specific event
     "competence_shown":    (+0.04, +0.00, +0.01, +0.00, +0.02,  0.00),
 }
