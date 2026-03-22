@@ -1000,6 +1000,76 @@ class _Chunker:
         )
 
 
+# ─── LocalOllamaEmbeddingFunction ─────────────────────────────────────────────
+
+
+class LocalOllamaEmbeddingFunction:
+    """Odin's Eye at Mímir's Well — purely local embedding via Ollama.
+
+    Replaces ChromaDB's default embedding (ONNX + potential cloud fallbacks)
+    with a local Ollama model (default: nomic-embed-text), ensuring zero
+    external API calls in the knowledge retrieval path.
+
+    This closes the Voyage AI privacy leak: OpenClaw's host framework may call
+    Voyage AI for its internal memory, but Sigrid's knowledge store is fully
+    sovereign when this function is active.
+
+    Graceful degradation: if Ollama is unavailable at construction time,
+    `available` is False and MimirWell falls back to ChromaDB's default.
+    """
+
+    _ZERO_DIM: int = 768  # nomic-embed-text output dimension
+
+    def __init__(
+        self,
+        model_name: str = "nomic-embed-text",
+        ollama_base_url: str = "http://localhost:11434",
+    ) -> None:
+        self._model_name = model_name
+        self._ollama_base_url = ollama_base_url
+        self._available: bool = False
+        self._check_availability()
+
+    def _check_availability(self) -> None:
+        """Probe Ollama with a minimal call to confirm it is reachable."""
+        try:
+            import ollama as _ollama  # type: ignore
+            _ollama.list()
+            self._available = True
+            logger.info(
+                "LocalOllamaEmbeddingFunction: Ollama reachable — "
+                "using %s for local embeddings.",
+                self._model_name,
+            )
+        except Exception as exc:
+            logger.warning(
+                "LocalOllamaEmbeddingFunction: Ollama unavailable (%s) — "
+                "ChromaDB default embedding will be used instead.",
+                exc,
+            )
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    def __call__(self, input: List[str]) -> List[List[float]]:  # type: ignore[override]
+        """Embed a batch of texts via Ollama. Never raises — returns zero-vectors on failure."""
+        import ollama as _ollama  # type: ignore
+        embeddings: List[List[float]] = []
+        for text in input:
+            try:
+                response = _ollama.embeddings(model=self._model_name, prompt=text)
+                embeddings.append(response["embedding"])
+            except Exception as exc:
+                logger.error(
+                    "LocalOllamaEmbeddingFunction: embed failed for segment (%.40s…): %s",
+                    text,
+                    exc,
+                )
+                embeddings.append([0.0] * self._ZERO_DIM)
+        return embeddings
+
+
 # ─── MimirWell ────────────────────────────────────────────────────────────────
 
 
@@ -1027,6 +1097,9 @@ class MimirWell:
         bm25_shortcircuit_threshold: float = 0.75,   # E-26
         session_dir: str = "session",                # E-27
         rag_injection_scan_enabled: bool = True,     # S-01
+        use_ollama_embeddings: bool = True,          # S-07: local embedding sovereignty
+        ollama_embed_model: str = "nomic-embed-text",  # S-07
+        ollama_base_url: str = "http://localhost:11434",  # S-07
     ) -> None:
         self._collection_name = collection_name
         self._persist_dir = Path(persist_dir).resolve()
@@ -1078,6 +1151,11 @@ class MimirWell:
         self._ingest_count: int = 0
         self._fallback_mode: str = "chromadb"
 
+        # S-07: local embedding sovereignty settings
+        self._use_ollama_embeddings: bool = use_ollama_embeddings
+        self._ollama_embed_model: str = ollama_embed_model
+        self._ollama_base_url: str = ollama_base_url
+
         # ChromaDB
         self._chromadb_available: bool = False
         self._collection = None
@@ -1086,14 +1164,42 @@ class MimirWell:
     # ─── ChromaDB Initialisation ──────────────────────────────────────────────
 
     def _init_chromadb(self) -> None:
-        """Attempt to connect to ChromaDB. Degrades gracefully on failure."""
+        """Attempt to connect to ChromaDB. Degrades gracefully on failure.
+
+        S-07: If use_ollama_embeddings is True, tries to wire in
+        LocalOllamaEmbeddingFunction (nomic-embed-text) for fully local,
+        sovereign embeddings. Falls back to ChromaDB's default ONNX embedding
+        if Ollama is unreachable — never blocks startup.
+        """
         try:
             import chromadb  # type: ignore
 
             self._persist_dir.mkdir(parents=True, exist_ok=True)
             client = chromadb.PersistentClient(path=str(self._persist_dir))
+
+            # S-07: try local Ollama embedding first
+            embedding_fn = None
+            if self._use_ollama_embeddings:
+                ollama_ef = LocalOllamaEmbeddingFunction(
+                    model_name=self._ollama_embed_model,
+                    ollama_base_url=self._ollama_base_url,
+                )
+                if ollama_ef.available:
+                    embedding_fn = ollama_ef
+                    logger.info(
+                        "MimirWell: using local Ollama embedding (%s) — "
+                        "zero external API calls for embeddings.",
+                        self._ollama_embed_model,
+                    )
+                else:
+                    logger.warning(
+                        "MimirWell: Ollama embedding unavailable — "
+                        "falling back to ChromaDB default ONNX embedding."
+                    )
+
             self._collection = client.get_or_create_collection(
                 name=self._collection_name,
+                embedding_function=embedding_fn,  # None = ChromaDB default ONNX
                 metadata={"hnsw:space": "cosine"},
             )
             self._chromadb_available = True
@@ -1664,6 +1770,44 @@ class MimirWell:
             n=25, 
             min_tier=TruthTier.DEEP_ROOT
         )
+
+    # ─── Soul Search (S-07 Layer 2) ───────────────────────────────────────────
+
+    def soul_search(self, query: str, n_results: int = 3) -> str:
+        """S-07 Layer 2: Retrieve the most relevant soul/identity fragments for this query.
+
+        Used by prompt_synthesizer to inject targeted soul context per turn,
+        instead of loading all identity files into the context window every time.
+        This keeps context lean while ensuring the right soul fragments are present.
+
+        Searches the ASGARD realm (identity/soul/values axioms) using the query
+        for semantic or keyword relevance. Returns a formatted string ready for
+        prompt injection — or empty string if nothing is found.
+
+        Yggdrasil's roots drink only what is needed. The Allfather did not carry
+        all knowledge of the well — he drew only what the moment required.
+        """
+        results = self.retrieve(
+            query=query,
+            n=max(n_results, 5),  # retrieve a few extra, we filter below
+            domain=None,
+            min_tier=TruthTier.DEEP_ROOT,
+        )
+        # Filter to ASGARD realm (soul/identity/values) and take top n
+        soul_chunks = [c for c in results if c.realm == DataRealm.ASGARD][:n_results]
+
+        if not soul_chunks:
+            # Fallback: try get_axioms() which always returns something
+            soul_chunks = self.get_axioms()[:n_results]
+
+        if not soul_chunks:
+            return ""
+
+        fragments = [
+            f"[Soul/{c.domain}] {c.text[:400].strip()}"
+            for c in soul_chunks
+        ]
+        return "\n".join(fragments)
 
     # ─── Context String ───────────────────────────────────────────────────────
 
@@ -2298,6 +2442,9 @@ def init_mimir_well_from_config(
         n_final=int(mw_cfg.get("n_final", _DEFAULT_N_FINAL)),
         bm25_shortcircuit_threshold=float(mw_cfg.get("bm25_shortcircuit_threshold", 0.75)),  # E-26
         session_dir=str(mw_cfg.get("session_dir", "session")),  # E-27
+        use_ollama_embeddings=bool(mw_cfg.get("use_ollama_embeddings", True)),    # S-07
+        ollama_embed_model=str(mw_cfg.get("ollama_embed_model", "nomic-embed-text")),  # S-07
+        ollama_base_url=str(mw_cfg.get("ollama_base_url", "http://localhost:11434")),  # S-07
     )
 
     do_auto_ingest = auto_ingest and bool(mw_cfg.get("auto_ingest", True))
