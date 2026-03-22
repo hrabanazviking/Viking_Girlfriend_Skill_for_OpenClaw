@@ -341,7 +341,18 @@ class StateBus:
 
     async def close(self) -> None:
         """Gracefully shut down the bus — Bifröst retracts."""
-        pass
+        import logging as _log
+        # Signal all active sessions to stop — Skuld severs every thread
+        for evt, _ in self._stop_events.values():
+            evt.set()
+        # Clear subscriber registrations — fan-out ceases; generators' finally
+        # blocks will remove their own queue references as they unwind
+        self._inbound_topics.clear()
+        self._state_topics.clear()
+        _log.getLogger(__name__).info(
+            "StateBus closed — %d session(s) signalled, subscriber topics cleared.",
+            len(self._stop_events),
+        )
 
     # ─── Telemetry ────────────────────────────────────────────────────────────
 

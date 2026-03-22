@@ -528,6 +528,20 @@ def _tokenize(text: str) -> frozenset:
     return frozenset(w for w in words if w not in _STOPWORDS and len(w) > 2)
 
 
+def _jaccard_relevance(query: str, response: str) -> float:
+    """Token-overlap relevance between query and response (Jaccard similarity).
+
+    Returns 0.0 if either text is empty; 1.0 if all query tokens appear in response.
+    Uses _tokenize() so stopwords and short words are excluded consistently.
+    """
+    q_tokens = _tokenize(query)
+    r_tokens = _tokenize(response)
+    if not q_tokens:
+        return 0.0
+    union = q_tokens | r_tokens
+    return round(len(q_tokens & r_tokens) / len(union), 4)
+
+
 def _regex_verdict(claim: Claim, chunk: KnowledgeChunk) -> Tuple[VerdictLabel, float]:
     """Keyword-overlap heuristic for NLI when no model is available.
 
@@ -1734,6 +1748,7 @@ class VordurChecker:
         ethics_state: Optional[Any] = None,
         trust_state: Optional[Any] = None,
         mode: VerificationMode = VerificationMode.IRONSWORN,
+        query: str = "",
     ) -> Tuple[FaithfulnessScore, TruthProfile, str]:
         """E-35: Score + optionally repair a response.
 
@@ -1762,7 +1777,7 @@ class VordurChecker:
                     "VordurChecker.score_and_repair: %d repairs applied.", repair_count
                 )
 
-            truth_profile = self._build_truth_profile(fs, repair_count, contradiction_records)
+            truth_profile = self._build_truth_profile(fs, repair_count, contradiction_records, query=query, response=repaired_text)
             return fs, truth_profile, repaired_text
         except Exception as exc:
             logger.warning("VordurChecker.score_and_repair failed (%s) — passthrough", exc)
@@ -1777,6 +1792,8 @@ class VordurChecker:
         fs: FaithfulnessScore,
         repair_count: int = 0,
         contradiction_records: Optional[List[ContradictionRecord]] = None,
+        query: str = "",
+        response: str = "",
     ) -> TruthProfile:
         """E-35/E-36: Compute a TruthProfile from a FaithfulnessScore."""
         n = max(1, fs.claim_count)
@@ -1798,7 +1815,7 @@ class VordurChecker:
             contradiction_risk=round(contradiction_risk, 4),
             inference_density=round(inference_density, 4),
             source_quality=round(source_quality, 4),
-            answer_relevance=0.0,   # placeholder — requires query context
+            answer_relevance=_jaccard_relevance(query, response),
             ambiguity_level=round(ambiguity_level, 4),
             repair_count=repair_count,
             contradictions=contradiction_records or [],  # E-36
