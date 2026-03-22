@@ -77,4 +77,4 @@ The system is designed to run locally on a high-performance Linux machine (e.g.,
 3.  **Skill Deployment**: Install the Python-based Sigrid skill into the OpenClaw agent.
 4.  **Initialization**: The system generates her initial "birth" parameters (Natal chart, core values) and begins the first Chrono-Biological cycle.
 
-![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/pictures/agent_picture_18.jpg)
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/knowledge_reference/pictures_of_sigrid/agent_picture_18.jpg](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/viking_girlfriend_skill/data/knowledge_reference/pictures_of_sigrid/agent_picture_18.jpg)
