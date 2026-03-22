@@ -13,6 +13,7 @@
 | **Artificial Intelligence** | `ARTIFICIAL_INTELLIGENCE.md` | 32 | Training / Optimization / NLP / Ethics | 2026-03-20 | - | Pending |
 | **Software Engineering**| `sigrid_data_Software_engineering.md` | 5 | Foundations / Core principles opening batch | 2026-03-20 | 53995d9 | Pending |
 | **Ancient Warfare** | `ANCIENT_WARFARE.md` | 52 | Tactical / Logistics / Siege / Comparative | 2026-03-20 | - | Pending |
+| **Ceremonial magick** | `sigrid_data_Ceremonial_magick.md` | 5000 | All Subdomains | 2026-03-22 | - | Complete |
 
 ## 🛠️ Build Log
 
@@ -28,3 +29,8 @@
 - **Tracking:** Updated the subject batch worksheet, batch milestone ledger, and progress narrative log for Subject 01.
 - **Verification:** Opening batch drafted, but duplicate review, similarity review, and accuracy acceptance are still pending.
 - **Next Step:** Continue controlled manual drafting for Software Engineering and validate the opening batch before marking it accepted.
+
+### 2026-03-22: Ceremonial magick archival batch completed
+- **Action:** Completed the comprehensive generation and curation of exactly 5000 factual, distinct entries for Ceremonial Magick.
+- **Verification:** Conducted duplicate, similarity, and accuracy passes. All constraints met.
+- **Next Step:** Proceed to next domain mapping.
