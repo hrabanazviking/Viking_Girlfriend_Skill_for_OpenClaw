@@ -5,7 +5,7 @@ Tests domain detection, retrieval fallback chain, context string assembly,
 and singleton wiring. Runs fully offline using BM25-only MimirWell.
 
 Run from project root:
-    cd C:/Users/volma/runa/Viking_Girlfriend_Skill_for_OpenClaw
+    cd <project-root>
     python -m pytest tests/test_huginn.py -v
   or directly:
     python tests/test_huginn.py
@@ -200,7 +200,7 @@ print("\n[8] episodic memory integration")
 
 class MockMemoryStore:
     def get_context(self, query, **kwargs):
-        return f"[Episodic] Sigrid remembers speaking about runes with Volmarr."
+        return f"[Episodic] Sigrid remembers speaking about runes with the user."
 
 huginn.set_memory_store(MockMemoryStore())
 check("set_memory_store works", huginn.has_memory_store)

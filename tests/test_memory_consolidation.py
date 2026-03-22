@@ -41,7 +41,7 @@ class TestMemoryConsolidatorRun:
         entries = ["T1: hello world", "T2: discuss runes", "T3: farewell"]
         consolidator = _make_consolidator(tmp_path, medium_entries=entries)
         # Patch _summarize to avoid model calls
-        consolidator._summarize = lambda e: "Sigrid and Volmarr discussed runes."
+        consolidator._summarize = lambda e: "Sigrid and the user discussed runes."
         consolidator.run()
         assert consolidator._buffer._medium_term == []
 

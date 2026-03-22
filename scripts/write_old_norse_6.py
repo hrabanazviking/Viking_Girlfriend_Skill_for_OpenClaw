@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\OLD_NORSE_RUNOLOGY.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "OLD_NORSE_RUNOLOGY.md"
 
 entries = [
     "**Old Norse Adjectives & Qualities (The Nature of the Soul)**: The words that described the character and state of things.",

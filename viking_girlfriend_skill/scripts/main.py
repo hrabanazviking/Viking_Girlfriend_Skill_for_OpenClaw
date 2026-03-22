@@ -102,7 +102,7 @@ def _build_config(skill_root: str) -> Dict[str, Any]:
 
         # ── Trust engine ──────────────────────────────────────────────────────
         "trust_engine": {
-            "volmarr_initial_trust": 0.75,
+            "primary_contact_initial_trust": 0.75,
         },
 
         # ── Ethics guardrail ──────────────────────────────────────────────────
@@ -481,7 +481,7 @@ def _collect_state_hints() -> Dict[str, str]:
 async def _handle_turn(
     user_text: str,
     session_id: str = "default",
-    user_id: str = "volmarr",
+    user_id: str = "user",
 ) -> str:
     """Process one user turn end-to-end and return Sigrid's response text."""
     global _turn_count
@@ -497,9 +497,10 @@ async def _handle_turn(
         logger.warning("Turn %d: injection attempt from user_id=%r: %s", turn_n, user_id, exc)
         try:
             from scripts.trust_engine import get_trust_engine
-            # Non-Volmarr gets a heavier penalty — unknown contacts attempting manipulation
-            # are far more concerning than the trusted primary partner.
-            penalty = 3.0 if user_id.lower() != "volmarr" else 1.5
+            # Unknown contacts attempting injection get a heavier penalty than
+            # the established primary contact.
+            _primary = get_trust_engine()._primary_contact_id
+            penalty = 3.0 if user_id.lower() != _primary.lower() else 1.5
             get_trust_engine().record_event(
                 "injection_attempt",
                 magnitude=penalty,
@@ -756,7 +757,7 @@ async def _openclaw_loop() -> None:
                 continue
 
             session_id = str(msg.get("session_id", "default"))
-            user_id = str(msg.get("user_id", "volmarr"))
+            user_id = str(msg.get("user_id", "user"))
             text = str(msg.get("text", "")).strip()
 
             if not text:
@@ -797,7 +798,7 @@ async def _terminal_loop() -> None:
         if not line:
             continue
         if line.lower() in ("quit", "exit", "bye"):
-            print("Sigrid: Farewell, Volmarr. May Odin guide your path.")
+            print("Sigrid: Farewell. May Odin guide your path.")
             break
 
         try:

@@ -1,9 +1,14 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\NORSE_FOLKLORE.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "NORSE_FOLKLORE.md"
 
 # Ensure directory exists
-os.makedirs(os.path.dirname(file_path), exist_ok=True)
+_KNOWLEDGE_REF.mkdir(parents=True, exist_ok=True)
 
 header = """# Knowledge Domain: Norse Folklore & Legend (The Whispers of the Wild)
 

@@ -88,7 +88,7 @@ def populate_file(filename, category, display_name):
         content += f"{clean_extract}\n\n"
         count += 1
         
-    filepath = Path(f"C:/Users/volma/Gemini-AI-Longhall/Viking_Girlfriend_Skill_for_OpenClaw/viking_girlfriend_skill/data/knowledge_reference/{filename}")
+    filepath = Path(__file__).resolve().parent / filename
     filepath.write_text(content, encoding='utf-8')
     print(f"Successfully wrote {len(extracts)} real entries to {filename}.")
 

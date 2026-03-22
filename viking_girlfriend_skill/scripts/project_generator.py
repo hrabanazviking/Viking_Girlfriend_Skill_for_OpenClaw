@@ -4,7 +4,7 @@ project_generator.py — Sigrid's Initiative Tracker
 
 New module — no source adoption. Sigrid carries ongoing projects:
 creative work, learning paths, crafted things, shared endeavours with
-Volmarr. This module tracks them across sessions so nothing is forgotten.
+the user. This module tracks them across sessions so nothing is forgotten.
 
 A project is a named initiative with a status, a description, a running
 note log, and metadata. Projects are stored in ``data/projects.json``

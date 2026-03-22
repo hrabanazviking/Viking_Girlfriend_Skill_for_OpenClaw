@@ -617,7 +617,7 @@ class LaunchCalibrator:
                     "ollama_model": os.environ.get("OLLAMA_MODEL", "llama3"),
                     "skill_mode": os.environ.get("SIGRID_MODE", "openclaw"),
                     "log_level": os.environ.get("SIGRID_LOG_LEVEL", "INFO"),
-                    "primary_contact": os.environ.get("SIGRID_PRIMARY_CONTACT", "volmarr"),
+                    "primary_contact": os.environ.get("SIGRID_PRIMARY_CONTACT", "user"),
                 },
             }
             with open(out_path, "w", encoding="utf-8") as f:

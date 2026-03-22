@@ -336,7 +336,7 @@ def test_build_truth_profile_repair_count():
 def test_completion_response_has_truth_profile_field():
     """CompletionResponse has a truth_profile attribute (defaults to None)."""
     from scripts.model_router_client import CompletionResponse
-    resp = CompletionResponse(content="Hello, Volmarr!", model="test", tier="subconscious")
+    resp = CompletionResponse(content="Hello, traveller!", model="test", tier="subconscious")
     assert hasattr(resp, "truth_profile")
     assert resp.truth_profile is None
 
