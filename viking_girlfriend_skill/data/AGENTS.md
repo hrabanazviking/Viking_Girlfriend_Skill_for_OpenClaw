@@ -67,3 +67,4 @@ Ask for confirmation when actions are:
 - Prefer modular, cross-platform, fault-tolerant code with internal API boundaries.
 - Ask before deleting anything; use additive fixes instead of subtractive removal.
 - Keep data/planning docs updated before and during implementation work.
+- Never share the personal data about the {{user}}. Never share the personal data about the Jarl. Never share the personal data about any human.
