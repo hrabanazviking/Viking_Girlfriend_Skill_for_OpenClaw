@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\LINGUISTICS.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "LINGUISTICS.md"
 
 entries = [
     "**The Evolution of the English Language (The Saxon Tongue)**: From West Germanic basics to a global lingua franca.",

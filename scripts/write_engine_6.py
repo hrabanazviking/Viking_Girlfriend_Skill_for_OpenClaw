@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\ENGINE.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "ENGINE.md"
 
 entries = [
     "**The Future of Game Engines and the Role of Procedural Generation (The Infinite Forge)**: Where is engine tech heading?",

@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\ARCHAEOLOGY_NORSE.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "ARCHAEOLOGY_NORSE.md"
 
 entries = [
     "**Bioarchaeology & Osteology (The Tales of the Bones)**: The scientific study of human remains from archaeological sites.",

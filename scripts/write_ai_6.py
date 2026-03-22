@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\ARTIFICIAL_INTELLIGENCE.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "ARTIFICIAL_INTELLIGENCE.md"
 
 entries = [
     "**AGI & ASI (The Awakening of the World-Mind)**: The theoretical future where machines equal or surpass human cognitive ability.",

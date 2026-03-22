@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\SOFTWARE_ENGINEERING.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "SOFTWARE_ENGINEERING.md"
 
 entries = [
     "**Distributed Ledger Technology (DLT) (The Eternal Shared Saga)**: A digital system for recording the transaction of assets in which the transactions and their details are recorded in multiple places at the same time.",

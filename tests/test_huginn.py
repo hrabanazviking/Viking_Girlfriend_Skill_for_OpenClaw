@@ -5,7 +5,7 @@ Tests domain detection, retrieval fallback chain, context string assembly,
 and singleton wiring. Runs fully offline using BM25-only MimirWell.
 
 Run from project root:
-    cd C:/Users/volma/runa/Viking_Girlfriend_Skill_for_OpenClaw
+    cd <project-root>
     python -m pytest tests/test_huginn.py -v
   or directly:
     python tests/test_huginn.py

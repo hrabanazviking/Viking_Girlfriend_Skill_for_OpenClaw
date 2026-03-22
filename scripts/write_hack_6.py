@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\ETHICAL_HACKING.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "ETHICAL_HACKING.md"
 
 entries = [
     "**The Future of Ethical Hacking and the Role of Artificial Intelligence in Vulnerability Research (The Thinking Duel)**: Where is hacking headed?",

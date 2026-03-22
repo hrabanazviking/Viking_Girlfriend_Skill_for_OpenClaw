@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\DATA_SCIENCE.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "DATA_SCIENCE.md"
 
 entries = [
     "**Advanced Statistical Modeling (The Seer's Deep Sight)**: Using complex mathematical frameworks to understand the unseen forces of Midgard.",

@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 
-file_path = r"c:\Users\volma\anti-gravity-githublocal-NorseSaga-Engine\Viking_girlfriend_openclaw_skill\viking_girlfriend_skill\data\knowledge_reference\SYSTEM_ADMINISTRATION.md"
+_KNOWLEDGE_REF = (
+    Path(__file__).resolve().parent.parent
+    / "viking_girlfriend_skill" / "data" / "knowledge_reference"
+)
+file_path = _KNOWLEDGE_REF / "SYSTEM_ADMINISTRATION.md"
 
 entries = [
     "**Disaster Recovery & High Availability (The Rebuilding of Asgard)**: Ensuring the kingdom survives even the greatest storms.",
