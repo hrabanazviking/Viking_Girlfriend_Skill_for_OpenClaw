@@ -499,7 +499,7 @@ async def _handle_turn(
     try:
         from scripts.memory_store import get_memory_store
         mem = get_memory_store()
-        mem.record_turn(turn_n, user_text=user_text, sigrid_text="")
+        mem.record_turn(user_text=user_text, sigrid_text="")
     except Exception as exc:
         logger.debug("memory inbound record skipped: %s", exc)
 
@@ -522,7 +522,7 @@ async def _handle_turn(
     # ── 4. Trust engine — keyword inference ───────────────────────────────────
     try:
         from scripts.trust_engine import get_trust_engine
-        get_trust_engine().process_turn(user_text)
+        get_trust_engine().process_turn(user_text=user_text, sigrid_text="")
     except Exception as exc:
         logger.debug("trust process_turn skipped: %s", exc)
 
@@ -549,6 +549,7 @@ async def _handle_turn(
 
     # ── 8. Build messages list ────────────────────────────────────────────────
     messages = []
+    from scripts.vordur import VerificationMode
     mode = VerificationMode.WANDERER # Default
     try:
         from scripts.prompt_synthesizer import get_prompt_synthesizer
@@ -661,7 +662,7 @@ async def _handle_turn(
         from scripts.memory_store import get_memory_store
         mem = get_memory_store()
         # Update the turn we recorded inbound-only
-        mem.record_turn(turn_n, user_text=user_text, sigrid_text=sigrid_response)
+        mem.record_turn(user_text=user_text, sigrid_text=sigrid_response)
     except Exception as exc:
         logger.debug("memory full turn record skipped: %s", exc)
 

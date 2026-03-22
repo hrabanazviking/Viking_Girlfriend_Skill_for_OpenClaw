@@ -1518,6 +1518,8 @@ class MimirWell:
                     source_file=meta.get("source_file", ""),
                     domain=meta.get("domain", ""),
                     level=int(meta.get("level", 1)),
+                    realm=DataRealm.MIDGARD,
+                    tier=TruthTier.BRANCH,
                     metadata={
                         "file_type": meta.get("file_type", ""),
                         "heading": meta.get("heading", ""),
