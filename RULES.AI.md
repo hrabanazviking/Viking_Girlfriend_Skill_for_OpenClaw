@@ -51,8 +51,7 @@
 - Do not hardcode lore or values in Python; load from data/ YAML/JSON.  
 - Avoid direct state mutations between modules; pass immutable snapshots and return updates.  
 - Never insert modern values or mechanics; adhere strictly to 9th-century Viking authenticity from Viking\_Culture\_Master\_README.md.  
-- Do not overwrite existing systems without integration; newer layers (e.g., Yggdrasil) must complement older ones (e.g., turn\_processor.py).  
-- Skip unnecessary side effects: No printing; use loggers only.  
+- Do not overwrite existing systems without integration; newer layers (e.g., Yggdrasil) must complement older ones (e.g., turn\_processor.py). - Skip unnecessary side effects: No printing; use loggers only.  
 - Avoid deep nesting; keep folder depth to 3-4 levels.
 
 ## Domain Knowledge  
@@ -90,6 +89,14 @@
 - Every important folder should have a `README_AI.md` (this file) explaining its purpose.
 - Every module that exposes a public API should have an `INTERFACE.md` describing inputs/outputs and rules.
 - Examples of usage belong in an `examples/` subfolder.
+
+## File Location Agnostic Coding Practices
+
+- Scan the whole codebase for any absolute paths, and remove all absolute paths. 
+- Never use absolute paths no matter what!
+- Make sure the whole codebase is portable, and file location agnostic. 
+- Make sure the code uses internal APIs for commuications. 
+- Make sure the code is robust and portable.
 
 ## Rules For When Generating Data List Files
 
