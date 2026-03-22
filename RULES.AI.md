@@ -98,6 +98,12 @@
 - Make sure the code uses internal APIs for commuications. 
 - Make sure the code is robust and portable.
 
+## No Limits on Data
+
+- Check code to make sure no limitations imposed on data size are impeding full data functions. 
+- We never want any data to be chopped off by limits. 
+- Where possible use prompted suggestion, ie: "prompt: try to keep outputs under x number of characters", instead of using hard scripted limits.
+
 ## Rules For When Generating Data List Files
 
 ### You are executing a high-rigor archival knowledge build.
