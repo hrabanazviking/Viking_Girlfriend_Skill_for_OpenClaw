@@ -98,7 +98,7 @@ class TestDiminishingReturns:
         ledger = engine.get_ledger("test_user")
         i_before = ledger.facets.integrity
         # Explicit record_event should use full magnitude (1.0), not reduced
-        engine.record_event("oath_kept", magnitude=1.0)
+        engine.record_event("oath_kept", magnitude=1.0, contact_id="test_user")
         i_after = ledger.facets.integrity
         # Should still increase — not saturated
         assert i_after > i_before
