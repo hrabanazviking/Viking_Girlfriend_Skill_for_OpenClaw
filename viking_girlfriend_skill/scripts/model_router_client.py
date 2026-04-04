@@ -1257,6 +1257,7 @@ class ModelRouterClient:
 
     def publish(self, bus: StateBus) -> None:
         """Emit a ``router_tick`` StateEvent to the state bus."""
+        import asyncio
         try:
             state = self.get_state()
             event = StateEvent(
@@ -1264,7 +1265,14 @@ class ModelRouterClient:
                 event_type="router_tick",
                 payload=state.to_dict(),
             )
-            bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.warning("ModelRouterClient.publish failed: %s", exc)
 

@@ -578,6 +578,7 @@ class TrustEngine:
 
     def publish(self, bus: StateBus, contact_id: Optional[str] = None) -> None:
         """Emit a ``trust_tick`` StateEvent to the state bus."""
+        import asyncio
         try:
             state = self.get_state(contact_id)
             event = StateEvent(
@@ -585,7 +586,14 @@ class TrustEngine:
                 event_type="trust_tick",
                 payload=state.to_dict(),
             )
-            bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.warning("TrustEngine.publish failed: %s", exc)
 
@@ -755,13 +763,21 @@ class TrustEngine:
 
     def _publish_milestone(self, bus: StateBus, milestone: Milestone) -> None:
         """Emit a trust.milestone_reached StateEvent."""
+        import asyncio
         try:
             event = StateEvent(
                 source_module="trust_engine",
                 event_type="trust.milestone_reached",
                 payload=milestone.to_dict(),
             )
-            bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.warning("TrustEngine._publish_milestone failed: %s", exc)
 
