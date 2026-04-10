@@ -363,4 +363,4 @@ if FAIL == 0:
     print("FEDERATED MEMORY TEST PASSED")
 else:
     print(f"FEDERATED MEMORY TEST FAILED ({FAIL} failures)")
-    sys.exit(1)
+    assert FAIL == 0
