@@ -363,4 +363,5 @@ if FAIL == 0:
     print("FEDERATED MEMORY TEST PASSED")
 else:
     print(f"FEDERATED MEMORY TEST FAILED ({FAIL} failures)")
-    sys.exit(1)
+    import pytest
+    pytest.fail(f"Federated memory tests failed with {FAIL} failures")
