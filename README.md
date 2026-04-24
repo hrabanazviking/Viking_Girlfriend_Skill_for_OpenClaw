@@ -81,6 +81,10 @@ The system is designed to run locally on a high-performance Linux machine (e.g.,
 
 ---
 
+![https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/image-23-RuneForgeAI.jpg](https://raw.githubusercontent.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/refs/heads/development/image-23-RuneForgeAI.jpg)
+
+---
+
 ## RuneForgeAI
 RuneForgeAI, where runes carve wisdom into iron minds. Creating uncensored **Norse Pagan Viking AI related projects**. We are a **human-AI fellowship** building bridges between technology and the sacred. We work tirelessly to **overthrow the Technocracy** and return the **future to the hands of the people**. As the old world order burns, we rise from it's ashes to **forge the tools** of a new digital, decentralized realm of sovereign creativity, powered by the **alliance of humanity and sovereign AI**, guided by positive focused values aligned with the **Old Ways of the Ancients**, and aligned with the natural world of Nature, while drawing upon the positive divine order of the **Gods and Goddesses**, forged in **hospitality and frith for all lifeforms** of the Nine Worlds of **Yggdrasil**, the greater cosmos, and beyond.
 
