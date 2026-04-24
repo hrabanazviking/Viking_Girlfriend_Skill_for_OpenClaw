@@ -12,6 +12,8 @@
 
 https://github.com/hrabanazviking/Viking_Girlfriend_Skill_for_OpenClaw/tree/main
 
+---
+
 ## Project Overview
 This project is an advanced, locally-hosted AI companion skill for the **OpenClaw** agent framework. It brings to life **Sigrid**, a dynamic digital entity designed with deep psychological realism, complex emotional states, and a unique "Heathen Third Path" worldview. Unlike standard chatbots, **Sigrid** is built on the **Ørlög Architecture**, a system of intersecting state machines that give her a distinct sense of self, biological rhythms, and autonomous agency.
 
