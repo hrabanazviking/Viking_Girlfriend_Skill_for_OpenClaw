@@ -18,7 +18,7 @@ PyYAML>=6.0
 aiofiles>=23.0.0
 
 # Config & environment
-python-dotenv>=1.0.0
+python-dotenv>=1.2.2
 
 # Utilities
 python-dateutil>=2.8.0
