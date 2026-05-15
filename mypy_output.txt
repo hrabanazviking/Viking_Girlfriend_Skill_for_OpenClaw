@@ -1,0 +1,57 @@
+viking_girlfriend_skill/scripts/config_loader.py:24: error: Library stubs not installed for "yaml"  [import-untyped]
+viking_girlfriend_skill/scripts/trust_engine.py:588: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/trust_engine.py:588: note: Are you missing an await?
+viking_girlfriend_skill/scripts/trust_engine.py:764: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/trust_engine.py:764: note: Are you missing an await?
+viking_girlfriend_skill/scripts/security.py:508: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/security.py:508: note: Are you missing an await?
+viking_girlfriend_skill/scripts/security.py:612: error: Incompatible types in assignment (expression has type "frozenset[str]", variable has type "set[str]")  [assignment]
+viking_girlfriend_skill/scripts/scheduler.py:436: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/scheduler.py:436: note: Are you missing an await?
+viking_girlfriend_skill/scripts/scheduler.py:499: error: Cannot find implementation or library stub for module named "apscheduler.schedulers.background"  [import-not-found]
+viking_girlfriend_skill/scripts/project_generator.py:231: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/project_generator.py:231: note: Are you missing an await?
+viking_girlfriend_skill/scripts/oracle.py:36: error: Library stubs not installed for "yaml"  [import-untyped]
+viking_girlfriend_skill/scripts/metabolism.py:35: error: Library stubs not installed for "psutil"  [import-untyped]
+viking_girlfriend_skill/scripts/ethics.py:490: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/ethics.py:490: note: Are you missing an await?
+viking_girlfriend_skill/scripts/dream_engine.py:387: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/dream_engine.py:387: note: Are you missing an await?
+viking_girlfriend_skill/scripts/bio_engine.py:32: error: Library stubs not installed for "yaml"  [import-untyped]
+viking_girlfriend_skill/scripts/bio_engine.py:32: note: Hint: "python3 -m pip install types-PyYAML"
+viking_girlfriend_skill/scripts/bio_engine.py:32: note: (or run "mypy --install-types" to install all missing stub packages)
+viking_girlfriend_skill/scripts/bio_engine.py:32: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+viking_girlfriend_skill/scripts/runtime_kernel.py:291: error: Cannot infer type of lambda  [misc]
+viking_girlfriend_skill/scripts/mimir_well.py:44: error: Library stubs not installed for "yaml"  [import-untyped]
+viking_girlfriend_skill/scripts/environment_mapper.py:267: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/environment_mapper.py:267: note: Are you missing an await?
+viking_girlfriend_skill/scripts/vordur.py:687: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+viking_girlfriend_skill/scripts/vordur.py:774: error: Module "scripts.mimir_well" has no attribute "VerdictLabel"  [attr-defined]
+viking_girlfriend_skill/scripts/vordur.py:1298: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+viking_girlfriend_skill/scripts/vordur.py:1881: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+viking_girlfriend_skill/scripts/model_router_client.py:518: error: Library stubs not installed for "requests"  [import-untyped]
+viking_girlfriend_skill/scripts/model_router_client.py:518: note: Hint: "python3 -m pip install types-requests"
+viking_girlfriend_skill/scripts/model_router_client.py:1267: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/model_router_client.py:1267: note: Are you missing an await?
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:430: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:430: note: Are you missing an await?
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:740: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:740: note: Are you missing an await?
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:907: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/prompt_synthesizer.py:907: note: Are you missing an await?
+viking_girlfriend_skill/scripts/memory_store.py:1006: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+viking_girlfriend_skill/scripts/memory_store.py:1006: note: Are you missing an await?
+viking_girlfriend_skill/scripts/cove_pipeline.py:364: error: Name "draft" already defined on line 318  [no-redef]
+viking_girlfriend_skill/scripts/main.py:68: error: Library stubs not installed for "psutil"  [import-untyped]
+viking_girlfriend_skill/scripts/main.py:68: note: Hint: "python3 -m pip install types-psutil"
+viking_girlfriend_skill/scripts/main.py:511: error: Incompatible types in assignment (expression has type "BioState", variable has type "WyrdState")  [assignment]
+viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "phase_name"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "energy_modifier"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "narrative_hint"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:520: error: Incompatible types in assignment (expression has type "DreamState", variable has type "WyrdState")  [assignment]
+viking_girlfriend_skill/scripts/main.py:521: error: "WyrdState" has no attribute "prompt_fragment"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:522: error: "WyrdState" has no attribute "prompt_fragment"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:529: error: Incompatible types in assignment (expression has type "OracleState", variable has type "WyrdState")  [assignment]
+viking_girlfriend_skill/scripts/main.py:530: error: "WyrdState" has no attribute "prompt_summary"  [attr-defined]
+viking_girlfriend_skill/scripts/main.py:635: error: Need type annotation for "messages" (hint: "messages: list[<type>] = ...")  [var-annotated]
+Found 38 errors in 19 files (checked 25 source files)
