@@ -1,3 +1,4 @@
+import pytest
 """
 test_federated_memory.py — Validation suite for FederatedMemory (Step 5)
 =========================================================================
@@ -363,4 +364,4 @@ if FAIL == 0:
     print("FEDERATED MEMORY TEST PASSED")
 else:
     print(f"FEDERATED MEMORY TEST FAILED ({FAIL} failures)")
-    sys.exit(1)
+    pytest.fail('Test failed')
