@@ -23,25 +23,28 @@ def fetch_category_members(category, max_results=5000):
         
         while True:
             try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
-                with urllib.request.urlopen(req) as response:
-                    data = json.loads(response.read().decode())
+                if url.lower().startswith('http://') or url.lower().startswith('https://'):
+                    req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
+                    with urllib.request.urlopen(req) as response:  # nosec B310
+                        data = json.loads(response.read().decode())
+                else:
+                    raise ValueError(f"Disallowed URL scheme in {url}")
                     
-                    for member in data['query'].get('categorymembers', []):
-                        if member['ns'] == 0:  # Article
-                            titles.add(member['title'])
-                            if len(titles) >= max_results:
-                                return list(titles)
-                        elif member['ns'] == 14:  # Subcategory
-                            cat_name = member['title'].replace("Category:", "")
-                            if cat_name not in checked_categories:
-                                categories_to_check.append(cat_name)
+                for member in data['query'].get('categorymembers', []):
+                    if member['ns'] == 0:  # Article
+                        titles.add(member['title'])
+                        if len(titles) >= max_results:
+                            return list(titles)
+                    elif member['ns'] == 14:  # Subcategory
+                        cat_name = member['title'].replace("Category:", "")
+                        if cat_name not in checked_categories:
+                            categories_to_check.append(cat_name)
 
-                    if 'continue' in data:
-                        cont_token = data['continue']['cmcontinue']
-                        url = f"https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:{urllib.parse.quote(current_cat)}&cmlimit=500&cmcontinue={urllib.parse.quote(cont_token)}&format=json"
-                    else:
-                        break
+                if 'continue' in data:
+                    cont_token = data['continue']['cmcontinue']
+                    url = f"https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:{urllib.parse.quote(current_cat)}&cmlimit=500&cmcontinue={urllib.parse.quote(cont_token)}&format=json"
+                else:
+                    break
             except Exception as e:
                 print(f"Error fetching category {current_cat}: {e}")
                 break
@@ -58,13 +61,17 @@ def fetch_extracts_in_batches(titles, batch_size=20):
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&titles={titles_param}&format=json"
         
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
-            with urllib.request.urlopen(req) as response:
-                data = json.loads(response.read().decode())
-                pages = data['query']['pages']
-                for page_id, page_data in pages.items():
-                    if 'extract' in page_data and page_data['extract'].strip():
-                        results[page_data['title']] = page_data['extract'].strip()
+            if url.lower().startswith('http://') or url.lower().startswith('https://'):
+                req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
+                with urllib.request.urlopen(req) as response:  # nosec B310
+                    data = json.loads(response.read().decode())
+            else:
+                raise ValueError(f"Disallowed URL scheme in {url}")
+
+            pages = data['query']['pages']
+            for page_id, page_data in pages.items():
+                if 'extract' in page_data and page_data['extract'].strip():
+                    results[page_data['title']] = page_data['extract'].strip()
         except Exception as e:
             print(f"Error fetching batch: {e}")
         time.sleep(0.1)
