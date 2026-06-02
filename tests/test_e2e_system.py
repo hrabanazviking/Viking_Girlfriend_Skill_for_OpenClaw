@@ -1009,6 +1009,7 @@ class T18_FullPipeline(unittest.TestCase):
         )
 
         # Step 8 — router (mocked)
+        messages_raw, mode = messages_raw
         messages = [self.Message(m["role"], m["content"]) for m in messages_raw]
         with patch.object(self.router._conscious, "complete") as mock_complete:
             mock_complete.return_value = self.CompletionResponse(
@@ -1075,6 +1076,7 @@ class T18_FullPipeline(unittest.TestCase):
             user_text=clean_text,
             state_hints=state_hints,
         )
+        messages_raw, mode = messages_raw
         messages = [self.Message(m["role"], m["content"]) for m in messages_raw]
 
         captured = {}
