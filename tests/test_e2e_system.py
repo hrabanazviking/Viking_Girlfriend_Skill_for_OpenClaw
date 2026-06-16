@@ -1002,7 +1002,7 @@ class T18_FullPipeline(unittest.TestCase):
         memory_ctx = self.mem.get_context(query=clean_text)
 
         # Step 7 — synthesize messages
-        messages_raw = self.synth.build_messages(
+        messages_raw, _mode = self.synth.build_messages(
             user_text=clean_text,
             state_hints=state_hints,
             memory_context=memory_ctx,
@@ -1071,7 +1071,7 @@ class T18_FullPipeline(unittest.TestCase):
         # the router internally and would shadow this outer capture)
         clean_text = self.sec.sanitize_text_input("Tell me about the nine worlds")
         state_hints = {"scheduler": self.sched.get_state().prompt_hint}
-        messages_raw = self.synth.build_messages(
+        messages_raw, _mode = self.synth.build_messages(
             user_text=clean_text,
             state_hints=state_hints,
         )
