@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 def check_command(command: str) -> bool:
     """Check if a command is available on the host system."""
     try:
-        subprocess.run([command, "--version"], capture_output=True, check=True)
+        import shutil
+        if shutil.which(command) is None:
+            return False
+        subprocess.run([command, "--version"], capture_output=True, check=True) # nosec B603
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
