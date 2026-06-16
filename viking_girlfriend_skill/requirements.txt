@@ -14,7 +14,7 @@ litellm>=1.0.0
 ollama>=0.1.0
 
 # Data loading
-PyYAML>=6.0
+PyYAML>=6.0.3
 aiofiles>=23.0.0
 
 # Config & environment
