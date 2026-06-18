@@ -1,3 +1,4 @@
+import pytest
 """
 test_huginn.py — Validation suite for HuginnRetriever (Step 3 of Mímir-Vörðr)
 ===============================================================================
@@ -275,4 +276,4 @@ if FAIL == 0:
     print("HUGINN TEST PASSED")
 else:
     print(f"HUGINN TEST FAILED ({FAIL} failures)")
-    sys.exit(1)
+    pytest.fail("Test failed")
