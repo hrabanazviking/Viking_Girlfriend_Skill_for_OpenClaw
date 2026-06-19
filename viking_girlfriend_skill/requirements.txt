@@ -2,7 +2,7 @@
 # Install: pip install -r requirements.txt
 
 # Core state machines
-numpy>=1.24.0
+numpy>=2.4.4
 psutil>=5.9.0
 APScheduler>=3.10.0
 
