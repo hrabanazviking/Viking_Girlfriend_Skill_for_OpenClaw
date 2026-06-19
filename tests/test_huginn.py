@@ -275,4 +275,4 @@ if FAIL == 0:
     print("HUGINN TEST PASSED")
 else:
     print(f"HUGINN TEST FAILED ({FAIL} failures)")
-    sys.exit(1)
+    raise AssertionError("Test failed")
