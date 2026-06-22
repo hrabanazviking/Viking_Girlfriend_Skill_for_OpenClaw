@@ -23,6 +23,8 @@ def fetch_category_members(category, max_results=5000):
         
         while True:
             try:
+                if not url.startswith('https://'):
+                    raise ValueError(f"Invalid URL scheme: {url}")
                 req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
                 with urllib.request.urlopen(req) as response:
                     data = json.loads(response.read().decode())
@@ -58,6 +60,8 @@ def fetch_extracts_in_batches(titles, batch_size=20):
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&titles={titles_param}&format=json"
         
         try:
+            if not url.startswith('https://'):
+                raise ValueError(f"Invalid URL scheme: {url}")
             req = urllib.request.Request(url, headers={'User-Agent': 'SigridKnowledgeBuilder/1.0'})
             with urllib.request.urlopen(req) as response:
                 data = json.loads(response.read().decode())
