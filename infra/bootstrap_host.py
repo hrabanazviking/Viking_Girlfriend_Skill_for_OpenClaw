@@ -1,6 +1,6 @@
 import os
 import sys
-import subprocess
+import shutil
 import platform
 import logging
 
@@ -11,11 +11,7 @@ logger = logging.getLogger(__name__)
 
 def check_command(command: str) -> bool:
     """Check if a command is available on the host system."""
-    try:
-        subprocess.run([command, "--version"], capture_output=True, check=True)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
+    return shutil.which(command) is not None
 
 def verify_host():
     """Verify the host environment for the Viking Girlfriend skill."""
