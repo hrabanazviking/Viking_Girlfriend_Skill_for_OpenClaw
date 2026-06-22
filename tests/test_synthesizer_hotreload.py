@@ -153,6 +153,8 @@ def test_watcher_detects_file_change_and_reloads(tmp_path):
 
     try:
         # Modify the file to trigger detection on the next poll cycle
+        import time
+        time.sleep(0.1)
         (tmp_path / "core_identity.md").write_text("After change!", encoding="utf-8")
         # Wait up to 2s for the watcher to detect and reload
         triggered = reload_called.wait(timeout=2.0)
@@ -188,6 +190,7 @@ def test_watcher_publishes_state_event_on_reload(tmp_path):
     synth._watcher.start()
 
     try:
+        time.sleep(0.1)
         (tmp_path / "core_identity.md").write_text("Changed content!", encoding="utf-8")
         reload_called.wait(timeout=2.0)
         time.sleep(0.1)  # brief wait for _publish_reload to be called
