@@ -15,7 +15,7 @@ ollama>=0.1.0
 
 # Data loading
 PyYAML>=6.0
-aiofiles>=23.0.0
+aiofiles>=25.1.0
 
 # Config & environment
 python-dotenv>=1.0.0
