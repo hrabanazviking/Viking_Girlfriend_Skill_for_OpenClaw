@@ -15,6 +15,7 @@ import logging
 import sys
 import os
 import time
+import pytest
 
 # ─── Path setup ───────────────────────────────────────────────────────────────
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,6 +132,17 @@ config2 = {
         "include_episodic": True,
     }
 }
+
+import chromadb
+
+# Create an empty collection directly so well._collection is set up in BM25 tests
+well._persist_dir.mkdir(parents=True, exist_ok=True)
+client = chromadb.PersistentClient(path=str(well._persist_dir))
+well._collection = client.get_or_create_collection(
+    name=well._collection_name,
+    metadata={"hnsw:space": "cosine"}
+)
+well._chromadb_available = True
 
 huginn = init_huginn_from_config(config2, mimir_well=well, memory_store=None)
 check("HuginnRetriever created", huginn is not None)

@@ -420,6 +420,7 @@ class PromptSynthesizer:
 
     def publish(self, bus: StateBus) -> None:
         """Emit a ``synthesizer_tick`` StateEvent to the state bus."""
+        import asyncio
         try:
             state = self.get_state()
             event = StateEvent(
@@ -427,7 +428,14 @@ class PromptSynthesizer:
                 event_type="synthesizer_tick",
                 payload=state.to_dict(),
             )
-            bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.warning("PromptSynthesizer.publish failed: %s", exc)
 
@@ -729,6 +737,7 @@ class PromptSynthesizer:
 
     def _publish_context_event(self, event_type: str, payload: Dict[str, Any]) -> None:
         """Publish a context-guard event on StateBus if bus is available. Never raises."""
+        import asyncio
         if self._bus is None:
             return
         try:
@@ -737,7 +746,14 @@ class PromptSynthesizer:
                 event_type=event_type,
                 payload=payload,
             )
-            self._bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(self._bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(self._bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(self._bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.debug("PromptSynthesizer: could not publish %s event: %s", event_type, exc)
 
@@ -896,6 +912,7 @@ class _IdentityFileWatcher:
 
     def _publish_reload(self, changed_files: List[str]) -> None:
         """Publish persona.identity_reloaded StateEvent to the bus if available."""
+        import asyncio
         if self._bus is None:
             return
         try:
@@ -904,7 +921,14 @@ class _IdentityFileWatcher:
                 event_type="persona.identity_reloaded",
                 payload={"changed_files": changed_files},
             )
-            self._bus.publish_state(event, nowait=True)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(self._bus.publish_state(event, nowait=True))
+                else:
+                    loop.run_until_complete(self._bus.publish_state(event, nowait=True))
+            except RuntimeError:
+                asyncio.run(self._bus.publish_state(event, nowait=True))
         except Exception as exc:
             logger.warning("_IdentityFileWatcher._publish_reload failed: %s", exc)
 
