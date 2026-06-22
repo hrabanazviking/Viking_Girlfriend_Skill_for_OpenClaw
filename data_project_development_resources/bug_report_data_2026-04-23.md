@@ -1,0 +1,580 @@
+# Code Quality and Bug Report (2026-04-23)
+
+This report was automatically generated after scanning the codebase with `pylint`, `bandit`, `flake8`, and `mypy`.
+
+## Summary of Findings
+
+### Pylint Warnings/Errors
+
+Several issues were found, such as broad exceptions, redefinitions, and unused imports.
+
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:951:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:965:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1006:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1045:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1065:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1101:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1293:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1316:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/wyrd_matrix.py:1323:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/main.py:71:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:68:8: E0401: Unable to import 'psutil' (import-error)
+- viking_girlfriend_skill/scripts/main.py:313:4: W0404: Reimport 'Path' (imported line 34) (reimported)
+- viking_girlfriend_skill/scripts/main.py:322:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:332:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:347:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/main.py:353:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:378:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:388:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:411:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:419:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:425:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:432:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:436:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:440:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:444:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:448:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:456:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:466:52: W0212: Access to a protected member _jobs of a client class (protected-access)
+- viking_girlfriend_skill/scripts/main.py:487:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:505:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:514:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:523:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:531:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:545:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/main.py:579:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:572:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:560:23: W0212: Access to a protected member _primary_contact_id of a client class (protected-access)
+- viking_girlfriend_skill/scripts/main.py:587:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:603:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:610:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:620:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:631:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:645:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:737:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:675:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:679:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:683:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:692:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:697:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:750:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:773:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:771:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:541:4: W0613: Unused argument 'session_id' (unused-argument)
+- viking_girlfriend_skill/scripts/main.py:637:4: W0612: Unused variable 'mode' (unused-variable)
+- viking_girlfriend_skill/scripts/main.py:828:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:865:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:875:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:898:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:919:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:925:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/main.py:969:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/ethics.py:426:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/ethics.py:491:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/ethics.py:544:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/ethics.py:646:8: W0613: Unused argument 'context_type' (unused-argument)
+- viking_girlfriend_skill/scripts/ethics.py:711:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/ethics.py:714:63: W0212: Access to a protected member _degraded of a client class (protected-access)
+- viking_girlfriend_skill/scripts/ethics.py:24:0: W0611: Unused import re (unused-import)
+- viking_girlfriend_skill/scripts/huginn.py:474:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/huginn.py:497:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/huginn.py:483:26: W0212: Access to a protected member _bm25_retrieve of a client class (protected-access)
+- viking_girlfriend_skill/scripts/huginn.py:525:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/huginn.py:574:8: W0613: Unused argument 'chunks' (unused-argument)
+- viking_girlfriend_skill/scripts/huginn.py:575:8: W0613: Unused argument 'episodic_ctx' (unused-argument)
+- viking_girlfriend_skill/scripts/huginn.py:619:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/huginn.py:665:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/huginn.py:685:8: W0212: Access to a protected member _n_initial of a client class (protected-access)
+- viking_girlfriend_skill/scripts/huginn.py:686:8: W0212: Access to a protected member _n_final of a client class (protected-access)
+- viking_girlfriend_skill/scripts/huginn.py:687:8: W0212: Access to a protected member _domain_detection_enabled of a client class (protected-access)
+- viking_girlfriend_skill/scripts/huginn.py:47:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/huginn.py:49:0: W0611: Unused Union imported from typing (unused-import)
+- viking_girlfriend_skill/scripts/config_loader.py:136:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:149:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:161:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:178:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:196:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:214:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:212:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:226:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:250:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/config_loader.py:20:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/trust_engine.py:589:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/trust_engine.py:682:12: W0612: Unused variable 'key' (unused-variable)
+- viking_girlfriend_skill/scripts/trust_engine.py:741:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/trust_engine.py:753:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/trust_engine.py:765:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/trust_engine.py:814:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/trust_engine.py:817:18: W0212: Access to a protected member _primary_contact_id of a client class (protected-access)
+- viking_girlfriend_skill/scripts/trust_engine.py:818:18: W0212: Access to a protected member _primary_initial_trust of a client class (protected-access)
+- viking_girlfriend_skill/scripts/dream_engine.py:330:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:350:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:388:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:399:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:500:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:494:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/dream_engine.py:537:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/dream_engine.py:31:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:129:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:169:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:186:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:193:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:257:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:272:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:296:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:316:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:24:0: W0611: Unused get_comprehensive_logger imported from scripts.comprehensive_logging (unused-import)
+- viking_girlfriend_skill/scripts/runtime_kernel.py:26:0: W0611: Unused get_bus imported from scripts.state_bus (unused-import)
+- viking_girlfriend_skill/scripts/state_bus.py:392:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/state_bus.py:403:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/state_bus.py:20:0: W0611: Unused import hashlib (unused-import)
+- viking_girlfriend_skill/scripts/state_bus.py:26:0: W0611: Unused Dict imported from typing (unused-import)
+- viking_girlfriend_skill/scripts/state_bus.py:26:0: W0611: Unused List imported from typing (unused-import)
+- viking_girlfriend_skill/scripts/bio_engine.py:273:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/bio_engine.py:294:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/bio_engine.py:490:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/bio_engine.py:518:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/bio_engine.py:622:30: W0613: Unused argument 'today' (unused-argument)
+- viking_girlfriend_skill/scripts/bio_engine.py:668:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/bio_engine.py:684:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/bio_engine.py:27:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:63:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:90:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:201:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:327:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:466:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/comprehensive_logging.py:473:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:403:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:431:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:599:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:664:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:659:12: E0401: Unable to import 'litellm' (import-error)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:688:8: W0612: Unused variable 'target_chars' (unused-variable)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:741:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:763:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:864:15: W0212: Access to a protected member _root of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:866:12: W0212: Access to a protected member _identity_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:866:47: W0212: Access to a protected member _identity_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:867:12: W0212: Access to a protected member _soul_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:867:43: W0212: Access to a protected member _soul_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:889:15: W0212: Access to a protected member _root of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:890:21: W0212: Access to a protected member _identity_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:890:49: W0212: Access to a protected member _soul_file of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:908:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:919:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:924:17: W0212: Access to a protected member _identity_text of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:925:17: W0212: Access to a protected member _soul_text of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:926:12: W0212: Access to a protected member _degraded of a client class (protected-access)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:46:0: W0611: Unused import time (unused-import)
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:47:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/memory_store.py:75:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:73:8: E0401: Unable to import 'litellm' (import-error)
+- viking_girlfriend_skill/scripts/memory_store.py:382:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:392:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:405:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:447:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:459:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:504:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:492:12: E0401: Unable to import 'chromadb' (import-error)
+- viking_girlfriend_skill/scripts/memory_store.py:529:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:557:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:732:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:854:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:879:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:898:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:923:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:913:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:920:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:930:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:930:12: W0621: Redefining name 'exc' from outer scope (line 923) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/memory_store.py:934:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:934:12: W0621: Redefining name 'exc' from outer scope (line 923) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/memory_store.py:1007:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:1068:21: W0212: Access to a protected member _entries of a client class (protected-access)
+- viking_girlfriend_skill/scripts/memory_store.py:1206:16: W0621: Redefining name 'StateEvent' from outer scope (line 45) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/memory_store.py:1162:23: W0212: Access to a protected member _medium_term of a client class (protected-access)
+- viking_girlfriend_skill/scripts/memory_store.py:1197:8: W0212: Access to a protected member _medium_term of a client class (protected-access)
+- viking_girlfriend_skill/scripts/memory_store.py:1217:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:1206:16: W0404: Reimport 'StateEvent' (imported line 45) (reimported)
+- viking_girlfriend_skill/scripts/memory_store.py:1243:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/memory_store.py:1258:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/project_generator.py:232:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/project_generator.py:253:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/project_generator.py:269:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/project_generator.py:292:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/project_generator.py:297:16: W0212: Access to a protected member _projects of a client class (protected-access)
+- viking_girlfriend_skill/scripts/oracle.py:824:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/oracle.py:842:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/oracle.py:919:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/oracle.py:967:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/oracle.py:982:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/oracle.py:31:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/crash_reporting.py:79:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:126:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:170:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:185:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:212:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:306:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:314:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:325:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:330:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:349:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:387:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/crash_reporting.py:398:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/vordur.py:610:33: W0130: Duplicate value 'sacred' in set (duplicate-value)
+- viking_girlfriend_skill/scripts/vordur.py:633:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:715:36: W0613: Unused argument 'original_response' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:762:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:774:12: W0611: Unused VerdictLabel imported from scripts.mimir_well as VL (unused-import)
+- viking_girlfriend_skill/scripts/vordur.py:812:4: W0404: Reimport 'KnowledgeChunk' (imported line 55) (reimported)
+- viking_girlfriend_skill/scripts/vordur.py:871:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1075:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1048:8: W0613: Unused argument 'context' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:1093:8: W0613: Unused argument 'claim' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:1094:8: W0613: Unused argument 'chunks' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:1125:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1158:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1176:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1205:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1263:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1453:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1549:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1575:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1593:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1694:8: W0612: Unused variable 'contradiction_records' (unused-variable)
+- viking_girlfriend_skill/scripts/vordur.py:1782:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1843:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1827:8: W0613: Unused argument 'axioms' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:1956:33: W0613: Unused argument 'response' (unused-argument)
+- viking_girlfriend_skill/scripts/vordur.py:1977:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:1987:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:2033:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/vordur.py:2088:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/vordur.py:2113:8: W0212: Access to a protected member _judge_tier of a client class (protected-access)
+- viking_girlfriend_skill/scripts/vordur.py:2114:8: W0212: Access to a protected member _max_claims of a client class (protected-access)
+- viking_girlfriend_skill/scripts/vordur.py:53:0: W0611: Unused Union imported from typing (unused-import)
+- viking_girlfriend_skill/scripts/security.py:334:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:403:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:509:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:567:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/security.py:672:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:663:27: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:694:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:712:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:731:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/security.py:759:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:163:4: W0107: Unnecessary pass statement (unnecessary-pass)
+- viking_girlfriend_skill/scripts/model_router_client.py:168:4: W0107: Unnecessary pass statement (unnecessary-pass)
+- viking_girlfriend_skill/scripts/model_router_client.py:459:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:478:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:481:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:518:8: E0401: Unable to import 'requests' (import-error)
+- viking_girlfriend_skill/scripts/model_router_client.py:568:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise ModelRouterError(f'Cannot connect to LiteLLM at {self._base_url}. Is the LiteLLM proxy running?') from exc' (raise-missing-from)
+- viking_girlfriend_skill/scripts/model_router_client.py:574:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise ModelRouterError(f'{self._tier} request timed out after {self._timeout}s.') from exc' (raise-missing-from)
+- viking_girlfriend_skill/scripts/model_router_client.py:590:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:587:12: E0401: Unable to import 'requests' (import-error)
+- viking_girlfriend_skill/scripts/model_router_client.py:632:8: E0401: Unable to import 'requests' (import-error)
+- viking_girlfriend_skill/scripts/model_router_client.py:682:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise ModelRouterError(f'Cannot connect to Ollama at {self._base_url}. Start Ollama before using the subconscious tier.') from exc' (raise-missing-from)
+- viking_girlfriend_skill/scripts/model_router_client.py:688:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise ModelRouterError(f'Ollama timed out after {self._timeout}s.') from exc' (raise-missing-from)
+- viking_girlfriend_skill/scripts/model_router_client.py:699:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:696:12: E0401: Unable to import 'requests' (import-error)
+- viking_girlfriend_skill/scripts/model_router_client.py:1132:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:959:27: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:987:27: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:1057:27: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:1032:35: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:1098:31: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:1230:31: W0212: Access to a protected member _failures of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1231:31: W0212: Access to a protected member _failures of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1232:31: W0212: Access to a protected member _failures of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1233:31: W0212: Access to a protected member _failures of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1268:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/model_router_client.py:1332:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/model_router_client.py:1338:12: W0212: Access to a protected member _coding_intent_threshold of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1339:12: W0212: Access to a protected member _high_words of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1339:12: W0212: Access to a protected member _complexity_detector of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1340:12: W0212: Access to a protected member _low_words of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:1340:12: W0212: Access to a protected member _complexity_detector of a client class (protected-access)
+- viking_girlfriend_skill/scripts/model_router_client.py:60:0: W0611: Unused import json (unused-import)
+- viking_girlfriend_skill/scripts/model_router_client.py:65:0: W0611: Unused import traceback (unused-import)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:257:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:440:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:376:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:531:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:589:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:575:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:641:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:602:8: W0613: Unused argument 'questions' (unused-argument)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:605:8: W0613: Unused argument 'checkpoint' (unused-argument)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:670:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:777:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:787:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:798:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:809:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:860:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:897:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:920:8: W0212: Access to a protected member _min_complexity of a client class (protected-access)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:921:8: W0212: Access to a protected member _n_questions of a client class (protected-access)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:922:8: W0212: Access to a protected member _checkpoint_dir of a client class (protected-access)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:37:0: W0611: Unused import os (unused-import)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:39:0: W0611: Unused import time (unused-import)
+- viking_girlfriend_skill/scripts/cove_pipeline.py:44:0: W0611: Unused Union imported from typing (unused-import)
+- viking_girlfriend_skill/scripts/mimir_well.py:291:12: W0706: The except handler raises immediately (try-except-raise)
+- viking_girlfriend_skill/scripts/mimir_well.py:293:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:414:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:419:8: W0621: Redefining name 'json' from outer scope (line 29) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/mimir_well.py:419:8: W0404: Reimport 'json' (imported line 29) (reimported)
+- viking_girlfriend_skill/scripts/mimir_well.py:424:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:429:8: W0621: Redefining name 'json' from outer scope (line 29) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/mimir_well.py:429:8: W0404: Reimport 'json' (imported line 29) (reimported)
+- viking_girlfriend_skill/scripts/mimir_well.py:448:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:446:31: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:454:8: W0621: Redefining name 'json' from outer scope (line 29) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/mimir_well.py:454:8: W0404: Reimport 'json' (imported line 29) (reimported)
+- viking_girlfriend_skill/scripts/mimir_well.py:473:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:471:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:689:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:686:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:764:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1044:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1036:12: E0401: Unable to import 'ollama' (import-error)
+- viking_girlfriend_skill/scripts/mimir_well.py:1055:23: W0622: Redefining built-in 'input' (redefined-builtin)
+- viking_girlfriend_skill/scripts/mimir_well.py:1057:8: E0401: Unable to import 'ollama' (import-error)
+- viking_girlfriend_skill/scripts/mimir_well.py:1063:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1217:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1233:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1241:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1282:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1292:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1288:16: E0401: Unable to import 'chromadb' (import-error)
+- viking_girlfriend_skill/scripts/mimir_well.py:1355:27: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1288:16: W0611: Unused import chromadb (unused-import)
+- viking_girlfriend_skill/scripts/mimir_well.py:1412:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1434:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1455:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1500:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1562:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1763:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1915:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1909:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1930:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:1972:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2003:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2030:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2045:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2143:8: W0613: Unused argument 'scheduler' (unused-argument)
+- viking_girlfriend_skill/scripts/mimir_well.py:2225:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2249:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2262:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2309:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2333:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2339:12: W0621: Redefining name 'StateEvent' from outer scope (line 46) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/mimir_well.py:2350:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2339:12: W0404: Reimport 'StateEvent' (imported line 46) (reimported)
+- viking_girlfriend_skill/scripts/mimir_well.py:2363:12: W0621: Redefining name 'StateEvent' from outer scope (line 46) (redefined-outer-name)
+- viking_girlfriend_skill/scripts/mimir_well.py:2375:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2363:12: W0404: Reimport 'StateEvent' (imported line 46) (reimported)
+- viking_girlfriend_skill/scripts/mimir_well.py:2388:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/mimir_well.py:2428:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/mimir_well.py:2461:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:143:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:189:11: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:339:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:351:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:378:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:390:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:437:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:456:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:487:23: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:498:12: W0404: Reimport 'os' (imported line 30) (reimported)
+- viking_girlfriend_skill/scripts/scheduler.py:536:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/scheduler.py:569:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/scheduler.py:572:67: W0212: Access to a protected member _degraded of a client class (protected-access)
+- viking_girlfriend_skill/scripts/scheduler.py:31:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/scripts/environment_mapper.py:64:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:268:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:341:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:371:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:381:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:392:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/environment_mapper.py:441:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/environment_mapper.py:447:12: W0212: Access to a protected member _degraded of a client class (protected-access)
+- viking_girlfriend_skill/scripts/metabolism.py:35:0: E0401: Unable to import 'psutil' (import-error)
+- viking_girlfriend_skill/scripts/metabolism.py:276:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:294:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:326:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:400:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:426:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:448:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:465:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:477:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:494:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:504:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/scripts/metabolism.py:657:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/metabolism.py:668:4: W0603: Using the global statement (global-statement)
+- viking_girlfriend_skill/scripts/metabolism.py:31:0: W0611: Unused field imported from dataclasses (unused-import)
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:45:19: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:68:15: W0718: Catching too general exception Exception (broad-exception-caught)
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:65:20: W0612: Unused variable 'page_id' (unused-variable)
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:73:18: W0621: Redefining name 'filename' from outer scope (line 106) (redefined-outer-name)
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:5:0: W0611: Unused import sys (unused-import)
+
+### Bandit Security Issues
+
+Issues flagged regarding potentially insecure URL handling.
+
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:27 [MEDIUM] B310: Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:62 [MEDIUM] B310: Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+
+### Flake8 Style/Syntax Errors
+
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:5:1: F401 'sys' imported but unused
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:8:1: E302 expected 2 blank lines, found 1
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:48:28: E261 at least two spaces before inline comment
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:52:1: E302 expected 2 blank lines, found 1
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:73:1: E302 expected 2 blank lines, found 1
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:75:64: E261 at least two spaces before inline comment
+- viking_girlfriend_skill/data/knowledge_reference/populate.py:95:1: E305 expected 2 blank lines after class or function definition, found 1
+- viking_girlfriend_skill/scripts/bio_engine.py:27:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/config_loader.py:20:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/cove_pipeline.py:37:1: F401 'os' imported but unused
+- viking_girlfriend_skill/scripts/cove_pipeline.py:39:1: F401 'time' imported but unused
+- viking_girlfriend_skill/scripts/cove_pipeline.py:44:1: F401 'typing.Union' imported but unused
+- viking_girlfriend_skill/scripts/dream_engine.py:31:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/dream_engine.py:476:61: E203 whitespace before ':'
+- viking_girlfriend_skill/scripts/ethics.py:24:1: F401 're' imported but unused
+- viking_girlfriend_skill/scripts/huginn.py:47:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/huginn.py:49:1: F401 'typing.Union' imported but unused
+- viking_girlfriend_skill/scripts/main.py:286:29: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:287:30: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:288:25: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:289:29: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:290:27: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:291:31: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:292:25: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:293:31: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:294:31: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:295:28: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:297:36: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:299:31: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:491:50: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:492:52: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:493:46: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:494:49: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:496:57: E272 multiple spaces before keyword
+- viking_girlfriend_skill/scripts/main.py:637:37: E261 at least two spaces before inline comment
+- viking_girlfriend_skill/scripts/memory_store.py:77:1: E305 expected 2 blank lines after class or function definition, found 0
+- viking_girlfriend_skill/scripts/memory_store.py:639:37: E116 unexpected indentation (comment)
+- viking_girlfriend_skill/scripts/metabolism.py:31:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/mimir_well.py:529:32: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/mimir_well.py:534:32: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/mimir_well.py:537:32: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/mimir_well.py:540:32: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/mimir_well.py:809:32: E741 ambiguous variable name 'l'
+- viking_girlfriend_skill/scripts/mimir_well.py:1288:17: F401 'chromadb' imported but unused
+- viking_girlfriend_skill/scripts/model_router_client.py:60:1: F401 'json' imported but unused
+- viking_girlfriend_skill/scripts/model_router_client.py:65:1: F401 'traceback' imported but unused
+- viking_girlfriend_skill/scripts/oracle.py:31:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/oracle.py:327:114: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:375:119: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:381:116: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:393:115: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:399:23: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:447:48: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/oracle.py:452:47: E231 missing whitespace after ','
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:46:1: F401 'time' imported but unused
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:47:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:559:21: E131 continuation line unaligned for hanging indent
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:688:9: F841 local variable 'target_chars' is assigned to but never used
+- viking_girlfriend_skill/scripts/runtime_kernel.py:24:1: F401 'scripts.comprehensive_logging.get_comprehensive_logger' imported but unused
+- viking_girlfriend_skill/scripts/runtime_kernel.py:26:1: F401 'scripts.state_bus.get_bus' imported but unused
+- viking_girlfriend_skill/scripts/scheduler.py:31:1: F401 'dataclasses.field' imported but unused
+- viking_girlfriend_skill/scripts/scheduler.py:82:6: E201 whitespace after '('
+- viking_girlfriend_skill/scripts/scheduler.py:83:6: E201 whitespace after '('
+- viking_girlfriend_skill/scripts/scheduler.py:84:6: E201 whitespace after '('
+- viking_girlfriend_skill/scripts/scheduler.py:85:6: E201 whitespace after '('
+- viking_girlfriend_skill/scripts/scheduler.py:86:6: E201 whitespace after '('
+- viking_girlfriend_skill/scripts/state_bus.py:20:1: F401 'hashlib' imported but unused
+- viking_girlfriend_skill/scripts/state_bus.py:26:1: F401 'typing.Dict' imported but unused
+- viking_girlfriend_skill/scripts/state_bus.py:26:1: F401 'typing.List' imported but unused
+- viking_girlfriend_skill/scripts/trust_engine.py:288:41: E116 unexpected indentation (comment)
+- viking_girlfriend_skill/scripts/trust_engine.py:682:13: F841 local variable 'key' is assigned to but never used
+- viking_girlfriend_skill/scripts/vordur.py:53:1: F401 'typing.Union' imported but unused
+- viking_girlfriend_skill/scripts/vordur.py:184:34: E261 at least two spaces before inline comment
+- viking_girlfriend_skill/scripts/vordur.py:601:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:603:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:605:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:607:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:609:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:611:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:613:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:615:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:617:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:619:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:621:36: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:705:48: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:776:13: F841 local variable 'VL' is assigned to but never used
+- viking_girlfriend_skill/scripts/vordur.py:1187:32: E127 continuation line over-indented for visual indent
+- viking_girlfriend_skill/scripts/vordur.py:1694:9: F841 local variable 'contradiction_records' is assigned to but never used
+
+### Mypy Type Checking Errors
+
+Notable errors include missing `await` for Coroutines, type assignment incompatibilities, and accessing missing attributes on objects.
+
+- viking_girlfriend_skill/scripts/trust_engine.py:588: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/trust_engine.py:764: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/security.py:508: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/security.py:612: error: Incompatible types in assignment (expression has type "frozenset[str]", variable has type "set[str]")  [assignment]
+- viking_girlfriend_skill/scripts/scheduler.py:436: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/project_generator.py:231: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/ethics.py:490: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/dream_engine.py:387: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/runtime_kernel.py:291: error: Cannot infer type of lambda  [misc]
+- viking_girlfriend_skill/scripts/environment_mapper.py:267: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/vordur.py:687: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+- viking_girlfriend_skill/scripts/vordur.py:774: error: Module "scripts.mimir_well" has no attribute "VerdictLabel"  [attr-defined]
+- viking_girlfriend_skill/scripts/vordur.py:1298: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+- viking_girlfriend_skill/scripts/vordur.py:1881: error: Item "None" of "Any | None" has no attribute "complete"  [union-attr]
+- viking_girlfriend_skill/scripts/model_router_client.py:1267: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:430: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:740: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/prompt_synthesizer.py:907: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/memory_store.py:1006: error: Value of type "Coroutine[Any, Any, None]" must be used  [unused-coroutine]
+- viking_girlfriend_skill/scripts/cove_pipeline.py:364: error: Name "draft" already defined on line 318  [no-redef]
+- viking_girlfriend_skill/scripts/main.py:511: error: Incompatible types in assignment (expression has type "BioState", variable has type "WyrdState")  [assignment]
+- viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "phase_name"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "energy_modifier"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:512: error: "WyrdState" has no attribute "narrative_hint"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:520: error: Incompatible types in assignment (expression has type "DreamState", variable has type "WyrdState")  [assignment]
+- viking_girlfriend_skill/scripts/main.py:521: error: "WyrdState" has no attribute "prompt_fragment"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:522: error: "WyrdState" has no attribute "prompt_fragment"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:529: error: Incompatible types in assignment (expression has type "OracleState", variable has type "WyrdState")  [assignment]
+- viking_girlfriend_skill/scripts/main.py:530: error: "WyrdState" has no attribute "prompt_summary"  [attr-defined]
+- viking_girlfriend_skill/scripts/main.py:635: error: Need type annotation for "messages" (hint: "messages: list[<type>] = ...")  [var-annotated]
+
+
+## Recommended Changes
+
+### Unused Coroutines
+Many functions in `viking_girlfriend_skill/scripts/` (e.g. `trust_engine.py`, `security.py`, `scheduler.py`) are coroutines that return Coroutine objects but are never awaited. If the callers are async, `await` should be used. If the callers are synchronous, they must be scheduled via `asyncio.run()`, `asyncio.create_task()`, or an existing event loop.
+
+### Security: Bandit (B310)
+In `viking_girlfriend_skill/data/knowledge_reference/populate.py`, `urllib.request.urlopen` is used without explicitly checking the scheme. Check that the `url` starts with `http://` or `https://` before opening it to avoid Server-Side Request Forgery (SSRF) and Local File Read vulnerabilities.
+
+### Type Issues
+In `viking_girlfriend_skill/scripts/main.py`, assignments map different states (`BioState`, `DreamState`, `OracleState`) into a variable typed/expected as `WyrdState`. A proper union type (e.g., `WyrdState | BioState | DreamState | OracleState`) should be used, or the logic handling these states should be refactored to verify attributes properly via `hasattr()` or `isinstance()`.
+
+In `viking_girlfriend_skill/scripts/vordur.py`, properties such as `complete` are being accessed on values that could be `None`. An `if item is not None:` guard is required before accessing these attributes.
+
+In `viking_girlfriend_skill/scripts/vordur.py`, `VerdictLabel` does not exist on `scripts.mimir_well`.
+
+### Style and Import Errors
+Unused imports (`chromadb`, `json`, `time`, etc.) and unused local variables should be cleaned up. Exception blocks catching `Exception` are overly broad and should log the errors or catch more specific errors.
+
+### Research Findings
+- **Bandit B310**: Validating the scheme using `url.startswith(("http://", "https://"))` will fix this finding and appropriately block `file://` or other malicious schemes.
+- **Unused Coroutines (`mypy`)**: In Python, asynchronous functions return Coroutine objects. Failing to `await` them leads to silent bugs where the operation is never performed. The solution is either awaiting the coroutine in an `async def` function, using `asyncio.run()`, or creating a task via an event loop.
+- **Broad Exceptions (`pylint W0718`)**: Catching `Exception` is discouraged as it hides bugs and makes debugging harder. The code should catch specific exceptions (like `ValueError`, `TypeError`, `ConnectionError`, etc.) or at least log the traceback.
+
+### External Security Research on B310
+- **OWASP SSRF Risk**: As verified by DeepSource directory and OWASP Top 10 (A10:2021), `urllib.request.urlopen` processes `file://` and `ftp://` schemes by default. When an application accepts a URL directly, an attacker might provide a `file://` scheme to access `/etc/passwd` or internal configuration files on the executing host. This causes a Server-Side Request Forgery (SSRF) and Local File Inclusion (LFI). The accepted remediation is strictly enforcing `url.lower().startswith("http")` before initializing the request.
